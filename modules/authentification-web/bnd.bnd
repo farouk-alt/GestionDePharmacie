@@ -1,0 +1,7 @@
+Bundle-Name: authentification-web
+Bundle-SymbolicName: authentification.web
+Bundle-Version: 1.0.0
+Export-Package: authentification.web.constants
+Provide-Capability:\
+	liferay.language.resources;\
+		resource.bundle.base.name="content.Language"
