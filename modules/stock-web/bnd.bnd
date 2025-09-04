@@ -1,0 +1,7 @@
+Bundle-Name: stock-web
+Bundle-SymbolicName: stock.web
+Bundle-Version: 1.0.0
+Export-Package: stock.web.constants
+Provide-Capability:\
+	liferay.language.resources;\
+		resource.bundle.base.name="content.Language"

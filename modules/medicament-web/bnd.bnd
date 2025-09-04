@@ -1,0 +1,7 @@
+Bundle-Name: medicament-web
+Bundle-SymbolicName: medicament.web
+Bundle-Version: 1.0.0
+Export-Package: medicament.web.constants
+Provide-Capability:\
+	liferay.language.resources;\
+		resource.bundle.base.name="content.Language"

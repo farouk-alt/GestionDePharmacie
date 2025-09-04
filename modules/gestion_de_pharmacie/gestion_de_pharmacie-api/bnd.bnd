@@ -1,0 +1,10 @@
+Bundle-Name: gestion_de_pharmacie-api
+Bundle-SymbolicName: gestion_de_pharmacie.api
+Bundle-Version: 1.0.0
+Export-Package:\
+	gestion_de_pharmacie.exception,\
+	gestion_de_pharmacie.model,\
+	gestion_de_pharmacie.service,\
+	gestion_de_pharmacie.service.persistence
+-check: EXPORTS
+-includeresource: META-INF/service.xml=../gestion_de_pharmacie-service/service.xml

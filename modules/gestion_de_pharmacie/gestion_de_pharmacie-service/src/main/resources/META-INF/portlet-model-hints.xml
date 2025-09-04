@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+
+<model-hints>
+	<model name="gestion_de_pharmacie.model.Commande">
+		<field name="idCommande" type="long" />
+		<field name="idFournisseur" type="long" />
+		<field name="dateCommande" type="Date" />
+		<field name="statut" type="String" />
+		<field name="montantTotal" type="double" />
+	</model>
+	<model name="gestion_de_pharmacie.model.CommandeDetail">
+		<field name="idDetail" type="long" />
+		<field name="idCommande" type="long" />
+		<field name="idMedicament" type="long" />
+		<field name="quantite" type="int" />
+		<field name="prixUnitaire" type="double" />
+	</model>
+	<model name="gestion_de_pharmacie.model.Fournisseur">
+		<field name="idFournisseur" type="long" />
+		<field name="nom" type="String" />
+		<field name="adresse" type="String" />
+		<field name="telephone" type="String" />
+		<field name="email" type="String" />
+	</model>
+	<model name="gestion_de_pharmacie.model.Medicament">
+		<field name="idMedicament" type="long" />
+		<field name="code" type="String" />
+		<field name="nom" type="String" />
+		<field name="description" type="String" />
+		<field name="categorie" type="String" />
+		<field name="prixUnitaire" type="double" />
+		<field name="seuilMinimum" type="int" />
+		<field name="dateAjout" type="Date" />
+	</model>
+	<model name="gestion_de_pharmacie.model.MouvementStock">
+		<field name="idMouvement" type="long" />
+		<field name="idStock" type="long" />
+		<field name="typeMouvement" type="String" />
+		<field name="quantite" type="int" />
+		<field name="dateMouvement" type="Date" />
+	</model>
+	<model name="gestion_de_pharmacie.model.Notification">
+		<field name="idNotification" type="long" />
+		<field name="idUtilisateur" type="long" />
+		<field name="type" type="String" />
+		<field name="message" type="String" />
+		<field name="statut" type="String" />
+		<field name="dateCreation" type="Date" />
+	</model>
+	<model name="gestion_de_pharmacie.model.Stock">
+		<field name="idStock" type="long" />
+		<field name="idMedicament" type="long" />
+		<field name="quantiteDisponible" type="int" />
+		<field name="dateDerniereMaj" type="Date" />
+	</model>
+	<model name="gestion_de_pharmacie.model.Utilisateur">
+		<field name="idUtilisateur" type="long" />
+		<field name="nom" type="String" />
+		<field name="prenom" type="String" />
+		<field name="email" type="String" />
+		<field name="motDePasse" type="String" />
+		<field name="role" type="String" />
+		<field name="dateCreation" type="Date" />
+	</model>
+	<model name="gestion_de_pharmacie.model.Vente">
+		<field name="idVente" type="long" />
+		<field name="idUtilisateur" type="long" />
+		<field name="dateVente" type="Date" />
+		<field name="montantTotal" type="double" />
+	</model>
+	<model name="gestion_de_pharmacie.model.VenteDetail">
+		<field name="idDetail" type="long" />
+		<field name="idVente" type="long" />
+		<field name="idMedicament" type="long" />
+		<field name="quantite" type="int" />
+		<field name="prixUnitaire" type="double" />
+		<field name="sousTotal" type="double" />
+	</model>
+</model-hints>

@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<!DOCTYPE service-builder PUBLIC "-//Liferay//DTD Service Builder 7.4.0//EN" "http://www.liferay.com/dtd/liferay-service-builder_7_4_0.dtd">
+
+<service-builder dependency-injector="ds" package-path="gestion_de_pharmacie">
+    <author>Farouk</author>
+    <namespace>Pharma</namespace>
+    <entity name="Utilisateur" local-service="true" remote-service="true">
+        <column name="idUtilisateur" type="long" primary="true" />
+        <column name="nom" type="String" />
+        <column name="prenom" type="String" />
+        <column name="email" type="String" />
+        <column name="motDePasse" type="String" />
+        <column name="role" type="String" />
+        <column name="dateCreation" type="Date" />
+    </entity>
+
+    <entity name="Medicament" local-service="true" remote-service="true">
+        <column name="idMedicament" type="long" primary="true" />
+        <column name="code" type="String" />
+        <column name="nom" type="String" />
+        <column name="description" type="String" />
+        <column name="categorie" type="String" />
+        <column name="prixUnitaire" type="double" />
+        <column name="seuilMinimum" type="int" />
+        <column name="dateAjout" type="Date" />
+        <finder name="Nom" return-type="Collection">
+            <finder-column name="nom" />
+        </finder>
+        <finder name="Categorie" return-type="Collection">
+            <finder-column name="categorie" />
+        </finder>
+
+    </entity>
+
+    <entity name="Stock" local-service="true" remote-service="true">
+        <column name="idStock" type="long" primary="true" />
+        <column name="idMedicament" type="long" />
+        <column name="quantiteDisponible" type="int" />
+        <column name="dateDerniereMaj" type="Date" />
+    </entity>
+
+    <entity name="Vente" local-service="true" remote-service="true">
+        <column name="idVente" type="long" primary="true" />
+        <column name="idUtilisateur" type="long" />
+        <column name="dateVente" type="Date" />
+        <column name="montantTotal" type="double" />
+    </entity>
+
+    <entity name="VenteDetail" local-service="true" remote-service="true">
+        <column name="idDetail" type="long" primary="true" />
+        <column name="idVente" type="long" />
+        <column name="idMedicament" type="long" />
+        <column name="quantite" type="int" />
+        <column name="prixUnitaire" type="double" />
+        <column name="sousTotal" type="double" />
+    </entity>
+
+    <entity name="Fournisseur" local-service="true" remote-service="true">
+        <column name="idFournisseur" type="long" primary="true" />
+        <column name="nom" type="String" />
+        <column name="adresse" type="String" />
+        <column name="telephone" type="String" />
+        <column name="email" type="String" />
+    </entity>
+
+    <entity name="Commande" local-service="true" remote-service="true">
+        <column name="idCommande" type="long" primary="true" />
+        <column name="idFournisseur" type="long" />
+        <column name="dateCommande" type="Date" />
+        <column name="statut" type="String" />
+        <column name="montantTotal" type="double" />
+    </entity>
+
+    <entity name="CommandeDetail" local-service="true" remote-service="true">
+        <column name="idDetail" type="long" primary="true" />
+        <column name="idCommande" type="long" />
+        <column name="idMedicament" type="long" />
+        <column name="quantite" type="int" />
+        <column name="prixUnitaire" type="double" />
+    </entity>
+
+    <entity name="Notification" local-service="true" remote-service="true">
+        <column name="idNotification" type="long" primary="true" />
+        <column name="idUtilisateur" type="long" />
+        <column name="type" type="String" />
+        <column name="message" type="String" />
+        <column name="statut" type="String" />
+        <column name="dateCreation" type="Date" />
+    </entity>
+
+    <entity name="MouvementStock" local-service="true" remote-service="true">
+        <column name="idMouvement" type="long" primary="true" />
+        <column name="idStock" type="long" />
+        <column name="typeMouvement" type="String" />
+        <column name="quantite" type="int" />
+        <column name="dateMouvement" type="Date" />
+    </entity>
+
+</service-builder>

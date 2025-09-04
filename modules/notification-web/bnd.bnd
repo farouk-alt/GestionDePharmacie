@@ -1,0 +1,7 @@
+Bundle-Name: notification-web
+Bundle-SymbolicName: notification.web
+Bundle-Version: 1.0.0
+Export-Package: notification.web.constants
+Provide-Capability:\
+	liferay.language.resources;\
+		resource.bundle.base.name="content.Language"
