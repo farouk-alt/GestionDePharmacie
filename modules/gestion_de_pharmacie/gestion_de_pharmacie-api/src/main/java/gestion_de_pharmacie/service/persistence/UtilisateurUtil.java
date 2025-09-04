@@ -112,6 +112,64 @@ public class UtilisateurUtil {
 	}
 
 	/**
+	 * Returns the utilisateur where email = &#63; or throws a <code>NoSuchUtilisateurException</code> if it could not be found.
+	 *
+	 * @param email the email
+	 * @return the matching utilisateur
+	 * @throws NoSuchUtilisateurException if a matching utilisateur could not be found
+	 */
+	public static Utilisateur findByEmail(String email)
+		throws gestion_de_pharmacie.exception.NoSuchUtilisateurException {
+
+		return getPersistence().findByEmail(email);
+	}
+
+	/**
+	 * Returns the utilisateur where email = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 *
+	 * @param email the email
+	 * @return the matching utilisateur, or <code>null</code> if a matching utilisateur could not be found
+	 */
+	public static Utilisateur fetchByEmail(String email) {
+		return getPersistence().fetchByEmail(email);
+	}
+
+	/**
+	 * Returns the utilisateur where email = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 *
+	 * @param email the email
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the matching utilisateur, or <code>null</code> if a matching utilisateur could not be found
+	 */
+	public static Utilisateur fetchByEmail(
+		String email, boolean useFinderCache) {
+
+		return getPersistence().fetchByEmail(email, useFinderCache);
+	}
+
+	/**
+	 * Removes the utilisateur where email = &#63; from the database.
+	 *
+	 * @param email the email
+	 * @return the utilisateur that was removed
+	 */
+	public static Utilisateur removeByEmail(String email)
+		throws gestion_de_pharmacie.exception.NoSuchUtilisateurException {
+
+		return getPersistence().removeByEmail(email);
+	}
+
+	/**
+	 * Returns the number of utilisateurs where email = &#63;.
+	 *
+	 * @param email the email
+	 * @return the number of matching utilisateurs
+	 */
+	public static int countByEmail(String email) {
+		return getPersistence().countByEmail(email);
+	}
+
+	/**
 	 * Caches the utilisateur in the entity cache if it is enabled.
 	 *
 	 * @param utilisateur the utilisateur

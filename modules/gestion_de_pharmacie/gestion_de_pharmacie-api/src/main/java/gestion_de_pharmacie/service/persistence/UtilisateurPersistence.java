@@ -34,6 +34,50 @@ public interface UtilisateurPersistence extends BasePersistence<Utilisateur> {
 	 */
 
 	/**
+	 * Returns the utilisateur where email = &#63; or throws a <code>NoSuchUtilisateurException</code> if it could not be found.
+	 *
+	 * @param email the email
+	 * @return the matching utilisateur
+	 * @throws NoSuchUtilisateurException if a matching utilisateur could not be found
+	 */
+	public Utilisateur findByEmail(String email)
+		throws NoSuchUtilisateurException;
+
+	/**
+	 * Returns the utilisateur where email = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 *
+	 * @param email the email
+	 * @return the matching utilisateur, or <code>null</code> if a matching utilisateur could not be found
+	 */
+	public Utilisateur fetchByEmail(String email);
+
+	/**
+	 * Returns the utilisateur where email = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 *
+	 * @param email the email
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the matching utilisateur, or <code>null</code> if a matching utilisateur could not be found
+	 */
+	public Utilisateur fetchByEmail(String email, boolean useFinderCache);
+
+	/**
+	 * Removes the utilisateur where email = &#63; from the database.
+	 *
+	 * @param email the email
+	 * @return the utilisateur that was removed
+	 */
+	public Utilisateur removeByEmail(String email)
+		throws NoSuchUtilisateurException;
+
+	/**
+	 * Returns the number of utilisateurs where email = &#63;.
+	 *
+	 * @param email the email
+	 * @return the number of matching utilisateurs
+	 */
+	public int countByEmail(String email);
+
+	/**
 	 * Caches the utilisateur in the entity cache if it is enabled.
 	 *
 	 * @param utilisateur the utilisateur

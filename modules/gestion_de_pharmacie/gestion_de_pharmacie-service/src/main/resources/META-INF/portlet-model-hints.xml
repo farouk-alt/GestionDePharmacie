@@ -55,6 +55,7 @@
 	</model>
 	<model name="gestion_de_pharmacie.model.Utilisateur">
 		<field name="idUtilisateur" type="long" />
+		<field name="liferayUserId" type="long" />
 		<field name="nom" type="String" />
 		<field name="prenom" type="String" />
 		<field name="email" type="String" />

@@ -34,6 +34,7 @@ public class UtilisateurWrapper
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
 		attributes.put("idUtilisateur", getIdUtilisateur());
+		attributes.put("liferayUserId", getLiferayUserId());
 		attributes.put("nom", getNom());
 		attributes.put("prenom", getPrenom());
 		attributes.put("email", getEmail());
@@ -50,6 +51,12 @@ public class UtilisateurWrapper
 
 		if (idUtilisateur != null) {
 			setIdUtilisateur(idUtilisateur);
+		}
+
+		Long liferayUserId = (Long)attributes.get("liferayUserId");
+
+		if (liferayUserId != null) {
+			setLiferayUserId(liferayUserId);
 		}
 
 		String nom = (String)attributes.get("nom");
@@ -122,6 +129,26 @@ public class UtilisateurWrapper
 	@Override
 	public long getIdUtilisateur() {
 		return model.getIdUtilisateur();
+	}
+
+	/**
+	 * Returns the liferay user ID of this utilisateur.
+	 *
+	 * @return the liferay user ID of this utilisateur
+	 */
+	@Override
+	public long getLiferayUserId() {
+		return model.getLiferayUserId();
+	}
+
+	/**
+	 * Returns the liferay user uuid of this utilisateur.
+	 *
+	 * @return the liferay user uuid of this utilisateur
+	 */
+	@Override
+	public String getLiferayUserUuid() {
+		return model.getLiferayUserUuid();
 	}
 
 	/**
@@ -207,6 +234,26 @@ public class UtilisateurWrapper
 	@Override
 	public void setIdUtilisateur(long idUtilisateur) {
 		model.setIdUtilisateur(idUtilisateur);
+	}
+
+	/**
+	 * Sets the liferay user ID of this utilisateur.
+	 *
+	 * @param liferayUserId the liferay user ID of this utilisateur
+	 */
+	@Override
+	public void setLiferayUserId(long liferayUserId) {
+		model.setLiferayUserId(liferayUserId);
+	}
+
+	/**
+	 * Sets the liferay user uuid of this utilisateur.
+	 *
+	 * @param liferayUserUuid the liferay user uuid of this utilisateur
+	 */
+	@Override
+	public void setLiferayUserUuid(String liferayUserUuid) {
+		model.setLiferayUserUuid(liferayUserUuid);
 	}
 
 	/**

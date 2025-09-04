@@ -9,11 +9,14 @@ import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.model.CacheModel;
 import com.liferay.portal.kernel.model.ModelWrapper;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 
@@ -59,10 +62,10 @@ public class UtilisateurModelImpl
 	public static final String TABLE_NAME = "Pharma_Utilisateur";
 
 	public static final Object[][] TABLE_COLUMNS = {
-		{"idUtilisateur", Types.BIGINT}, {"nom", Types.VARCHAR},
-		{"prenom", Types.VARCHAR}, {"email", Types.VARCHAR},
-		{"motDePasse", Types.VARCHAR}, {"role_", Types.VARCHAR},
-		{"dateCreation", Types.TIMESTAMP}
+		{"idUtilisateur", Types.BIGINT}, {"liferayUserId", Types.BIGINT},
+		{"nom", Types.VARCHAR}, {"prenom", Types.VARCHAR},
+		{"email", Types.VARCHAR}, {"motDePasse", Types.VARCHAR},
+		{"role_", Types.VARCHAR}, {"dateCreation", Types.TIMESTAMP}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -70,6 +73,7 @@ public class UtilisateurModelImpl
 
 	static {
 		TABLE_COLUMNS_MAP.put("idUtilisateur", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("liferayUserId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("nom", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("prenom", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("email", Types.VARCHAR);
@@ -79,7 +83,7 @@ public class UtilisateurModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table Pharma_Utilisateur (idUtilisateur LONG not null primary key,nom VARCHAR(75) null,prenom VARCHAR(75) null,email VARCHAR(75) null,motDePasse VARCHAR(75) null,role_ VARCHAR(75) null,dateCreation DATE null)";
+		"create table Pharma_Utilisateur (idUtilisateur LONG not null primary key,liferayUserId LONG,nom VARCHAR(75) null,prenom VARCHAR(75) null,email VARCHAR(75) null,motDePasse VARCHAR(75) null,role_ VARCHAR(75) null,dateCreation DATE null)";
 
 	public static final String TABLE_SQL_DROP = "drop table Pharma_Utilisateur";
 
@@ -96,11 +100,17 @@ public class UtilisateurModelImpl
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
 	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)}
+	 */
+	@Deprecated
+	public static final long EMAIL_COLUMN_BITMASK = 1L;
+
+	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
 	 *		#getColumnBitmask(String)}
 	 */
 	@Deprecated
-	public static final long IDUTILISATEUR_COLUMN_BITMASK = 1L;
+	public static final long IDUTILISATEUR_COLUMN_BITMASK = 2L;
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
@@ -213,6 +223,8 @@ public class UtilisateurModelImpl
 
 			attributeGetterFunctions.put(
 				"idUtilisateur", Utilisateur::getIdUtilisateur);
+			attributeGetterFunctions.put(
+				"liferayUserId", Utilisateur::getLiferayUserId);
 			attributeGetterFunctions.put("nom", Utilisateur::getNom);
 			attributeGetterFunctions.put("prenom", Utilisateur::getPrenom);
 			attributeGetterFunctions.put("email", Utilisateur::getEmail);
@@ -240,6 +252,9 @@ public class UtilisateurModelImpl
 			attributeSetterBiConsumers.put(
 				"idUtilisateur",
 				(BiConsumer<Utilisateur, Long>)Utilisateur::setIdUtilisateur);
+			attributeSetterBiConsumers.put(
+				"liferayUserId",
+				(BiConsumer<Utilisateur, Long>)Utilisateur::setLiferayUserId);
 			attributeSetterBiConsumers.put(
 				"nom", (BiConsumer<Utilisateur, String>)Utilisateur::setNom);
 			attributeSetterBiConsumers.put(
@@ -276,6 +291,37 @@ public class UtilisateurModelImpl
 		}
 
 		_idUtilisateur = idUtilisateur;
+	}
+
+	@JSON
+	@Override
+	public long getLiferayUserId() {
+		return _liferayUserId;
+	}
+
+	@Override
+	public void setLiferayUserId(long liferayUserId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_liferayUserId = liferayUserId;
+	}
+
+	@Override
+	public String getLiferayUserUuid() {
+		try {
+			User user = UserLocalServiceUtil.getUserById(getLiferayUserId());
+
+			return user.getUuid();
+		}
+		catch (PortalException portalException) {
+			return "";
+		}
+	}
+
+	@Override
+	public void setLiferayUserUuid(String liferayUserUuid) {
 	}
 
 	@JSON
@@ -336,6 +382,15 @@ public class UtilisateurModelImpl
 		}
 
 		_email = email;
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
+	public String getOriginalEmail() {
+		return getColumnOriginalValue("email");
 	}
 
 	@JSON
@@ -450,6 +505,7 @@ public class UtilisateurModelImpl
 		UtilisateurImpl utilisateurImpl = new UtilisateurImpl();
 
 		utilisateurImpl.setIdUtilisateur(getIdUtilisateur());
+		utilisateurImpl.setLiferayUserId(getLiferayUserId());
 		utilisateurImpl.setNom(getNom());
 		utilisateurImpl.setPrenom(getPrenom());
 		utilisateurImpl.setEmail(getEmail());
@@ -468,6 +524,8 @@ public class UtilisateurModelImpl
 
 		utilisateurImpl.setIdUtilisateur(
 			this.<Long>getColumnOriginalValue("idUtilisateur"));
+		utilisateurImpl.setLiferayUserId(
+			this.<Long>getColumnOriginalValue("liferayUserId"));
 		utilisateurImpl.setNom(this.<String>getColumnOriginalValue("nom"));
 		utilisateurImpl.setPrenom(
 			this.<String>getColumnOriginalValue("prenom"));
@@ -554,6 +612,8 @@ public class UtilisateurModelImpl
 			new UtilisateurCacheModel();
 
 		utilisateurCacheModel.idUtilisateur = getIdUtilisateur();
+
+		utilisateurCacheModel.liferayUserId = getLiferayUserId();
 
 		utilisateurCacheModel.nom = getNom();
 
@@ -666,6 +726,7 @@ public class UtilisateurModelImpl
 	}
 
 	private long _idUtilisateur;
+	private long _liferayUserId;
 	private String _nom;
 	private String _prenom;
 	private String _email;
@@ -704,6 +765,7 @@ public class UtilisateurModelImpl
 		_columnOriginalValues = new HashMap<String, Object>();
 
 		_columnOriginalValues.put("idUtilisateur", _idUtilisateur);
+		_columnOriginalValues.put("liferayUserId", _liferayUserId);
 		_columnOriginalValues.put("nom", _nom);
 		_columnOriginalValues.put("prenom", _prenom);
 		_columnOriginalValues.put("email", _email);
@@ -735,17 +797,19 @@ public class UtilisateurModelImpl
 
 		columnBitmasks.put("idUtilisateur", 1L);
 
-		columnBitmasks.put("nom", 2L);
+		columnBitmasks.put("liferayUserId", 2L);
 
-		columnBitmasks.put("prenom", 4L);
+		columnBitmasks.put("nom", 4L);
 
-		columnBitmasks.put("email", 8L);
+		columnBitmasks.put("prenom", 8L);
 
-		columnBitmasks.put("motDePasse", 16L);
+		columnBitmasks.put("email", 16L);
 
-		columnBitmasks.put("role_", 32L);
+		columnBitmasks.put("motDePasse", 32L);
 
-		columnBitmasks.put("dateCreation", 64L);
+		columnBitmasks.put("role_", 64L);
+
+		columnBitmasks.put("dateCreation", 128L);
 
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}

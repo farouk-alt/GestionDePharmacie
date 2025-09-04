@@ -12,6 +12,8 @@ import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.transaction.Propagation;
@@ -116,6 +118,8 @@ public class UtilisateurPersistenceTest {
 
 		Utilisateur newUtilisateur = _persistence.create(pk);
 
+		newUtilisateur.setLiferayUserId(RandomTestUtil.nextLong());
+
 		newUtilisateur.setNom(RandomTestUtil.randomString());
 
 		newUtilisateur.setPrenom(RandomTestUtil.randomString());
@@ -137,6 +141,9 @@ public class UtilisateurPersistenceTest {
 			existingUtilisateur.getIdUtilisateur(),
 			newUtilisateur.getIdUtilisateur());
 		Assert.assertEquals(
+			existingUtilisateur.getLiferayUserId(),
+			newUtilisateur.getLiferayUserId());
+		Assert.assertEquals(
 			existingUtilisateur.getNom(), newUtilisateur.getNom());
 		Assert.assertEquals(
 			existingUtilisateur.getPrenom(), newUtilisateur.getPrenom());
@@ -150,6 +157,15 @@ public class UtilisateurPersistenceTest {
 		Assert.assertEquals(
 			Time.getShortTimestamp(existingUtilisateur.getDateCreation()),
 			Time.getShortTimestamp(newUtilisateur.getDateCreation()));
+	}
+
+	@Test
+	public void testCountByEmail() throws Exception {
+		_persistence.countByEmail("");
+
+		_persistence.countByEmail("null");
+
+		_persistence.countByEmail((String)null);
 	}
 
 	@Test
@@ -177,9 +193,9 @@ public class UtilisateurPersistenceTest {
 
 	protected OrderByComparator<Utilisateur> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create(
-			"Pharma_Utilisateur", "idUtilisateur", true, "nom", true, "prenom",
-			true, "email", true, "motDePasse", true, "role", true,
-			"dateCreation", true);
+			"Pharma_Utilisateur", "idUtilisateur", true, "liferayUserId", true,
+			"nom", true, "prenom", true, "email", true, "motDePasse", true,
+			"role", true, "dateCreation", true);
 	}
 
 	@Test
@@ -391,10 +407,70 @@ public class UtilisateurPersistenceTest {
 		Assert.assertEquals(0, result.size());
 	}
 
+	@Test
+	public void testResetOriginalValues() throws Exception {
+		Utilisateur newUtilisateur = addUtilisateur();
+
+		_persistence.clearCache();
+
+		_assertOriginalValues(
+			_persistence.findByPrimaryKey(newUtilisateur.getPrimaryKey()));
+	}
+
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromDatabase()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(true);
+	}
+
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromSession()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(false);
+	}
+
+	private void _testResetOriginalValuesWithDynamicQuery(boolean clearSession)
+		throws Exception {
+
+		Utilisateur newUtilisateur = addUtilisateur();
+
+		if (clearSession) {
+			Session session = _persistence.openSession();
+
+			session.flush();
+
+			session.clear();
+		}
+
+		DynamicQuery dynamicQuery = DynamicQueryFactoryUtil.forClass(
+			Utilisateur.class, _dynamicQueryClassLoader);
+
+		dynamicQuery.add(
+			RestrictionsFactoryUtil.eq(
+				"idUtilisateur", newUtilisateur.getIdUtilisateur()));
+
+		List<Utilisateur> result = _persistence.findWithDynamicQuery(
+			dynamicQuery);
+
+		_assertOriginalValues(result.get(0));
+	}
+
+	private void _assertOriginalValues(Utilisateur utilisateur) {
+		Assert.assertEquals(
+			utilisateur.getEmail(),
+			ReflectionTestUtil.invoke(
+				utilisateur, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "email"));
+	}
+
 	protected Utilisateur addUtilisateur() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
 		Utilisateur utilisateur = _persistence.create(pk);
+
+		utilisateur.setLiferayUserId(RandomTestUtil.nextLong());
 
 		utilisateur.setNom(RandomTestUtil.randomString());
 

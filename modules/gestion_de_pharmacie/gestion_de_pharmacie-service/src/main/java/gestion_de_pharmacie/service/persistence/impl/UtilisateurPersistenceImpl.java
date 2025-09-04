@@ -11,6 +11,7 @@ import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
+import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.SessionFactory;
@@ -21,6 +22,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 
 import gestion_de_pharmacie.exception.NoSuchUtilisateurException;
@@ -36,9 +38,12 @@ import gestion_de_pharmacie.service.persistence.impl.constants.PharmaPersistence
 
 import java.io.Serializable;
 
+import java.lang.reflect.InvocationHandler;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -79,6 +84,184 @@ public class UtilisateurPersistenceImpl
 	private FinderPath _finderPathWithPaginationFindAll;
 	private FinderPath _finderPathWithoutPaginationFindAll;
 	private FinderPath _finderPathCountAll;
+	private FinderPath _finderPathFetchByEmail;
+
+	/**
+	 * Returns the utilisateur where email = &#63; or throws a <code>NoSuchUtilisateurException</code> if it could not be found.
+	 *
+	 * @param email the email
+	 * @return the matching utilisateur
+	 * @throws NoSuchUtilisateurException if a matching utilisateur could not be found
+	 */
+	@Override
+	public Utilisateur findByEmail(String email)
+		throws NoSuchUtilisateurException {
+
+		Utilisateur utilisateur = fetchByEmail(email);
+
+		if (utilisateur == null) {
+			StringBundler sb = new StringBundler(4);
+
+			sb.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+			sb.append("email=");
+			sb.append(email);
+
+			sb.append("}");
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(sb.toString());
+			}
+
+			throw new NoSuchUtilisateurException(sb.toString());
+		}
+
+		return utilisateur;
+	}
+
+	/**
+	 * Returns the utilisateur where email = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 *
+	 * @param email the email
+	 * @return the matching utilisateur, or <code>null</code> if a matching utilisateur could not be found
+	 */
+	@Override
+	public Utilisateur fetchByEmail(String email) {
+		return fetchByEmail(email, true);
+	}
+
+	/**
+	 * Returns the utilisateur where email = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 *
+	 * @param email the email
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the matching utilisateur, or <code>null</code> if a matching utilisateur could not be found
+	 */
+	@Override
+	public Utilisateur fetchByEmail(String email, boolean useFinderCache) {
+		email = Objects.toString(email, "");
+
+		Object[] finderArgs = null;
+
+		if (useFinderCache) {
+			finderArgs = new Object[] {email};
+		}
+
+		Object result = null;
+
+		if (useFinderCache) {
+			result = finderCache.getResult(
+				_finderPathFetchByEmail, finderArgs, this);
+		}
+
+		if (result instanceof Utilisateur) {
+			Utilisateur utilisateur = (Utilisateur)result;
+
+			if (!Objects.equals(email, utilisateur.getEmail())) {
+				result = null;
+			}
+		}
+
+		if (result == null) {
+			StringBundler sb = new StringBundler(3);
+
+			sb.append(_SQL_SELECT_UTILISATEUR_WHERE);
+
+			boolean bindEmail = false;
+
+			if (email.isEmpty()) {
+				sb.append(_FINDER_COLUMN_EMAIL_EMAIL_3);
+			}
+			else {
+				bindEmail = true;
+
+				sb.append(_FINDER_COLUMN_EMAIL_EMAIL_2);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindEmail) {
+					queryPos.add(email);
+				}
+
+				List<Utilisateur> list = query.list();
+
+				if (list.isEmpty()) {
+					if (useFinderCache) {
+						finderCache.putResult(
+							_finderPathFetchByEmail, finderArgs, list);
+					}
+				}
+				else {
+					Utilisateur utilisateur = list.get(0);
+
+					result = utilisateur;
+
+					cacheResult(utilisateur);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		if (result instanceof List<?>) {
+			return null;
+		}
+		else {
+			return (Utilisateur)result;
+		}
+	}
+
+	/**
+	 * Removes the utilisateur where email = &#63; from the database.
+	 *
+	 * @param email the email
+	 * @return the utilisateur that was removed
+	 */
+	@Override
+	public Utilisateur removeByEmail(String email)
+		throws NoSuchUtilisateurException {
+
+		Utilisateur utilisateur = findByEmail(email);
+
+		return remove(utilisateur);
+	}
+
+	/**
+	 * Returns the number of utilisateurs where email = &#63;.
+	 *
+	 * @param email the email
+	 * @return the number of matching utilisateurs
+	 */
+	@Override
+	public int countByEmail(String email) {
+		Utilisateur utilisateur = fetchByEmail(email);
+
+		if (utilisateur == null) {
+			return 0;
+		}
+
+		return 1;
+	}
+
+	private static final String _FINDER_COLUMN_EMAIL_EMAIL_2 =
+		"utilisateur.email = ?";
+
+	private static final String _FINDER_COLUMN_EMAIL_EMAIL_3 =
+		"(utilisateur.email IS NULL OR utilisateur.email = '')";
 
 	public UtilisateurPersistenceImpl() {
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
@@ -104,6 +287,10 @@ public class UtilisateurPersistenceImpl
 	public void cacheResult(Utilisateur utilisateur) {
 		entityCache.putResult(
 			UtilisateurImpl.class, utilisateur.getPrimaryKey(), utilisateur);
+
+		finderCache.putResult(
+			_finderPathFetchByEmail, new Object[] {utilisateur.getEmail()},
+			utilisateur);
 	}
 
 	private int _valueObjectFinderCacheListThreshold;
@@ -172,6 +359,15 @@ public class UtilisateurPersistenceImpl
 		for (Serializable primaryKey : primaryKeys) {
 			entityCache.removeResult(UtilisateurImpl.class, primaryKey);
 		}
+	}
+
+	protected void cacheUniqueFindersCache(
+		UtilisateurModelImpl utilisateurModelImpl) {
+
+		Object[] args = new Object[] {utilisateurModelImpl.getEmail()};
+
+		finderCache.putResult(
+			_finderPathFetchByEmail, args, utilisateurModelImpl);
 	}
 
 	/**
@@ -279,6 +475,25 @@ public class UtilisateurPersistenceImpl
 	public Utilisateur updateImpl(Utilisateur utilisateur) {
 		boolean isNew = utilisateur.isNew();
 
+		if (!(utilisateur instanceof UtilisateurModelImpl)) {
+			InvocationHandler invocationHandler = null;
+
+			if (ProxyUtil.isProxyClass(utilisateur.getClass())) {
+				invocationHandler = ProxyUtil.getInvocationHandler(utilisateur);
+
+				throw new IllegalArgumentException(
+					"Implement ModelWrapper in utilisateur proxy " +
+						invocationHandler.getClass());
+			}
+
+			throw new IllegalArgumentException(
+				"Implement ModelWrapper in custom Utilisateur implementation " +
+					utilisateur.getClass());
+		}
+
+		UtilisateurModelImpl utilisateurModelImpl =
+			(UtilisateurModelImpl)utilisateur;
+
 		Session session = null;
 
 		try {
@@ -298,7 +513,10 @@ public class UtilisateurPersistenceImpl
 			closeSession(session);
 		}
 
-		entityCache.putResult(UtilisateurImpl.class, utilisateur, false, true);
+		entityCache.putResult(
+			UtilisateurImpl.class, utilisateurModelImpl, false, true);
+
+		cacheUniqueFindersCache(utilisateurModelImpl);
 
 		if (isNew) {
 			utilisateur.setNew(false);
@@ -583,6 +801,11 @@ public class UtilisateurPersistenceImpl
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll",
 			new String[0], new String[0], false);
 
+		_finderPathFetchByEmail = new FinderPath(
+			FINDER_CLASS_NAME_ENTITY, "fetchByEmail",
+			new String[] {String.class.getName()}, new String[] {"email"},
+			true);
+
 		UtilisateurUtil.setPersistence(this);
 	}
 
@@ -628,13 +851,22 @@ public class UtilisateurPersistenceImpl
 	private static final String _SQL_SELECT_UTILISATEUR =
 		"SELECT utilisateur FROM Utilisateur utilisateur";
 
+	private static final String _SQL_SELECT_UTILISATEUR_WHERE =
+		"SELECT utilisateur FROM Utilisateur utilisateur WHERE ";
+
 	private static final String _SQL_COUNT_UTILISATEUR =
 		"SELECT COUNT(utilisateur) FROM Utilisateur utilisateur";
+
+	private static final String _SQL_COUNT_UTILISATEUR_WHERE =
+		"SELECT COUNT(utilisateur) FROM Utilisateur utilisateur WHERE ";
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "utilisateur.";
 
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY =
 		"No Utilisateur exists with the primary key ";
+
+	private static final String _NO_SUCH_ENTITY_WITH_KEY =
+		"No Utilisateur exists with the key {";
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		UtilisateurPersistenceImpl.class);

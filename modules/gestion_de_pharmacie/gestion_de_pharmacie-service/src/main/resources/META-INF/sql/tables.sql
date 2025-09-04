@@ -86,6 +86,7 @@ create table Pharma_Stock (
 
 create table Pharma_Utilisateur (
 	idUtilisateur LONG not null primary key,
+	liferayUserId LONG,
 	nom VARCHAR(75) null,
 	prenom VARCHAR(75) null,
 	email VARCHAR(75) null,

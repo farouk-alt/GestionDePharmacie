@@ -6,12 +6,16 @@
     <namespace>Pharma</namespace>
     <entity name="Utilisateur" local-service="true" remote-service="true">
         <column name="idUtilisateur" type="long" primary="true" />
+        <column name="liferayUserId" type="long" />
         <column name="nom" type="String" />
         <column name="prenom" type="String" />
         <column name="email" type="String" />
         <column name="motDePasse" type="String" />
         <column name="role" type="String" />
         <column name="dateCreation" type="Date" />
+        <finder name="Email" return-type="Entity" unique="true">
+            <finder-column name="email" />
+        </finder>
     </entity>
 
     <entity name="Medicament" local-service="true" remote-service="true">

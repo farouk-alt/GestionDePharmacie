@@ -54,10 +54,12 @@ public class UtilisateurCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(15);
+		StringBundler sb = new StringBundler(17);
 
 		sb.append("{idUtilisateur=");
 		sb.append(idUtilisateur);
+		sb.append(", liferayUserId=");
+		sb.append(liferayUserId);
 		sb.append(", nom=");
 		sb.append(nom);
 		sb.append(", prenom=");
@@ -80,6 +82,7 @@ public class UtilisateurCacheModel
 		UtilisateurImpl utilisateurImpl = new UtilisateurImpl();
 
 		utilisateurImpl.setIdUtilisateur(idUtilisateur);
+		utilisateurImpl.setLiferayUserId(liferayUserId);
 
 		if (nom == null) {
 			utilisateurImpl.setNom("");
@@ -131,6 +134,8 @@ public class UtilisateurCacheModel
 	@Override
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		idUtilisateur = objectInput.readLong();
+
+		liferayUserId = objectInput.readLong();
 		nom = objectInput.readUTF();
 		prenom = objectInput.readUTF();
 		email = objectInput.readUTF();
@@ -142,6 +147,8 @@ public class UtilisateurCacheModel
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(idUtilisateur);
+
+		objectOutput.writeLong(liferayUserId);
 
 		if (nom == null) {
 			objectOutput.writeUTF("");
@@ -182,6 +189,7 @@ public class UtilisateurCacheModel
 	}
 
 	public long idUtilisateur;
+	public long liferayUserId;
 	public String nom;
 	public String prenom;
 	public String email;

@@ -37,6 +37,16 @@ public class UtilisateurLocalServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to <code>gestion_de_pharmacie.service.impl.UtilisateurLocalServiceImpl</code> and rerun ServiceBuilder to regenerate this class.
 	 */
+	public static Utilisateur addUtilisateur(
+			long creatorUserId, long companyId, String email, String motDePasse,
+			String prenom, String nom, String role,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws PortalException {
+
+		return getService().addUtilisateur(
+			creatorUserId, companyId, email, motDePasse, prenom, nom, role,
+			serviceContext);
+	}
 
 	/**
 	 * Adds the utilisateur to the database. Also notifies the appropriate model listeners.
@@ -244,6 +254,10 @@ public class UtilisateurLocalServiceUtil {
 		throws PortalException {
 
 		return getService().getUtilisateur(idUtilisateur);
+	}
+
+	public static Utilisateur getUtilisateurByEmail(String email) {
+		return getService().getUtilisateurByEmail(email);
 	}
 
 	/**

@@ -17,6 +17,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -53,6 +54,11 @@ public interface UtilisateurLocalService
 	 *
 	 * Never modify this interface directly. Add custom service methods to <code>gestion_de_pharmacie.service.impl.UtilisateurLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the utilisateur local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link UtilisateurLocalServiceUtil} if injection and service tracking are not available.
 	 */
+	public Utilisateur addUtilisateur(
+			long creatorUserId, long companyId, String email, String motDePasse,
+			String prenom, String nom, String role,
+			ServiceContext serviceContext)
+		throws PortalException;
 
 	/**
 	 * Adds the utilisateur to the database. Also notifies the appropriate model listeners.
@@ -223,6 +229,9 @@ public interface UtilisateurLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public Utilisateur getUtilisateur(long idUtilisateur)
 		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public Utilisateur getUtilisateurByEmail(String email);
 
 	/**
 	 * Returns a range of all the utilisateurs.

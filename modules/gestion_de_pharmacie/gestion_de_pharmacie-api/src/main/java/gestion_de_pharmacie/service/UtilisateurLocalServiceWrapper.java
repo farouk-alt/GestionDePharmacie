@@ -29,6 +29,18 @@ public class UtilisateurLocalServiceWrapper
 		_utilisateurLocalService = utilisateurLocalService;
 	}
 
+	@Override
+	public gestion_de_pharmacie.model.Utilisateur addUtilisateur(
+			long creatorUserId, long companyId, String email, String motDePasse,
+			String prenom, String nom, String role,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _utilisateurLocalService.addUtilisateur(
+			creatorUserId, companyId, email, motDePasse, prenom, nom, role,
+			serviceContext);
+	}
+
 	/**
 	 * Adds the utilisateur to the database. Also notifies the appropriate model listeners.
 	 *
@@ -274,6 +286,13 @@ public class UtilisateurLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _utilisateurLocalService.getUtilisateur(idUtilisateur);
+	}
+
+	@Override
+	public gestion_de_pharmacie.model.Utilisateur getUtilisateurByEmail(
+		String email) {
+
+		return _utilisateurLocalService.getUtilisateurByEmail(email);
 	}
 
 	/**
