@@ -80,10 +80,7 @@ import gestion_de_pharmacie.model.Medicament;
 import gestion_de_pharmacie.service.MedicamentLocalServiceUtil;
 import medicament.web.constants.MedicamentWebPortletKeys;
 
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-import javax.portlet.Portlet;
-import javax.portlet.PortletException;
+import javax.portlet.*;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -124,6 +121,7 @@ public class MedicamentWebPortlet extends MVCPortlet {
         super.processAction(actionRequest, actionResponse);
     }
 
+    @ProcessAction(name = "ajouterMedicament")
     public void ajouterMedicament(ActionRequest request, ActionResponse response) {
         try {
             String nom = ParamUtil.getString(request, "nom");
@@ -139,9 +137,7 @@ public class MedicamentWebPortlet extends MVCPortlet {
             medicament.setDateAjout(new Date());
 
             MedicamentLocalServiceUtil.addMedicament(medicament);
-
             SessionMessages.add(request, "medicament-added-successfully");
-
 
             _log.info("Medicament added successfully: " + medicament.getNom());
 
@@ -149,4 +145,21 @@ public class MedicamentWebPortlet extends MVCPortlet {
             _log.error("Error adding medicament: " + e.getMessage(), e);
         }
     }
+
+    @ProcessAction(name = "updateMedicament")
+    public void updateMedicament(ActionRequest request, ActionResponse response) throws Exception {
+        long medicamentId = ParamUtil.getLong(request, "medicamentId");
+        String nom = ParamUtil.getString(request, "nom");
+        double prix = ParamUtil.getDouble(request, "prix");
+
+        Medicament medicament = MedicamentLocalServiceUtil.getMedicament(medicamentId);
+        medicament.setNom(nom);
+        medicament.setPrixUnitaire(prix);
+
+        MedicamentLocalServiceUtil.updateMedicament(medicament);
+
+        SessionMessages.add(request, "medicament-updated-successfully");
+        response.setRenderParameter("mvcPath", "/view.jsp");
+    }
+
 }
