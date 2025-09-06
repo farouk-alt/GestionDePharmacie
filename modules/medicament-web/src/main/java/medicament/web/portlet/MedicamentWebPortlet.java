@@ -162,4 +162,22 @@ public class MedicamentWebPortlet extends MVCPortlet {
         response.setRenderParameter("mvcPath", "/view.jsp");
     }
 
+    @ProcessAction(name = "deleteMedicament")
+    public void deleteMedicament(ActionRequest request, ActionResponse response) {
+        try {
+            long medicamentId = ParamUtil.getLong(request, "medicamentId");
+
+            _log.info("Deleting medicament with ID: " + medicamentId);
+
+            MedicamentLocalServiceUtil.deleteMedicament(medicamentId);
+
+            SessionMessages.add(request, "medicament-deleted-successfully");
+
+            _log.info("Medicament deleted successfully: ID " + medicamentId);
+
+        } catch (Exception e) {
+            _log.error("Error deleting medicament: " + e.getMessage(), e);
+        }
+    }
+
 }

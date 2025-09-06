@@ -35,7 +35,16 @@
                 <aui:input name="prix" type="number" step="0.01" value="<%= m.getPrixUnitaire() %>" style="width:80px;"/>
                 <aui:button type="submit" value="Éditer"/>
             </aui:form>
+
+            <portlet:actionURL name="deleteMedicament" var="deleteURL">
+                <portlet:param name="medicamentId" value="<%= String.valueOf(m.getIdMedicament()) %>" />
+            </portlet:actionURL>
+
+            <aui:form action="${deleteURL}" method="post" style="display:inline;" onsubmit="return confirm('Voulez-vous vraiment supprimer ce médicament ?');">
+                <aui:button type="submit" value="Supprimer" cssClass="btn btn-danger btn-sm"/>
+            </aui:form>
         </td>
+
     </tr>
 
     <% } %>
