@@ -56,6 +56,8 @@
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .logout-btn:hover {
@@ -108,24 +110,104 @@
             margin-top: 30px;
         }
 
-        .admin-features {
-            display: flex;
-            gap: 15px;
+        .employee-management {
+            margin-top: 30px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .employee-table {
+            width: 100%;
+            border-collapse: collapse;
             margin-top: 15px;
         }
 
-        .admin-feature {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            flex: 1;
+        .employee-table th, .employee-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .employee-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .employee-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .role-select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            width: 100%;
+        }
+
+        .update-btn {
+            background: #4e54c8;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+        }
+
+        .update-btn:hover {
+            background: #3a3fb8;
+        }
+
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
             text-align: center;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        /* Debug styles */
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
 <div class="dashboard-container">
+    <!-- Debug Info -->
+    <div class="debug-info">
+        <strong>Debug Info:</strong><br>
+        User Role: ${sessionScope.userRole}<br>
+        User Email: ${sessionScope.userEmail}<br>
+        Employees Count: ${not empty employees ? employees.size() : 0}
+    </div>
+
     <div class="dashboard-header">
         <div class="user-info">
             <div class="user-avatar">
@@ -183,29 +265,199 @@
         </div>
     </div>
 
-    <c:if test="${sessionScope.userRole == 'SUPER_ADMIN'}">
+    <c:if test="${sessionScope.userRole == 'SUPER_ADMIN' || sessionScope.userRole == 'ADMIN'}">
         <div class="admin-section">
             <h3><i class="fas fa-shield-alt"></i> Panneau d'Administration</h3>
-            <p>En tant qu'administrateur, vous avez accès aux fonctionnalités avancées.</p>
 
-            <div class="admin-features">
-                <div class="admin-feature">
-                    <h4><i class="fas fa-user-cog"></i> Gestion des Utilisateurs</h4>
-                    <p>Créer, modifier et supprimer des comptes utilisateur.</p>
+            <!-- Display success/error messages -->
+            <c:if test="${not empty successMessage}">
+                <div class="message success">${successMessage}</div>
+            </c:if>
+            <c:if test="${not empty errorMessage}">
+                <div class="message error">${errorMessage}</div>
+            </c:if>
+
+            <div class="employee-management">
+                <h4><i class="fas fa-users-cog"></i> Gestion des Employés</h4>
+
+                <!-- Debug: Show the action URL -->
+                <portlet:actionURL name="switchRole" var="switchRoleURL" />
+                <div class="debug-info">
+                    Action URL: ${switchRoleURL}
                 </div>
 
-                <div class="admin-feature">
-                    <h4><i class="fas fa-tasks"></i> Gestion des Rôles</h4>
-                    <p>Attribuer et modifier les rôles des utilisateurs.</p>
-                </div>
+                <!-- Remove the hidden form since we're using individual forms now -->
+                <!-- <form id="roleUpdateForm" method="post" action="${switchRoleURL}">
+                    <input type="hidden" id="targetUserEmail" name="targetUserEmail" />
+                    <input type="hidden" id="newRole" name="newRole" />
+                </form> -->
 
-                <div class="admin-feature">
-                    <h4><i class="fas fa-cog"></i> Paramètres Système</h4>
-                    <p>Configurer les paramètres de l'application.</p>
+                <c:if test="${not empty employees}">
+                    <table class="employee-table">
+                        <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Email</th>
+                            <th>Rôle Actuel</th>
+                            <th>Nouveau Rôle</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <c:forEach var="employee" items="${employees}">
+                            <tr>
+                                <td>${employee.prenom} ${employee.nom}</td>
+                                <td>${employee.email}</td>
+                                <td>${employee.role}</td>
+                                <td>
+                                    <portlet:actionURL name="switchRole" var="individualSwitchRoleURL" />
+                                    <form method="post" action="${individualSwitchRoleURL}" style="margin: 0; display: inline-block; width: 100%;">
+                                        <input type="hidden" name="targetUserEmail" value="${employee.email}" />
+                                        <select name="newRole" class="role-select" onchange="this.form.style.backgroundColor='#fffacd';">
+                                            <option value="PHARMACIEN" ${employee.role == 'PHARMACIEN' ? 'selected' : ''}>Pharmacien</option>
+                                            <option value="FOURNISSEUR" ${employee.role == 'FOURNISSEUR' ? 'selected' : ''}>Fournisseur</option>
+                                            <c:if test="${sessionScope.userRole == 'SUPER_ADMIN'}">
+                                                <option value="ADMIN" ${employee.role == 'ADMIN' ? 'selected' : ''}>Admin</option>
+                                            </c:if>
+                                        </select>
+                                </td>
+                                <td>
+                                    <button type="submit" class="update-btn" onclick="this.disabled=true; this.form.submit(); return false;">
+                                        Mettre à jour
+                                    </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                        </tbody>
+                    </table>
+                </c:if>
+
+                <c:if test="${empty employees}">
+                    <p>Aucun employé à afficher.</p>
+                </c:if>
+
+                <div class="loading" id="loadingIndicator">
+                    <i class="fas fa-spinner fa-spin"></i> Mise à jour en cours...
                 </div>
             </div>
         </div>
     </c:if>
 </div>
+
+<script>
+    console.log('Script loading...');
+
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM Content Loaded');
+
+        // Check if required elements exist
+        var roleUpdateForm = document.getElementById('roleUpdateForm');
+        var targetUserEmailInput = document.getElementById('targetUserEmail');
+        var newRoleInput = document.getElementById('newRole');
+        var loadingIndicator = document.getElementById('loadingIndicator');
+
+        console.log('Form elements:', {
+            roleUpdateForm: roleUpdateForm,
+            targetUserEmailInput: targetUserEmailInput,
+            newRoleInput: newRoleInput,
+            loadingIndicator: loadingIndicator
+        });
+
+        // Get all update buttons
+        var updateButtons = document.querySelectorAll('.update-btn');
+        console.log('Found update buttons:', updateButtons.length);
+
+        if (updateButtons.length === 0) {
+            console.warn('No update buttons found!');
+            return;
+        }
+
+        updateButtons.forEach(function(button, index) {
+            console.log('Setting up button', index, 'with email:', button.getAttribute('data-email'));
+
+            button.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent any default behavior
+
+                console.log('Button clicked!');
+
+                var email = this.getAttribute('data-email');
+                console.log('Email from button:', email);
+
+                if (!email) {
+                    console.error('No email attribute found on button');
+                    return;
+                }
+
+                var roleSelect = document.getElementById('role-select-' + email);
+                console.log('Role select element:', roleSelect);
+
+                if (!roleSelect) {
+                    console.error('Role select not found for email:', email);
+                    return;
+                }
+
+                var newRole = roleSelect.value;
+                console.log('Selected role:', newRole);
+
+                if (!roleUpdateForm) {
+                    console.error('Role update form not found');
+                    return;
+                }
+
+                // Show loading indicator
+                if (loadingIndicator) {
+                    loadingIndicator.style.display = 'block';
+                }
+
+                // Set form values
+                if (targetUserEmailInput) {
+                    targetUserEmailInput.value = email;
+                    console.log('Set target email:', email);
+                } else {
+                    console.error('Target email input not found');
+                }
+
+                if (newRoleInput) {
+                    newRoleInput.value = newRole;
+                    console.log('Set new role:', newRole);
+                } else {
+                    console.error('New role input not found');
+                }
+
+                console.log('Form action URL:', roleUpdateForm.action);
+                console.log('Form method:', roleUpdateForm.method);
+                console.log('About to submit form...');
+
+                // Add a small delay to see the loading indicator
+                setTimeout(function() {
+                    try {
+                        roleUpdateForm.submit();
+                        console.log('Form submitted successfully');
+                    } catch (error) {
+                        console.error('Error submitting form:', error);
+                        if (loadingIndicator) {
+                            loadingIndicator.style.display = 'none';
+                        }
+                    }
+                }, 100);
+            });
+        });
+
+        // Test button click detection
+        console.log('Click event listeners added to', updateButtons.length, 'buttons');
+
+        // Add a test click listener to document to see if clicks are being registered
+        document.addEventListener('click', function(event) {
+            console.log('Click detected on:', event.target);
+            if (event.target.classList.contains('update-btn')) {
+                console.log('Click on update button detected');
+            }
+        });
+    });
+
+    // Test if script runs at all
+    console.log('Script executed');
+</script>
 </body>
 </html>

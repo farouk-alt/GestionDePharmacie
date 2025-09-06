@@ -2,7 +2,10 @@ package auth.web.portlet;
 
 import auth.web.constants.AuthWebPortletKeys;
 import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.portal.kernel.servlet.SessionErrors;
+import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.ParamUtil;
 import gestion_de_pharmacie.model.Utilisateur;
 import gestion_de_pharmacie.service.UtilisateurLocalServiceUtil;
@@ -12,6 +15,8 @@ import javax.portlet.*;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component(
         property = {
@@ -198,8 +203,10 @@ public class AuthWebPortlet extends MVCPortlet {
 
     // Helper method to check if user is authenticated
     public static boolean isAuthenticated(PortletRequest request) {
-        return request.getPortletSession().getAttribute("currentUser", PortletSession.APPLICATION_SCOPE) != null;
+        Boolean auth = (Boolean) request.getPortletSession().getAttribute("authenticated", PortletSession.APPLICATION_SCOPE);
+        return Boolean.TRUE.equals(auth);
     }
+
 
     // Helper method to get current user
     public static Utilisateur getCurrentUser(PortletRequest request) {
@@ -220,4 +227,61 @@ public class AuthWebPortlet extends MVCPortlet {
             throw new RuntimeException("Error hashing password", e);
         }
     }
+    @ProcessAction(name = "switchRole")
+    public void switchRole(ActionRequest request, ActionResponse response) throws Exception {
+        String targetUserEmail = ParamUtil.getString(request, "targetUserEmail");
+        String newRole = ParamUtil.getString(request, "newRole");
+
+        System.out.println("Switching role for: " + targetUserEmail + " to: " + newRole);
+
+        Utilisateur utilisateur = UtilisateurLocalServiceUtil.getUtilisateurByEmail(targetUserEmail);
+        if (utilisateur != null) {
+            utilisateur.setRole(newRole);
+            UtilisateurLocalServiceUtil.updateUtilisateur(utilisateur);
+
+            PortletSession session = request.getPortletSession();
+            String currentUserEmail = (String) session.getAttribute("userEmail", PortletSession.APPLICATION_SCOPE);
+
+            if (currentUserEmail != null && currentUserEmail.equals(targetUserEmail)) {
+                session.setAttribute("userRole", newRole, PortletSession.APPLICATION_SCOPE);
+            }
+
+            request.setAttribute("successMessage", "Rôle de " + targetUserEmail + " mis à jour avec succès!");
+        } else {
+            request.setAttribute("errorMessage", "Utilisateur non trouvé: " + targetUserEmail);
+        }
+
+        // Return to dashboard
+        response.setRenderParameter("mvcPath", "/dashboard.jsp");
+    }
+
+    public void render(RenderRequest request, RenderResponse response) throws IOException, PortletException {
+        // Check if user is admin or super admin
+        PortletSession session = request.getPortletSession();
+        String userRole = (String) session.getAttribute("userRole", PortletSession.APPLICATION_SCOPE);
+        String userEmail = (String) session.getAttribute("userEmail", PortletSession.APPLICATION_SCOPE);
+
+        if ("SUPER_ADMIN".equals(userRole) || "ADMIN".equals(userRole)) {
+            try {
+                // Get all users
+                List<Utilisateur> allUsers = UtilisateurLocalServiceUtil.getUtilisateurs(-1, -1);
+
+                // Filter out admins, super admins, and current user
+                List<Utilisateur> employees = allUsers.stream()
+                        .filter(user -> !"SUPER_ADMIN".equals(user.getRole()) &&
+                                !"ADMIN".equals(user.getRole()) &&
+                                !user.getEmail().equals(userEmail))
+                        .collect(Collectors.toList());
+
+                request.setAttribute("employees", employees);
+                System.out.println("Found " + employees.size() + " employees to display"); // Debug log
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        super.render(request, response);
+    }
+
+
 }
