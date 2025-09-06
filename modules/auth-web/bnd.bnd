@@ -1,0 +1,7 @@
+Bundle-Name: auth-web
+Bundle-SymbolicName: auth.web
+Bundle-Version: 1.0.0
+Export-Package: auth.web.constants
+Provide-Capability:\
+	liferay.language.resources;\
+		resource.bundle.base.name="content.Language"
