@@ -311,24 +311,22 @@
                                 <td>${employee.role}</td>
                                 <td>
                                     <portlet:actionURL name="switchRole" var="individualSwitchRoleURL" />
-                                    <form method="post" action="${individualSwitchRoleURL}" style="margin: 0; display: inline-block; width: 100%;">
-                                        <input type="hidden" name="targetUserEmail" value="${employee.email}" />
-                                        <select name="newRole" class="role-select" onchange="this.form.style.backgroundColor='#fffacd';">
+                                    <form method="post" action="${individualSwitchRoleURL}" style="margin:0;">
+                                        <input type="hidden" name="<portlet:namespace/>targetUserEmail" value="${employee.email}" />
+                                        <select name="<portlet:namespace/>newRole" class="role-select">
                                             <option value="PHARMACIEN" ${employee.role == 'PHARMACIEN' ? 'selected' : ''}>Pharmacien</option>
                                             <option value="FOURNISSEUR" ${employee.role == 'FOURNISSEUR' ? 'selected' : ''}>Fournisseur</option>
                                             <c:if test="${sessionScope.userRole == 'SUPER_ADMIN'}">
                                                 <option value="ADMIN" ${employee.role == 'ADMIN' ? 'selected' : ''}>Admin</option>
                                             </c:if>
                                         </select>
-                                </td>
-                                <td>
-                                    <button type="submit" class="update-btn" onclick="this.disabled=true; this.form.submit(); return false;">
-                                        Mettre à jour
-                                    </button>
+                                        <button type="submit" class="update-btn">Mettre à jour</button>
                                     </form>
+
                                 </td>
                             </tr>
                         </c:forEach>
+
                         </tbody>
                     </table>
                 </c:if>
@@ -345,119 +343,5 @@
     </c:if>
 </div>
 
-<script>
-    console.log('Script loading...');
-
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM Content Loaded');
-
-        // Check if required elements exist
-        var roleUpdateForm = document.getElementById('roleUpdateForm');
-        var targetUserEmailInput = document.getElementById('targetUserEmail');
-        var newRoleInput = document.getElementById('newRole');
-        var loadingIndicator = document.getElementById('loadingIndicator');
-
-        console.log('Form elements:', {
-            roleUpdateForm: roleUpdateForm,
-            targetUserEmailInput: targetUserEmailInput,
-            newRoleInput: newRoleInput,
-            loadingIndicator: loadingIndicator
-        });
-
-        // Get all update buttons
-        var updateButtons = document.querySelectorAll('.update-btn');
-        console.log('Found update buttons:', updateButtons.length);
-
-        if (updateButtons.length === 0) {
-            console.warn('No update buttons found!');
-            return;
-        }
-
-        updateButtons.forEach(function(button, index) {
-            console.log('Setting up button', index, 'with email:', button.getAttribute('data-email'));
-
-            button.addEventListener('click', function(event) {
-                event.preventDefault(); // Prevent any default behavior
-
-                console.log('Button clicked!');
-
-                var email = this.getAttribute('data-email');
-                console.log('Email from button:', email);
-
-                if (!email) {
-                    console.error('No email attribute found on button');
-                    return;
-                }
-
-                var roleSelect = document.getElementById('role-select-' + email);
-                console.log('Role select element:', roleSelect);
-
-                if (!roleSelect) {
-                    console.error('Role select not found for email:', email);
-                    return;
-                }
-
-                var newRole = roleSelect.value;
-                console.log('Selected role:', newRole);
-
-                if (!roleUpdateForm) {
-                    console.error('Role update form not found');
-                    return;
-                }
-
-                // Show loading indicator
-                if (loadingIndicator) {
-                    loadingIndicator.style.display = 'block';
-                }
-
-                // Set form values
-                if (targetUserEmailInput) {
-                    targetUserEmailInput.value = email;
-                    console.log('Set target email:', email);
-                } else {
-                    console.error('Target email input not found');
-                }
-
-                if (newRoleInput) {
-                    newRoleInput.value = newRole;
-                    console.log('Set new role:', newRole);
-                } else {
-                    console.error('New role input not found');
-                }
-
-                console.log('Form action URL:', roleUpdateForm.action);
-                console.log('Form method:', roleUpdateForm.method);
-                console.log('About to submit form...');
-
-                // Add a small delay to see the loading indicator
-                setTimeout(function() {
-                    try {
-                        roleUpdateForm.submit();
-                        console.log('Form submitted successfully');
-                    } catch (error) {
-                        console.error('Error submitting form:', error);
-                        if (loadingIndicator) {
-                            loadingIndicator.style.display = 'none';
-                        }
-                    }
-                }, 100);
-            });
-        });
-
-        // Test button click detection
-        console.log('Click event listeners added to', updateButtons.length, 'buttons');
-
-        // Add a test click listener to document to see if clicks are being registered
-        document.addEventListener('click', function(event) {
-            console.log('Click detected on:', event.target);
-            if (event.target.classList.contains('update-btn')) {
-                console.log('Click on update button detected');
-            }
-        });
-    });
-
-    // Test if script runs at all
-    console.log('Script executed');
-</script>
 </body>
 </html>
