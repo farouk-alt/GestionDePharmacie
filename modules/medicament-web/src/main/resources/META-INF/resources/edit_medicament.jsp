@@ -3,12 +3,18 @@
 <%@ page import="gestion_de_pharmacie.service.MedicamentLocalServiceUtil" %>
 
 <%
-  long medicamentId = Long.parseLong(request.getParameter("medicamentId"));
-  Medicament medicament = MedicamentLocalServiceUtil.getMedicament(medicamentId);
+  String medicamentIdParam = request.getParameter("medicamentId");
+  Medicament medicament = null;
+
+  if (medicamentIdParam != null && !medicamentIdParam.isEmpty()) {
+    long medicamentId = Long.parseLong(medicamentIdParam);
+    medicament = MedicamentLocalServiceUtil.getMedicament(medicamentId);
+  }
 %>
 
 <h2>Modifier Médicament</h2>
 
+<% if (medicament != null) { %>
 <portlet:actionURL name="updateMedicament" var="updateMedicamentURL" />
 
 <aui:form action="${updateMedicamentURL}" method="post" name="fm">
@@ -17,3 +23,6 @@
   <aui:input name="prix" label="Prix Unitaire" type="number" step="0.01" value="<%= medicament.getPrixUnitaire() %>" />
   <aui:button type="submit" value="Mettre à jour" />
 </aui:form>
+<% } else { %>
+<p>Aucun médicament sélectionné pour modification.</p>
+<% } %>
