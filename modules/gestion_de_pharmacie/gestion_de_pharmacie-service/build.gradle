@@ -1,0 +1,13 @@
+dependencies {
+	api project(":modules:gestion_de_pharmacie:gestion_de_pharmacie-api")
+
+	compileOnly group: "com.liferay.portal", name: "release.dxp.api"
+
+}
+
+buildService {
+	apiDir = "../gestion_de_pharmacie-api/src/main/java"
+	testDir = "../gestion_de_pharmacie-test/src/testIntegration/java"
+}
+
+group = "gestion_de_pharmacie"

@@ -1,0 +1,7 @@
+Bundle-Name: vente-web
+Bundle-SymbolicName: vente.web
+Bundle-Version: 1.0.0
+Export-Package: vente.web.constants
+Provide-Capability:\
+	liferay.language.resources;\
+		resource.bundle.base.name="content.Language"
