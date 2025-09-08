@@ -62,8 +62,6 @@
 
 <h3>Ajouter un Médicament</h3>
 
-<h3>Ajouter un Médicament</h3>
-
 <portlet:actionURL name="ajouterMedicament" var="addMedicamentURL" />
 
 <aui:form action="${addMedicamentURL}" method="post" name="fm">
