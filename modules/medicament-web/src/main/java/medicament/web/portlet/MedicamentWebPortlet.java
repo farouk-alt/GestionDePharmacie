@@ -126,41 +126,53 @@ public class MedicamentWebPortlet extends MVCPortlet {
         try {
             String nom = ParamUtil.getString(request, "nom");
             double prix = ParamUtil.getDouble(request, "prix");
-
-            _log.info("Creating medicament: " + nom + " with price: " + prix);
+            String description = ParamUtil.getString(request, "description");
+            String categorie = ParamUtil.getString(request, "categorie");
+            int seuilMinimum = ParamUtil.getInteger(request, "seuilMinimum");
 
             Medicament medicament = MedicamentLocalServiceUtil.createMedicament(
                     CounterLocalServiceUtil.increment()
             );
+
             medicament.setNom(nom);
             medicament.setPrixUnitaire(prix);
+            medicament.setDescription(description);
+            medicament.setCategorie(categorie);
+            medicament.setSeuilMinimum(seuilMinimum);
             medicament.setDateAjout(new Date());
 
             MedicamentLocalServiceUtil.addMedicament(medicament);
+
             SessionMessages.add(request, "medicament-added-successfully");
-
-            _log.info("Medicament added successfully: " + medicament.getNom());
-
         } catch (Exception e) {
             _log.error("Error adding medicament: " + e.getMessage(), e);
         }
     }
+
 
     @ProcessAction(name = "updateMedicament")
     public void updateMedicament(ActionRequest request, ActionResponse response) throws Exception {
         long medicamentId = ParamUtil.getLong(request, "medicamentId");
         String nom = ParamUtil.getString(request, "nom");
         double prix = ParamUtil.getDouble(request, "prix");
+        String description = ParamUtil.getString(request, "description");
+        String categorie = ParamUtil.getString(request, "categorie");
+        int seuilMinimum = ParamUtil.getInteger(request, "seuilMinimum");
 
         Medicament medicament = MedicamentLocalServiceUtil.getMedicament(medicamentId);
+
         medicament.setNom(nom);
         medicament.setPrixUnitaire(prix);
+        medicament.setDescription(description);
+        medicament.setCategorie(categorie);
+        medicament.setSeuilMinimum(seuilMinimum);
 
         MedicamentLocalServiceUtil.updateMedicament(medicament);
 
         SessionMessages.add(request, "medicament-updated-successfully");
         response.setRenderParameter("mvcPath", "/view.jsp");
     }
+
 
     @ProcessAction(name = "deleteMedicament")
     public void deleteMedicament(ActionRequest request, ActionResponse response) {

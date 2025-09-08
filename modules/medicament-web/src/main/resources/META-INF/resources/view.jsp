@@ -20,6 +20,10 @@
         <th>Prix</th>
         <th>Date Ajout</th>
         <th>Actions</th>
+        <th>Description</th>
+        <th>Catégorie</th>
+        <th>Seuil Minimum</th>
+
     </tr>
     </thead>
     <tbody>
@@ -31,16 +35,16 @@
         <td><%= m.getNom() %></td>
         <td><%= m.getPrixUnitaire() %></td>
         <td><%= m.getDateAjout() %></td>
+        <td><%= m.getDescription() %></td>
+        <td><%= m.getCategorie() %></td>
+        <td><%= m.getSeuilMinimum() %></td>
         <td>
-        <td>
-            <!-- Edit link -->
             <portlet:renderURL var="editURL">
                 <portlet:param name="mvcPath" value="/edit_medicament.jsp" />
                 <portlet:param name="medicamentId" value="<%= String.valueOf(m.getIdMedicament()) %>" />
             </portlet:renderURL>
             <a href="${editURL}" class="btn btn-primary btn-sm">Éditer</a>
 
-            <!-- Delete Form -->
             <portlet:actionURL name="deleteMedicament" var="deleteURL">
                 <portlet:param name="medicamentId" value="<%= String.valueOf(m.getIdMedicament()) %>" />
             </portlet:actionURL>
@@ -58,13 +62,19 @@
 
 <h3>Ajouter un Médicament</h3>
 
+<h3>Ajouter un Médicament</h3>
+
 <portlet:actionURL name="ajouterMedicament" var="addMedicamentURL" />
 
 <aui:form action="${addMedicamentURL}" method="post" name="fm">
     <aui:input name="nom" label="Nom" />
     <aui:input name="prix" label="Prix Unitaire" type="number" step="0.01" />
+    <aui:input name="description" label="Description" type="textarea" />
+    <aui:input name="categorie" label="Catégorie" />
+    <aui:input name="seuilMinimum" label="Seuil Minimum" type="number" />
     <aui:button type="submit" value="Ajouter" />
 </aui:form>
+
 
 <liferay-ui:success key="medicament-added-successfully" message="Médicament ajouté avec succès !" />
 <liferay-ui:success key="medicament-updated-successfully" message="Médicament mis à jour avec succès !" />
