@@ -61,34 +61,6 @@ public interface UtilisateurModel extends BaseModel<Utilisateur> {
 	public void setIdUtilisateur(long idUtilisateur);
 
 	/**
-	 * Returns the liferay user ID of this utilisateur.
-	 *
-	 * @return the liferay user ID of this utilisateur
-	 */
-	public long getLiferayUserId();
-
-	/**
-	 * Sets the liferay user ID of this utilisateur.
-	 *
-	 * @param liferayUserId the liferay user ID of this utilisateur
-	 */
-	public void setLiferayUserId(long liferayUserId);
-
-	/**
-	 * Returns the liferay user uuid of this utilisateur.
-	 *
-	 * @return the liferay user uuid of this utilisateur
-	 */
-	public String getLiferayUserUuid();
-
-	/**
-	 * Sets the liferay user uuid of this utilisateur.
-	 *
-	 * @param liferayUserUuid the liferay user uuid of this utilisateur
-	 */
-	public void setLiferayUserUuid(String liferayUserUuid);
-
-	/**
 	 * Returns the nom of this utilisateur.
 	 *
 	 * @return the nom of this utilisateur
@@ -176,6 +148,20 @@ public interface UtilisateurModel extends BaseModel<Utilisateur> {
 	 * @param dateCreation the date creation of this utilisateur
 	 */
 	public void setDateCreation(Date dateCreation);
+
+	/**
+	 * Returns the last login of this utilisateur.
+	 *
+	 * @return the last login of this utilisateur
+	 */
+	public Date getLastLogin();
+
+	/**
+	 * Sets the last login of this utilisateur.
+	 *
+	 * @param lastLogin the last login of this utilisateur
+	 */
+	public void setLastLogin(Date lastLogin);
 
 	@Override
 	public Utilisateur cloneWithOriginalValues();

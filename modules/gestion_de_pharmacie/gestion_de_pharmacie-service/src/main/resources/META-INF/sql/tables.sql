@@ -86,13 +86,13 @@ create table Pharma_Stock (
 
 create table Pharma_Utilisateur (
 	idUtilisateur LONG not null primary key,
-	liferayUserId LONG,
 	nom VARCHAR(75) null,
 	prenom VARCHAR(75) null,
 	email VARCHAR(75) null,
 	motDePasse VARCHAR(75) null,
 	role_ VARCHAR(75) null,
-	dateCreation DATE null
+	dateCreation DATE null,
+	lastLogin DATE null
 );
 
 create table Pharma_Vente (

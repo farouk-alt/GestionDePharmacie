@@ -415,7 +415,8 @@
             justify-content: center;
             align-items: center;
             padding: 0;
-            margin: 0;
+            margin-bottom: 2.8%;
+            margin-top: 2.8%;
             width: 100%;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }

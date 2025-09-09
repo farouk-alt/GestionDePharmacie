@@ -84,7 +84,6 @@ public class UtilisateurLocalServiceImpl extends UtilisateurLocalServiceBaseImpl
         long utilisateurId = counterLocalService.increment();
         Utilisateur utilisateur = utilisateurPersistence.create(utilisateurId);
 
-        utilisateur.setLiferayUserId(liferayUser.getUserId());
         utilisateur.setEmail(email);
         utilisateur.setPrenom(prenom);
         utilisateur.setNom(nom);

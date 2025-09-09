@@ -118,8 +118,6 @@ public class UtilisateurPersistenceTest {
 
 		Utilisateur newUtilisateur = _persistence.create(pk);
 
-		newUtilisateur.setLiferayUserId(RandomTestUtil.nextLong());
-
 		newUtilisateur.setNom(RandomTestUtil.randomString());
 
 		newUtilisateur.setPrenom(RandomTestUtil.randomString());
@@ -132,6 +130,8 @@ public class UtilisateurPersistenceTest {
 
 		newUtilisateur.setDateCreation(RandomTestUtil.nextDate());
 
+		newUtilisateur.setLastLogin(RandomTestUtil.nextDate());
+
 		_utilisateurs.add(_persistence.update(newUtilisateur));
 
 		Utilisateur existingUtilisateur = _persistence.findByPrimaryKey(
@@ -140,9 +140,6 @@ public class UtilisateurPersistenceTest {
 		Assert.assertEquals(
 			existingUtilisateur.getIdUtilisateur(),
 			newUtilisateur.getIdUtilisateur());
-		Assert.assertEquals(
-			existingUtilisateur.getLiferayUserId(),
-			newUtilisateur.getLiferayUserId());
 		Assert.assertEquals(
 			existingUtilisateur.getNom(), newUtilisateur.getNom());
 		Assert.assertEquals(
@@ -157,6 +154,9 @@ public class UtilisateurPersistenceTest {
 		Assert.assertEquals(
 			Time.getShortTimestamp(existingUtilisateur.getDateCreation()),
 			Time.getShortTimestamp(newUtilisateur.getDateCreation()));
+		Assert.assertEquals(
+			Time.getShortTimestamp(existingUtilisateur.getLastLogin()),
+			Time.getShortTimestamp(newUtilisateur.getLastLogin()));
 	}
 
 	@Test
@@ -193,9 +193,9 @@ public class UtilisateurPersistenceTest {
 
 	protected OrderByComparator<Utilisateur> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create(
-			"Pharma_Utilisateur", "idUtilisateur", true, "liferayUserId", true,
-			"nom", true, "prenom", true, "email", true, "motDePasse", true,
-			"role", true, "dateCreation", true);
+			"Pharma_Utilisateur", "idUtilisateur", true, "nom", true, "prenom",
+			true, "email", true, "motDePasse", true, "role", true,
+			"dateCreation", true, "lastLogin", true);
 	}
 
 	@Test
@@ -470,8 +470,6 @@ public class UtilisateurPersistenceTest {
 
 		Utilisateur utilisateur = _persistence.create(pk);
 
-		utilisateur.setLiferayUserId(RandomTestUtil.nextLong());
-
 		utilisateur.setNom(RandomTestUtil.randomString());
 
 		utilisateur.setPrenom(RandomTestUtil.randomString());
@@ -483,6 +481,8 @@ public class UtilisateurPersistenceTest {
 		utilisateur.setRole(RandomTestUtil.randomString());
 
 		utilisateur.setDateCreation(RandomTestUtil.nextDate());
+
+		utilisateur.setLastLogin(RandomTestUtil.nextDate());
 
 		_utilisateurs.add(_persistence.update(utilisateur));
 

@@ -58,8 +58,6 @@ public class UtilisateurCacheModel
 
 		sb.append("{idUtilisateur=");
 		sb.append(idUtilisateur);
-		sb.append(", liferayUserId=");
-		sb.append(liferayUserId);
 		sb.append(", nom=");
 		sb.append(nom);
 		sb.append(", prenom=");
@@ -72,6 +70,8 @@ public class UtilisateurCacheModel
 		sb.append(role);
 		sb.append(", dateCreation=");
 		sb.append(dateCreation);
+		sb.append(", lastLogin=");
+		sb.append(lastLogin);
 		sb.append("}");
 
 		return sb.toString();
@@ -82,7 +82,6 @@ public class UtilisateurCacheModel
 		UtilisateurImpl utilisateurImpl = new UtilisateurImpl();
 
 		utilisateurImpl.setIdUtilisateur(idUtilisateur);
-		utilisateurImpl.setLiferayUserId(liferayUserId);
 
 		if (nom == null) {
 			utilisateurImpl.setNom("");
@@ -126,6 +125,13 @@ public class UtilisateurCacheModel
 			utilisateurImpl.setDateCreation(new Date(dateCreation));
 		}
 
+		if (lastLogin == Long.MIN_VALUE) {
+			utilisateurImpl.setLastLogin(null);
+		}
+		else {
+			utilisateurImpl.setLastLogin(new Date(lastLogin));
+		}
+
 		utilisateurImpl.resetOriginalValues();
 
 		return utilisateurImpl;
@@ -134,21 +140,18 @@ public class UtilisateurCacheModel
 	@Override
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		idUtilisateur = objectInput.readLong();
-
-		liferayUserId = objectInput.readLong();
 		nom = objectInput.readUTF();
 		prenom = objectInput.readUTF();
 		email = objectInput.readUTF();
 		motDePasse = objectInput.readUTF();
 		role = objectInput.readUTF();
 		dateCreation = objectInput.readLong();
+		lastLogin = objectInput.readLong();
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(idUtilisateur);
-
-		objectOutput.writeLong(liferayUserId);
 
 		if (nom == null) {
 			objectOutput.writeUTF("");
@@ -186,15 +189,16 @@ public class UtilisateurCacheModel
 		}
 
 		objectOutput.writeLong(dateCreation);
+		objectOutput.writeLong(lastLogin);
 	}
 
 	public long idUtilisateur;
-	public long liferayUserId;
 	public String nom;
 	public String prenom;
 	public String email;
 	public String motDePasse;
 	public String role;
 	public long dateCreation;
+	public long lastLogin;
 
 }

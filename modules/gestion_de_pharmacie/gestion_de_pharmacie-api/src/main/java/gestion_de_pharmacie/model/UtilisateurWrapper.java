@@ -34,13 +34,13 @@ public class UtilisateurWrapper
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
 		attributes.put("idUtilisateur", getIdUtilisateur());
-		attributes.put("liferayUserId", getLiferayUserId());
 		attributes.put("nom", getNom());
 		attributes.put("prenom", getPrenom());
 		attributes.put("email", getEmail());
 		attributes.put("motDePasse", getMotDePasse());
 		attributes.put("role", getRole());
 		attributes.put("dateCreation", getDateCreation());
+		attributes.put("lastLogin", getLastLogin());
 
 		return attributes;
 	}
@@ -51,12 +51,6 @@ public class UtilisateurWrapper
 
 		if (idUtilisateur != null) {
 			setIdUtilisateur(idUtilisateur);
-		}
-
-		Long liferayUserId = (Long)attributes.get("liferayUserId");
-
-		if (liferayUserId != null) {
-			setLiferayUserId(liferayUserId);
 		}
 
 		String nom = (String)attributes.get("nom");
@@ -93,6 +87,12 @@ public class UtilisateurWrapper
 
 		if (dateCreation != null) {
 			setDateCreation(dateCreation);
+		}
+
+		Date lastLogin = (Date)attributes.get("lastLogin");
+
+		if (lastLogin != null) {
+			setLastLogin(lastLogin);
 		}
 	}
 
@@ -132,23 +132,13 @@ public class UtilisateurWrapper
 	}
 
 	/**
-	 * Returns the liferay user ID of this utilisateur.
+	 * Returns the last login of this utilisateur.
 	 *
-	 * @return the liferay user ID of this utilisateur
+	 * @return the last login of this utilisateur
 	 */
 	@Override
-	public long getLiferayUserId() {
-		return model.getLiferayUserId();
-	}
-
-	/**
-	 * Returns the liferay user uuid of this utilisateur.
-	 *
-	 * @return the liferay user uuid of this utilisateur
-	 */
-	@Override
-	public String getLiferayUserUuid() {
-		return model.getLiferayUserUuid();
+	public Date getLastLogin() {
+		return model.getLastLogin();
 	}
 
 	/**
@@ -237,23 +227,13 @@ public class UtilisateurWrapper
 	}
 
 	/**
-	 * Sets the liferay user ID of this utilisateur.
+	 * Sets the last login of this utilisateur.
 	 *
-	 * @param liferayUserId the liferay user ID of this utilisateur
+	 * @param lastLogin the last login of this utilisateur
 	 */
 	@Override
-	public void setLiferayUserId(long liferayUserId) {
-		model.setLiferayUserId(liferayUserId);
-	}
-
-	/**
-	 * Sets the liferay user uuid of this utilisateur.
-	 *
-	 * @param liferayUserUuid the liferay user uuid of this utilisateur
-	 */
-	@Override
-	public void setLiferayUserUuid(String liferayUserUuid) {
-		model.setLiferayUserUuid(liferayUserUuid);
+	public void setLastLogin(Date lastLogin) {
+		model.setLastLogin(lastLogin);
 	}
 
 	/**

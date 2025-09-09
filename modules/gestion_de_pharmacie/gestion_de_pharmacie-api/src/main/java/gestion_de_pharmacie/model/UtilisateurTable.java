@@ -25,8 +25,6 @@ public class UtilisateurTable extends BaseTable<UtilisateurTable> {
 
 	public final Column<UtilisateurTable, Long> idUtilisateur = createColumn(
 		"idUtilisateur", Long.class, Types.BIGINT, Column.FLAG_PRIMARY);
-	public final Column<UtilisateurTable, Long> liferayUserId = createColumn(
-		"liferayUserId", Long.class, Types.BIGINT, Column.FLAG_DEFAULT);
 	public final Column<UtilisateurTable, String> nom = createColumn(
 		"nom", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 	public final Column<UtilisateurTable, String> prenom = createColumn(
@@ -39,6 +37,8 @@ public class UtilisateurTable extends BaseTable<UtilisateurTable> {
 		"role_", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 	public final Column<UtilisateurTable, Date> dateCreation = createColumn(
 		"dateCreation", Date.class, Types.TIMESTAMP, Column.FLAG_DEFAULT);
+	public final Column<UtilisateurTable, Date> lastLogin = createColumn(
+		"lastLogin", Date.class, Types.TIMESTAMP, Column.FLAG_DEFAULT);
 
 	private UtilisateurTable() {
 		super("Pharma_Utilisateur", UtilisateurTable::new);
