@@ -5,27 +5,34 @@
 
 <portlet:defineObjects />
 <liferay-theme:defineObjects />
-<%@ page import="java.util.*, java.util.stream.*, gestion_de_pharmacie.model.*, gestion_de_pharmacie.service.*" %>
+
+<%@ page import="java.util.*" %>
+<%@ page import="java.util.stream.*" %>
+<%@ page import="gestion_de_pharmacie.model.*" %>
+<%@ page import="gestion_de_pharmacie.service.*" %>
+
+<style>
+    ul.kpis { list-style:none; padding-left:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px;}
+    ul.kpis li { background:#fff; border:1px solid #eee; border-radius:8px; padding:10px 12px; }
+</style>
 
 <h2>📊 Statistiques Globales</h2>
 
 <%
     int nbUtilisateurs = UtilisateurLocalServiceUtil.getUtilisateursCount();
-    int nbMedicaments = MedicamentLocalServiceUtil.getMedicamentsCount();
-    int nbCommandes = CommandeLocalServiceUtil.getCommandesCount();
-    int nbVentes = VenteLocalServiceUtil.getVentesCount();
+    int nbMedicaments  = MedicamentLocalServiceUtil.getMedicamentsCount();
+    int nbCommandes    = CommandeLocalServiceUtil.getCommandesCount();
+    int nbVentes       = VenteLocalServiceUtil.getVentesCount();
 
     double totalVentes = 0;
     Map<String, Integer> ventesParMois = new LinkedHashMap<>();
     Map<String, Integer> topMedicaments = new HashMap<>();
 
-    // Préparer ventes
     List<Vente> ventes = VenteLocalServiceUtil.getVentes(-1, -1);
     Calendar cal = Calendar.getInstance();
 
     for (Vente v : ventes) {
         totalVentes += v.getMontantTotal();
-
         if (v.getDateVente() != null) {
             cal.setTime(v.getDateVente());
             String mois = (cal.get(Calendar.MONTH) + 1) + "/" + cal.get(Calendar.YEAR);
@@ -33,32 +40,23 @@
         }
     }
 
-    // Charger les détails une seule fois
     List<VenteDetail> allDetails = VenteDetailLocalServiceUtil.getVenteDetails(-1, -1);
     for (VenteDetail d : allDetails) {
-        String medName = MedicamentLocalServiceUtil.getMedicament(d.getIdMedicament()).getNom();
-        topMedicaments.put(medName, topMedicaments.getOrDefault(medName, 0) + d.getQuantite());
-    }
+        Medicament med = MedicamentLocalServiceUtil.fetchMedicament(d.getIdMedicament());
+        String medName = (med != null ? med.getNom() : "Inconnu");
+        topMedicaments.put(medName, topMedicaments.getOrDefault(medName, 0) + d.getQuantite());    }
 
-    // Limiter aux 5 médicaments les plus vendus
     topMedicaments = topMedicaments.entrySet().stream()
-            .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
+            .sorted((a,b) -> b.getValue().compareTo(a.getValue()))
             .limit(5)
-            .collect(LinkedHashMap::new,
-                    (m, e) -> m.put(e.getKey(), e.getValue()),
-                    Map::putAll);
+            .collect(LinkedHashMap::new, (m,e) -> m.put(e.getKey(), e.getValue()), Map::putAll);
 
-    // Répartition ventes par rôle
     Map<String, Double> ventesParRole = new HashMap<>();
     for (Vente v : ventes) {
         Utilisateur u = UtilisateurLocalServiceUtil.fetchUtilisateur(v.getIdUtilisateur());
-        if (u != null) {
-            String role = u.getRole();
-            ventesParRole.put(role, ventesParRole.getOrDefault(role, 0.0) + v.getMontantTotal());
-        }
-    }
+        String role = (u != null ? u.getRole() : "INCONNU");
+        ventesParRole.put(role, ventesParRole.getOrDefault(role, 0.0) + v.getMontantTotal());    }
 
-    // Génération des données JS-friendly avec fallback
     String moisLabels = ventesParMois.isEmpty() ? "\"Aucun\"" :
             "\"" + String.join("\", \"", ventesParMois.keySet()) + "\"";
     String moisData = ventesParMois.isEmpty() ? "0" :
@@ -75,12 +73,12 @@
             String.join(", ", ventesParRole.values().stream().map(String::valueOf).toArray(String[]::new));
 %>
 
-<ul>
-    <li>👥 Utilisateurs: <%= nbUtilisateurs %></li>
-    <li>💊 Médicaments: <%= nbMedicaments %></li>
-    <li>📦 Commandes: <%= nbCommandes %></li>
-    <li>🛒 Ventes: <%= nbVentes %></li>
-    <li>💰 Total Ventes: <%= totalVentes %> DH</li>
+<ul class="kpis">
+    <li>👥 Utilisateurs: <b><%= nbUtilisateurs %></b></li>
+    <li>💊 Médicaments: <b><%= nbMedicaments %></b></li>
+    <li>📦 Commandes:   <b><%= nbCommandes %></b></li>
+    <li>🛒 Ventes:      <b><%= nbVentes %></b></li>
+    <li>💰 Total Ventes: <b><%= String.format(java.util.Locale.FRANCE, "%,.2f", totalVentes) %> DH</b></li>
 </ul>
 
 <div style="width:70%; margin:auto;">
@@ -96,7 +94,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
     // Ventes par mois
     new Chart(document.getElementById("ventesChart"), {
@@ -111,14 +108,7 @@
                 fill: true
             }]
         },
-        options: {
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Évolution des ventes par mois'
-                }
-            }
-        }
+        options: { plugins: { title: { display: true, text: 'Évolution des ventes par mois' } } }
     });
 
     // Médicaments les plus vendus
@@ -128,18 +118,10 @@
             labels: [<%= medsLabels %>],
             datasets: [{
                 label: 'Quantité vendue',
-                data: [<%= medsData %>],
-                backgroundColor: 'orange'
+                data: [<%= medsData %>]
             }]
         },
-        options: {
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Top 5 Médicaments les plus vendus'
-                }
-            }
-        }
+        options: { plugins: { title: { display: true, text: 'Top 5 Médicaments les plus vendus' } } }
     });
 
     // Répartition par rôle
@@ -147,18 +129,8 @@
         type: 'pie',
         data: {
             labels: [<%= rolesLabels %>],
-            datasets: [{
-                data: [<%= rolesData %>],
-                backgroundColor: ['#ff6384', '#36a2eb', '#ffcd56', '#4caf50']
-            }]
+            datasets: [{ data: [<%= rolesData %>] }]
         },
-        options: {
-            plugins: {
-                title: {
-                    display: true,
-                    text: "Répartition des ventes par rôle d’utilisateur"
-                }
-            }
-        }
+        options: { plugins: { title: { display: true, text: "Répartition des ventes par rôle d’utilisateur" } } }
     });
 </script>

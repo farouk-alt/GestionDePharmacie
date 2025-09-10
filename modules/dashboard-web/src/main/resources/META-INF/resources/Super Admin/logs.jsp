@@ -2,15 +2,26 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <portlet:defineObjects />
 <liferay-theme:defineObjects />
-<%@ page import="java.util.*, gestion_de_pharmacie.model.*, gestion_de_pharmacie.service.*" %>
+
+<%@ page import="java.util.*" %>
+<%@ page import="gestion_de_pharmacie.model.*" %>
+<%@ page import="gestion_de_pharmacie.service.*" %>
+
+<style>
+    .table { width:100%; border-collapse:collapse; }
+    .table th, .table td { padding:10px 12px; border-bottom:1px solid #eee; text-align:left; }
+    .table th { background:#f8f9fa; }
+    h2, h3 { margin:16px 0 10px 0; }
+</style>
 
 <h2>📋 Logs du Système</h2>
 
 <h3>Connexions</h3>
-<table border="1" cellpadding="5">
+<table class="table">
     <tr>
         <th>Email</th>
         <th>Nom</th>
@@ -25,15 +36,22 @@
         <td><%= u.getEmail() %></td>
         <td><%= u.getNom() %></td>
         <td><%= u.getPrenom() %></td>
-        <td><%= u.getLastLogin() != null ? u.getLastLogin() : "Jamais connecté" %></td>
+        <td>
+            <%
+                Date ll = u.getLastLogin();
+                if (ll != null) {
+            %>
+            <fmt:formatDate value="<%= ll %>" pattern="dd/MM/yyyy HH:mm"/>
+            <%
+            } else {
+            %>Jamais connecté<% } %>
+        </td>
     </tr>
-    <%
-        }
-    %>
+    <% } %>
 </table>
 
 <h3>Notifications</h3>
-<table border="1" cellpadding="5">
+<table class="table">
     <tr>
         <th>Utilisateur</th>
         <th>Type</th>
@@ -46,14 +64,10 @@
             Utilisateur u = UtilisateurLocalServiceUtil.fetchUtilisateur(n.getIdUtilisateur());
     %>
     <tr>
-        <td><%= u != null ? u.getEmail() : "Inconnu" %></td>
+        <td><%= (u != null ? u.getEmail() : "Inconnu") %></td>
         <td><%= n.getType() %></td>
         <td><%= n.getMessage() %></td>
-        <td><%= n.getDateCreation() %></td>
+        <td><fmt:formatDate value="<%= n.getDateCreation() %>" pattern="dd/MM/yyyy HH:mm"/></td>
     </tr>
-    <%
-        }
-    %>
+    <% } %>
 </table>
-
-
