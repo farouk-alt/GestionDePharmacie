@@ -112,6 +112,337 @@ public class MedicamentUtil {
 	}
 
 	/**
+	 * Returns all the medicaments where code = &#63;.
+	 *
+	 * @param code the code
+	 * @return the matching medicaments
+	 */
+	public static List<Medicament> findByCode(String code) {
+		return getPersistence().findByCode(code);
+	}
+
+	/**
+	 * Returns a range of all the medicaments where code = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>MedicamentModelImpl</code>.
+	 * </p>
+	 *
+	 * @param code the code
+	 * @param start the lower bound of the range of medicaments
+	 * @param end the upper bound of the range of medicaments (not inclusive)
+	 * @return the range of matching medicaments
+	 */
+	public static List<Medicament> findByCode(String code, int start, int end) {
+		return getPersistence().findByCode(code, start, end);
+	}
+
+	/**
+	 * Returns an ordered range of all the medicaments where code = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>MedicamentModelImpl</code>.
+	 * </p>
+	 *
+	 * @param code the code
+	 * @param start the lower bound of the range of medicaments
+	 * @param end the upper bound of the range of medicaments (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching medicaments
+	 */
+	public static List<Medicament> findByCode(
+		String code, int start, int end,
+		OrderByComparator<Medicament> orderByComparator) {
+
+		return getPersistence().findByCode(code, start, end, orderByComparator);
+	}
+
+	/**
+	 * Returns an ordered range of all the medicaments where code = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>MedicamentModelImpl</code>.
+	 * </p>
+	 *
+	 * @param code the code
+	 * @param start the lower bound of the range of medicaments
+	 * @param end the upper bound of the range of medicaments (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching medicaments
+	 */
+	public static List<Medicament> findByCode(
+		String code, int start, int end,
+		OrderByComparator<Medicament> orderByComparator,
+		boolean useFinderCache) {
+
+		return getPersistence().findByCode(
+			code, start, end, orderByComparator, useFinderCache);
+	}
+
+	/**
+	 * Returns the first medicament in the ordered set where code = &#63;.
+	 *
+	 * @param code the code
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching medicament
+	 * @throws NoSuchMedicamentException if a matching medicament could not be found
+	 */
+	public static Medicament findByCode_First(
+			String code, OrderByComparator<Medicament> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchMedicamentException {
+
+		return getPersistence().findByCode_First(code, orderByComparator);
+	}
+
+	/**
+	 * Returns the first medicament in the ordered set where code = &#63;.
+	 *
+	 * @param code the code
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching medicament, or <code>null</code> if a matching medicament could not be found
+	 */
+	public static Medicament fetchByCode_First(
+		String code, OrderByComparator<Medicament> orderByComparator) {
+
+		return getPersistence().fetchByCode_First(code, orderByComparator);
+	}
+
+	/**
+	 * Returns the last medicament in the ordered set where code = &#63;.
+	 *
+	 * @param code the code
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching medicament
+	 * @throws NoSuchMedicamentException if a matching medicament could not be found
+	 */
+	public static Medicament findByCode_Last(
+			String code, OrderByComparator<Medicament> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchMedicamentException {
+
+		return getPersistence().findByCode_Last(code, orderByComparator);
+	}
+
+	/**
+	 * Returns the last medicament in the ordered set where code = &#63;.
+	 *
+	 * @param code the code
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching medicament, or <code>null</code> if a matching medicament could not be found
+	 */
+	public static Medicament fetchByCode_Last(
+		String code, OrderByComparator<Medicament> orderByComparator) {
+
+		return getPersistence().fetchByCode_Last(code, orderByComparator);
+	}
+
+	/**
+	 * Returns the medicaments before and after the current medicament in the ordered set where code = &#63;.
+	 *
+	 * @param idMedicament the primary key of the current medicament
+	 * @param code the code
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next medicament
+	 * @throws NoSuchMedicamentException if a medicament with the primary key could not be found
+	 */
+	public static Medicament[] findByCode_PrevAndNext(
+			long idMedicament, String code,
+			OrderByComparator<Medicament> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchMedicamentException {
+
+		return getPersistence().findByCode_PrevAndNext(
+			idMedicament, code, orderByComparator);
+	}
+
+	/**
+	 * Removes all the medicaments where code = &#63; from the database.
+	 *
+	 * @param code the code
+	 */
+	public static void removeByCode(String code) {
+		getPersistence().removeByCode(code);
+	}
+
+	/**
+	 * Returns the number of medicaments where code = &#63;.
+	 *
+	 * @param code the code
+	 * @return the number of matching medicaments
+	 */
+	public static int countByCode(String code) {
+		return getPersistence().countByCode(code);
+	}
+
+	/**
+	 * Returns all the medicaments where codeBarre = &#63;.
+	 *
+	 * @param codeBarre the code barre
+	 * @return the matching medicaments
+	 */
+	public static List<Medicament> findByCodeBarre(String codeBarre) {
+		return getPersistence().findByCodeBarre(codeBarre);
+	}
+
+	/**
+	 * Returns a range of all the medicaments where codeBarre = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>MedicamentModelImpl</code>.
+	 * </p>
+	 *
+	 * @param codeBarre the code barre
+	 * @param start the lower bound of the range of medicaments
+	 * @param end the upper bound of the range of medicaments (not inclusive)
+	 * @return the range of matching medicaments
+	 */
+	public static List<Medicament> findByCodeBarre(
+		String codeBarre, int start, int end) {
+
+		return getPersistence().findByCodeBarre(codeBarre, start, end);
+	}
+
+	/**
+	 * Returns an ordered range of all the medicaments where codeBarre = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>MedicamentModelImpl</code>.
+	 * </p>
+	 *
+	 * @param codeBarre the code barre
+	 * @param start the lower bound of the range of medicaments
+	 * @param end the upper bound of the range of medicaments (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching medicaments
+	 */
+	public static List<Medicament> findByCodeBarre(
+		String codeBarre, int start, int end,
+		OrderByComparator<Medicament> orderByComparator) {
+
+		return getPersistence().findByCodeBarre(
+			codeBarre, start, end, orderByComparator);
+	}
+
+	/**
+	 * Returns an ordered range of all the medicaments where codeBarre = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>MedicamentModelImpl</code>.
+	 * </p>
+	 *
+	 * @param codeBarre the code barre
+	 * @param start the lower bound of the range of medicaments
+	 * @param end the upper bound of the range of medicaments (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching medicaments
+	 */
+	public static List<Medicament> findByCodeBarre(
+		String codeBarre, int start, int end,
+		OrderByComparator<Medicament> orderByComparator,
+		boolean useFinderCache) {
+
+		return getPersistence().findByCodeBarre(
+			codeBarre, start, end, orderByComparator, useFinderCache);
+	}
+
+	/**
+	 * Returns the first medicament in the ordered set where codeBarre = &#63;.
+	 *
+	 * @param codeBarre the code barre
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching medicament
+	 * @throws NoSuchMedicamentException if a matching medicament could not be found
+	 */
+	public static Medicament findByCodeBarre_First(
+			String codeBarre, OrderByComparator<Medicament> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchMedicamentException {
+
+		return getPersistence().findByCodeBarre_First(
+			codeBarre, orderByComparator);
+	}
+
+	/**
+	 * Returns the first medicament in the ordered set where codeBarre = &#63;.
+	 *
+	 * @param codeBarre the code barre
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching medicament, or <code>null</code> if a matching medicament could not be found
+	 */
+	public static Medicament fetchByCodeBarre_First(
+		String codeBarre, OrderByComparator<Medicament> orderByComparator) {
+
+		return getPersistence().fetchByCodeBarre_First(
+			codeBarre, orderByComparator);
+	}
+
+	/**
+	 * Returns the last medicament in the ordered set where codeBarre = &#63;.
+	 *
+	 * @param codeBarre the code barre
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching medicament
+	 * @throws NoSuchMedicamentException if a matching medicament could not be found
+	 */
+	public static Medicament findByCodeBarre_Last(
+			String codeBarre, OrderByComparator<Medicament> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchMedicamentException {
+
+		return getPersistence().findByCodeBarre_Last(
+			codeBarre, orderByComparator);
+	}
+
+	/**
+	 * Returns the last medicament in the ordered set where codeBarre = &#63;.
+	 *
+	 * @param codeBarre the code barre
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching medicament, or <code>null</code> if a matching medicament could not be found
+	 */
+	public static Medicament fetchByCodeBarre_Last(
+		String codeBarre, OrderByComparator<Medicament> orderByComparator) {
+
+		return getPersistence().fetchByCodeBarre_Last(
+			codeBarre, orderByComparator);
+	}
+
+	/**
+	 * Returns the medicaments before and after the current medicament in the ordered set where codeBarre = &#63;.
+	 *
+	 * @param idMedicament the primary key of the current medicament
+	 * @param codeBarre the code barre
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next medicament
+	 * @throws NoSuchMedicamentException if a medicament with the primary key could not be found
+	 */
+	public static Medicament[] findByCodeBarre_PrevAndNext(
+			long idMedicament, String codeBarre,
+			OrderByComparator<Medicament> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchMedicamentException {
+
+		return getPersistence().findByCodeBarre_PrevAndNext(
+			idMedicament, codeBarre, orderByComparator);
+	}
+
+	/**
+	 * Removes all the medicaments where codeBarre = &#63; from the database.
+	 *
+	 * @param codeBarre the code barre
+	 */
+	public static void removeByCodeBarre(String codeBarre) {
+		getPersistence().removeByCodeBarre(codeBarre);
+	}
+
+	/**
+	 * Returns the number of medicaments where codeBarre = &#63;.
+	 *
+	 * @param codeBarre the code barre
+	 * @return the number of matching medicaments
+	 */
+	public static int countByCodeBarre(String codeBarre) {
+		return getPersistence().countByCodeBarre(codeBarre);
+	}
+
+	/**
 	 * Returns all the medicaments where nom = &#63;.
 	 *
 	 * @param nom the nom

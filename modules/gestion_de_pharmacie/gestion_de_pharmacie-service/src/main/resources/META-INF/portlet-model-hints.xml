@@ -25,6 +25,7 @@
 	<model name="gestion_de_pharmacie.model.Medicament">
 		<field name="idMedicament" type="long" />
 		<field name="code" type="String" />
+		<field name="codeBarre" type="String" />
 		<field name="nom" type="String" />
 		<field name="description" type="String" />
 		<field name="categorie" type="String" />

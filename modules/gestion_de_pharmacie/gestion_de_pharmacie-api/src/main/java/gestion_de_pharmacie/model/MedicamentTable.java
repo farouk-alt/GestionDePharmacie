@@ -27,6 +27,8 @@ public class MedicamentTable extends BaseTable<MedicamentTable> {
 		"idMedicament", Long.class, Types.BIGINT, Column.FLAG_PRIMARY);
 	public final Column<MedicamentTable, String> code = createColumn(
 		"code_", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
+	public final Column<MedicamentTable, String> codeBarre = createColumn(
+		"codeBarre", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 	public final Column<MedicamentTable, String> nom = createColumn(
 		"nom", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 	public final Column<MedicamentTable, String> description = createColumn(

@@ -119,6 +119,8 @@ public class MedicamentPersistenceTest {
 
 		newMedicament.setCode(RandomTestUtil.randomString());
 
+		newMedicament.setCodeBarre(RandomTestUtil.randomString());
+
 		newMedicament.setNom(RandomTestUtil.randomString());
 
 		newMedicament.setDescription(RandomTestUtil.randomString());
@@ -142,6 +144,8 @@ public class MedicamentPersistenceTest {
 		Assert.assertEquals(
 			existingMedicament.getCode(), newMedicament.getCode());
 		Assert.assertEquals(
+			existingMedicament.getCodeBarre(), newMedicament.getCodeBarre());
+		Assert.assertEquals(
 			existingMedicament.getNom(), newMedicament.getNom());
 		Assert.assertEquals(
 			existingMedicament.getDescription(),
@@ -157,6 +161,24 @@ public class MedicamentPersistenceTest {
 		Assert.assertEquals(
 			Time.getShortTimestamp(existingMedicament.getDateAjout()),
 			Time.getShortTimestamp(newMedicament.getDateAjout()));
+	}
+
+	@Test
+	public void testCountByCode() throws Exception {
+		_persistence.countByCode("");
+
+		_persistence.countByCode("null");
+
+		_persistence.countByCode((String)null);
+	}
+
+	@Test
+	public void testCountByCodeBarre() throws Exception {
+		_persistence.countByCodeBarre("");
+
+		_persistence.countByCodeBarre("null");
+
+		_persistence.countByCodeBarre((String)null);
 	}
 
 	@Test
@@ -202,9 +224,10 @@ public class MedicamentPersistenceTest {
 
 	protected OrderByComparator<Medicament> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create(
-			"Pharma_Medicament", "idMedicament", true, "code", true, "nom",
-			true, "description", true, "categorie", true, "prixUnitaire", true,
-			"seuilMinimum", true, "dateAjout", true);
+			"Pharma_Medicament", "idMedicament", true, "code", true,
+			"codeBarre", true, "nom", true, "description", true, "categorie",
+			true, "prixUnitaire", true, "seuilMinimum", true, "dateAjout",
+			true);
 	}
 
 	@Test
@@ -422,6 +445,8 @@ public class MedicamentPersistenceTest {
 		Medicament medicament = _persistence.create(pk);
 
 		medicament.setCode(RandomTestUtil.randomString());
+
+		medicament.setCodeBarre(RandomTestUtil.randomString());
 
 		medicament.setNom(RandomTestUtil.randomString());
 

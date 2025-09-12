@@ -84,6 +84,1073 @@ public class MedicamentPersistenceImpl
 	private FinderPath _finderPathWithPaginationFindAll;
 	private FinderPath _finderPathWithoutPaginationFindAll;
 	private FinderPath _finderPathCountAll;
+	private FinderPath _finderPathWithPaginationFindByCode;
+	private FinderPath _finderPathWithoutPaginationFindByCode;
+	private FinderPath _finderPathCountByCode;
+
+	/**
+	 * Returns all the medicaments where code = &#63;.
+	 *
+	 * @param code the code
+	 * @return the matching medicaments
+	 */
+	@Override
+	public List<Medicament> findByCode(String code) {
+		return findByCode(code, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+	}
+
+	/**
+	 * Returns a range of all the medicaments where code = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>MedicamentModelImpl</code>.
+	 * </p>
+	 *
+	 * @param code the code
+	 * @param start the lower bound of the range of medicaments
+	 * @param end the upper bound of the range of medicaments (not inclusive)
+	 * @return the range of matching medicaments
+	 */
+	@Override
+	public List<Medicament> findByCode(String code, int start, int end) {
+		return findByCode(code, start, end, null);
+	}
+
+	/**
+	 * Returns an ordered range of all the medicaments where code = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>MedicamentModelImpl</code>.
+	 * </p>
+	 *
+	 * @param code the code
+	 * @param start the lower bound of the range of medicaments
+	 * @param end the upper bound of the range of medicaments (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching medicaments
+	 */
+	@Override
+	public List<Medicament> findByCode(
+		String code, int start, int end,
+		OrderByComparator<Medicament> orderByComparator) {
+
+		return findByCode(code, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the medicaments where code = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>MedicamentModelImpl</code>.
+	 * </p>
+	 *
+	 * @param code the code
+	 * @param start the lower bound of the range of medicaments
+	 * @param end the upper bound of the range of medicaments (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching medicaments
+	 */
+	@Override
+	public List<Medicament> findByCode(
+		String code, int start, int end,
+		OrderByComparator<Medicament> orderByComparator,
+		boolean useFinderCache) {
+
+		code = Objects.toString(code, "");
+
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByCode;
+				finderArgs = new Object[] {code};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByCode;
+			finderArgs = new Object[] {code, start, end, orderByComparator};
+		}
+
+		List<Medicament> list = null;
+
+		if (useFinderCache) {
+			list = (List<Medicament>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (Medicament medicament : list) {
+					if (!code.equals(medicament.getCode())) {
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					3 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(3);
+			}
+
+			sb.append(_SQL_SELECT_MEDICAMENT_WHERE);
+
+			boolean bindCode = false;
+
+			if (code.isEmpty()) {
+				sb.append(_FINDER_COLUMN_CODE_CODE_3);
+			}
+			else {
+				bindCode = true;
+
+				sb.append(_FINDER_COLUMN_CODE_CODE_2);
+			}
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(MedicamentModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindCode) {
+					queryPos.add(code);
+				}
+
+				list = (List<Medicament>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
+	}
+
+	/**
+	 * Returns the first medicament in the ordered set where code = &#63;.
+	 *
+	 * @param code the code
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching medicament
+	 * @throws NoSuchMedicamentException if a matching medicament could not be found
+	 */
+	@Override
+	public Medicament findByCode_First(
+			String code, OrderByComparator<Medicament> orderByComparator)
+		throws NoSuchMedicamentException {
+
+		Medicament medicament = fetchByCode_First(code, orderByComparator);
+
+		if (medicament != null) {
+			return medicament;
+		}
+
+		StringBundler sb = new StringBundler(4);
+
+		sb.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		sb.append("code=");
+		sb.append(code);
+
+		sb.append("}");
+
+		throw new NoSuchMedicamentException(sb.toString());
+	}
+
+	/**
+	 * Returns the first medicament in the ordered set where code = &#63;.
+	 *
+	 * @param code the code
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching medicament, or <code>null</code> if a matching medicament could not be found
+	 */
+	@Override
+	public Medicament fetchByCode_First(
+		String code, OrderByComparator<Medicament> orderByComparator) {
+
+		List<Medicament> list = findByCode(code, 0, 1, orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the last medicament in the ordered set where code = &#63;.
+	 *
+	 * @param code the code
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching medicament
+	 * @throws NoSuchMedicamentException if a matching medicament could not be found
+	 */
+	@Override
+	public Medicament findByCode_Last(
+			String code, OrderByComparator<Medicament> orderByComparator)
+		throws NoSuchMedicamentException {
+
+		Medicament medicament = fetchByCode_Last(code, orderByComparator);
+
+		if (medicament != null) {
+			return medicament;
+		}
+
+		StringBundler sb = new StringBundler(4);
+
+		sb.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		sb.append("code=");
+		sb.append(code);
+
+		sb.append("}");
+
+		throw new NoSuchMedicamentException(sb.toString());
+	}
+
+	/**
+	 * Returns the last medicament in the ordered set where code = &#63;.
+	 *
+	 * @param code the code
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching medicament, or <code>null</code> if a matching medicament could not be found
+	 */
+	@Override
+	public Medicament fetchByCode_Last(
+		String code, OrderByComparator<Medicament> orderByComparator) {
+
+		int count = countByCode(code);
+
+		if (count == 0) {
+			return null;
+		}
+
+		List<Medicament> list = findByCode(
+			code, count - 1, count, orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the medicaments before and after the current medicament in the ordered set where code = &#63;.
+	 *
+	 * @param idMedicament the primary key of the current medicament
+	 * @param code the code
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next medicament
+	 * @throws NoSuchMedicamentException if a medicament with the primary key could not be found
+	 */
+	@Override
+	public Medicament[] findByCode_PrevAndNext(
+			long idMedicament, String code,
+			OrderByComparator<Medicament> orderByComparator)
+		throws NoSuchMedicamentException {
+
+		code = Objects.toString(code, "");
+
+		Medicament medicament = findByPrimaryKey(idMedicament);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Medicament[] array = new MedicamentImpl[3];
+
+			array[0] = getByCode_PrevAndNext(
+				session, medicament, code, orderByComparator, true);
+
+			array[1] = medicament;
+
+			array[2] = getByCode_PrevAndNext(
+				session, medicament, code, orderByComparator, false);
+
+			return array;
+		}
+		catch (Exception exception) {
+			throw processException(exception);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	protected Medicament getByCode_PrevAndNext(
+		Session session, Medicament medicament, String code,
+		OrderByComparator<Medicament> orderByComparator, boolean previous) {
+
+		StringBundler sb = null;
+
+		if (orderByComparator != null) {
+			sb = new StringBundler(
+				4 + (orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
+		}
+		else {
+			sb = new StringBundler(3);
+		}
+
+		sb.append(_SQL_SELECT_MEDICAMENT_WHERE);
+
+		boolean bindCode = false;
+
+		if (code.isEmpty()) {
+			sb.append(_FINDER_COLUMN_CODE_CODE_3);
+		}
+		else {
+			bindCode = true;
+
+			sb.append(_FINDER_COLUMN_CODE_CODE_2);
+		}
+
+		if (orderByComparator != null) {
+			String[] orderByConditionFields =
+				orderByComparator.getOrderByConditionFields();
+
+			if (orderByConditionFields.length > 0) {
+				sb.append(WHERE_AND);
+			}
+
+			for (int i = 0; i < orderByConditionFields.length; i++) {
+				sb.append(_ORDER_BY_ENTITY_ALIAS);
+				sb.append(orderByConditionFields[i]);
+
+				if ((i + 1) < orderByConditionFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(WHERE_GREATER_THAN_HAS_NEXT);
+					}
+					else {
+						sb.append(WHERE_LESSER_THAN_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(WHERE_GREATER_THAN);
+					}
+					else {
+						sb.append(WHERE_LESSER_THAN);
+					}
+				}
+			}
+
+			sb.append(ORDER_BY_CLAUSE);
+
+			String[] orderByFields = orderByComparator.getOrderByFields();
+
+			for (int i = 0; i < orderByFields.length; i++) {
+				sb.append(_ORDER_BY_ENTITY_ALIAS);
+				sb.append(orderByFields[i]);
+
+				if ((i + 1) < orderByFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(ORDER_BY_ASC_HAS_NEXT);
+					}
+					else {
+						sb.append(ORDER_BY_DESC_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(ORDER_BY_ASC);
+					}
+					else {
+						sb.append(ORDER_BY_DESC);
+					}
+				}
+			}
+		}
+		else {
+			sb.append(MedicamentModelImpl.ORDER_BY_JPQL);
+		}
+
+		String sql = sb.toString();
+
+		Query query = session.createQuery(sql);
+
+		query.setFirstResult(0);
+		query.setMaxResults(2);
+
+		QueryPos queryPos = QueryPos.getInstance(query);
+
+		if (bindCode) {
+			queryPos.add(code);
+		}
+
+		if (orderByComparator != null) {
+			for (Object orderByConditionValue :
+					orderByComparator.getOrderByConditionValues(medicament)) {
+
+				queryPos.add(orderByConditionValue);
+			}
+		}
+
+		List<Medicament> list = query.list();
+
+		if (list.size() == 2) {
+			return list.get(1);
+		}
+		else {
+			return null;
+		}
+	}
+
+	/**
+	 * Removes all the medicaments where code = &#63; from the database.
+	 *
+	 * @param code the code
+	 */
+	@Override
+	public void removeByCode(String code) {
+		for (Medicament medicament :
+				findByCode(code, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
+
+			remove(medicament);
+		}
+	}
+
+	/**
+	 * Returns the number of medicaments where code = &#63;.
+	 *
+	 * @param code the code
+	 * @return the number of matching medicaments
+	 */
+	@Override
+	public int countByCode(String code) {
+		code = Objects.toString(code, "");
+
+		FinderPath finderPath = _finderPathCountByCode;
+
+		Object[] finderArgs = new Object[] {code};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(2);
+
+			sb.append(_SQL_COUNT_MEDICAMENT_WHERE);
+
+			boolean bindCode = false;
+
+			if (code.isEmpty()) {
+				sb.append(_FINDER_COLUMN_CODE_CODE_3);
+			}
+			else {
+				bindCode = true;
+
+				sb.append(_FINDER_COLUMN_CODE_CODE_2);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindCode) {
+					queryPos.add(code);
+				}
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_CODE_CODE_2 =
+		"medicament.code = ?";
+
+	private static final String _FINDER_COLUMN_CODE_CODE_3 =
+		"(medicament.code IS NULL OR medicament.code = '')";
+
+	private FinderPath _finderPathWithPaginationFindByCodeBarre;
+	private FinderPath _finderPathWithoutPaginationFindByCodeBarre;
+	private FinderPath _finderPathCountByCodeBarre;
+
+	/**
+	 * Returns all the medicaments where codeBarre = &#63;.
+	 *
+	 * @param codeBarre the code barre
+	 * @return the matching medicaments
+	 */
+	@Override
+	public List<Medicament> findByCodeBarre(String codeBarre) {
+		return findByCodeBarre(
+			codeBarre, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+	}
+
+	/**
+	 * Returns a range of all the medicaments where codeBarre = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>MedicamentModelImpl</code>.
+	 * </p>
+	 *
+	 * @param codeBarre the code barre
+	 * @param start the lower bound of the range of medicaments
+	 * @param end the upper bound of the range of medicaments (not inclusive)
+	 * @return the range of matching medicaments
+	 */
+	@Override
+	public List<Medicament> findByCodeBarre(
+		String codeBarre, int start, int end) {
+
+		return findByCodeBarre(codeBarre, start, end, null);
+	}
+
+	/**
+	 * Returns an ordered range of all the medicaments where codeBarre = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>MedicamentModelImpl</code>.
+	 * </p>
+	 *
+	 * @param codeBarre the code barre
+	 * @param start the lower bound of the range of medicaments
+	 * @param end the upper bound of the range of medicaments (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching medicaments
+	 */
+	@Override
+	public List<Medicament> findByCodeBarre(
+		String codeBarre, int start, int end,
+		OrderByComparator<Medicament> orderByComparator) {
+
+		return findByCodeBarre(codeBarre, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the medicaments where codeBarre = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>MedicamentModelImpl</code>.
+	 * </p>
+	 *
+	 * @param codeBarre the code barre
+	 * @param start the lower bound of the range of medicaments
+	 * @param end the upper bound of the range of medicaments (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching medicaments
+	 */
+	@Override
+	public List<Medicament> findByCodeBarre(
+		String codeBarre, int start, int end,
+		OrderByComparator<Medicament> orderByComparator,
+		boolean useFinderCache) {
+
+		codeBarre = Objects.toString(codeBarre, "");
+
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByCodeBarre;
+				finderArgs = new Object[] {codeBarre};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByCodeBarre;
+			finderArgs = new Object[] {
+				codeBarre, start, end, orderByComparator
+			};
+		}
+
+		List<Medicament> list = null;
+
+		if (useFinderCache) {
+			list = (List<Medicament>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (Medicament medicament : list) {
+					if (!codeBarre.equals(medicament.getCodeBarre())) {
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					3 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(3);
+			}
+
+			sb.append(_SQL_SELECT_MEDICAMENT_WHERE);
+
+			boolean bindCodeBarre = false;
+
+			if (codeBarre.isEmpty()) {
+				sb.append(_FINDER_COLUMN_CODEBARRE_CODEBARRE_3);
+			}
+			else {
+				bindCodeBarre = true;
+
+				sb.append(_FINDER_COLUMN_CODEBARRE_CODEBARRE_2);
+			}
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(MedicamentModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindCodeBarre) {
+					queryPos.add(codeBarre);
+				}
+
+				list = (List<Medicament>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
+	}
+
+	/**
+	 * Returns the first medicament in the ordered set where codeBarre = &#63;.
+	 *
+	 * @param codeBarre the code barre
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching medicament
+	 * @throws NoSuchMedicamentException if a matching medicament could not be found
+	 */
+	@Override
+	public Medicament findByCodeBarre_First(
+			String codeBarre, OrderByComparator<Medicament> orderByComparator)
+		throws NoSuchMedicamentException {
+
+		Medicament medicament = fetchByCodeBarre_First(
+			codeBarre, orderByComparator);
+
+		if (medicament != null) {
+			return medicament;
+		}
+
+		StringBundler sb = new StringBundler(4);
+
+		sb.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		sb.append("codeBarre=");
+		sb.append(codeBarre);
+
+		sb.append("}");
+
+		throw new NoSuchMedicamentException(sb.toString());
+	}
+
+	/**
+	 * Returns the first medicament in the ordered set where codeBarre = &#63;.
+	 *
+	 * @param codeBarre the code barre
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching medicament, or <code>null</code> if a matching medicament could not be found
+	 */
+	@Override
+	public Medicament fetchByCodeBarre_First(
+		String codeBarre, OrderByComparator<Medicament> orderByComparator) {
+
+		List<Medicament> list = findByCodeBarre(
+			codeBarre, 0, 1, orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the last medicament in the ordered set where codeBarre = &#63;.
+	 *
+	 * @param codeBarre the code barre
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching medicament
+	 * @throws NoSuchMedicamentException if a matching medicament could not be found
+	 */
+	@Override
+	public Medicament findByCodeBarre_Last(
+			String codeBarre, OrderByComparator<Medicament> orderByComparator)
+		throws NoSuchMedicamentException {
+
+		Medicament medicament = fetchByCodeBarre_Last(
+			codeBarre, orderByComparator);
+
+		if (medicament != null) {
+			return medicament;
+		}
+
+		StringBundler sb = new StringBundler(4);
+
+		sb.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		sb.append("codeBarre=");
+		sb.append(codeBarre);
+
+		sb.append("}");
+
+		throw new NoSuchMedicamentException(sb.toString());
+	}
+
+	/**
+	 * Returns the last medicament in the ordered set where codeBarre = &#63;.
+	 *
+	 * @param codeBarre the code barre
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching medicament, or <code>null</code> if a matching medicament could not be found
+	 */
+	@Override
+	public Medicament fetchByCodeBarre_Last(
+		String codeBarre, OrderByComparator<Medicament> orderByComparator) {
+
+		int count = countByCodeBarre(codeBarre);
+
+		if (count == 0) {
+			return null;
+		}
+
+		List<Medicament> list = findByCodeBarre(
+			codeBarre, count - 1, count, orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the medicaments before and after the current medicament in the ordered set where codeBarre = &#63;.
+	 *
+	 * @param idMedicament the primary key of the current medicament
+	 * @param codeBarre the code barre
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next medicament
+	 * @throws NoSuchMedicamentException if a medicament with the primary key could not be found
+	 */
+	@Override
+	public Medicament[] findByCodeBarre_PrevAndNext(
+			long idMedicament, String codeBarre,
+			OrderByComparator<Medicament> orderByComparator)
+		throws NoSuchMedicamentException {
+
+		codeBarre = Objects.toString(codeBarre, "");
+
+		Medicament medicament = findByPrimaryKey(idMedicament);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Medicament[] array = new MedicamentImpl[3];
+
+			array[0] = getByCodeBarre_PrevAndNext(
+				session, medicament, codeBarre, orderByComparator, true);
+
+			array[1] = medicament;
+
+			array[2] = getByCodeBarre_PrevAndNext(
+				session, medicament, codeBarre, orderByComparator, false);
+
+			return array;
+		}
+		catch (Exception exception) {
+			throw processException(exception);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	protected Medicament getByCodeBarre_PrevAndNext(
+		Session session, Medicament medicament, String codeBarre,
+		OrderByComparator<Medicament> orderByComparator, boolean previous) {
+
+		StringBundler sb = null;
+
+		if (orderByComparator != null) {
+			sb = new StringBundler(
+				4 + (orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
+		}
+		else {
+			sb = new StringBundler(3);
+		}
+
+		sb.append(_SQL_SELECT_MEDICAMENT_WHERE);
+
+		boolean bindCodeBarre = false;
+
+		if (codeBarre.isEmpty()) {
+			sb.append(_FINDER_COLUMN_CODEBARRE_CODEBARRE_3);
+		}
+		else {
+			bindCodeBarre = true;
+
+			sb.append(_FINDER_COLUMN_CODEBARRE_CODEBARRE_2);
+		}
+
+		if (orderByComparator != null) {
+			String[] orderByConditionFields =
+				orderByComparator.getOrderByConditionFields();
+
+			if (orderByConditionFields.length > 0) {
+				sb.append(WHERE_AND);
+			}
+
+			for (int i = 0; i < orderByConditionFields.length; i++) {
+				sb.append(_ORDER_BY_ENTITY_ALIAS);
+				sb.append(orderByConditionFields[i]);
+
+				if ((i + 1) < orderByConditionFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(WHERE_GREATER_THAN_HAS_NEXT);
+					}
+					else {
+						sb.append(WHERE_LESSER_THAN_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(WHERE_GREATER_THAN);
+					}
+					else {
+						sb.append(WHERE_LESSER_THAN);
+					}
+				}
+			}
+
+			sb.append(ORDER_BY_CLAUSE);
+
+			String[] orderByFields = orderByComparator.getOrderByFields();
+
+			for (int i = 0; i < orderByFields.length; i++) {
+				sb.append(_ORDER_BY_ENTITY_ALIAS);
+				sb.append(orderByFields[i]);
+
+				if ((i + 1) < orderByFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(ORDER_BY_ASC_HAS_NEXT);
+					}
+					else {
+						sb.append(ORDER_BY_DESC_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(ORDER_BY_ASC);
+					}
+					else {
+						sb.append(ORDER_BY_DESC);
+					}
+				}
+			}
+		}
+		else {
+			sb.append(MedicamentModelImpl.ORDER_BY_JPQL);
+		}
+
+		String sql = sb.toString();
+
+		Query query = session.createQuery(sql);
+
+		query.setFirstResult(0);
+		query.setMaxResults(2);
+
+		QueryPos queryPos = QueryPos.getInstance(query);
+
+		if (bindCodeBarre) {
+			queryPos.add(codeBarre);
+		}
+
+		if (orderByComparator != null) {
+			for (Object orderByConditionValue :
+					orderByComparator.getOrderByConditionValues(medicament)) {
+
+				queryPos.add(orderByConditionValue);
+			}
+		}
+
+		List<Medicament> list = query.list();
+
+		if (list.size() == 2) {
+			return list.get(1);
+		}
+		else {
+			return null;
+		}
+	}
+
+	/**
+	 * Removes all the medicaments where codeBarre = &#63; from the database.
+	 *
+	 * @param codeBarre the code barre
+	 */
+	@Override
+	public void removeByCodeBarre(String codeBarre) {
+		for (Medicament medicament :
+				findByCodeBarre(
+					codeBarre, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
+
+			remove(medicament);
+		}
+	}
+
+	/**
+	 * Returns the number of medicaments where codeBarre = &#63;.
+	 *
+	 * @param codeBarre the code barre
+	 * @return the number of matching medicaments
+	 */
+	@Override
+	public int countByCodeBarre(String codeBarre) {
+		codeBarre = Objects.toString(codeBarre, "");
+
+		FinderPath finderPath = _finderPathCountByCodeBarre;
+
+		Object[] finderArgs = new Object[] {codeBarre};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(2);
+
+			sb.append(_SQL_COUNT_MEDICAMENT_WHERE);
+
+			boolean bindCodeBarre = false;
+
+			if (codeBarre.isEmpty()) {
+				sb.append(_FINDER_COLUMN_CODEBARRE_CODEBARRE_3);
+			}
+			else {
+				bindCodeBarre = true;
+
+				sb.append(_FINDER_COLUMN_CODEBARRE_CODEBARRE_2);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindCodeBarre) {
+					queryPos.add(codeBarre);
+				}
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_CODEBARRE_CODEBARRE_2 =
+		"medicament.codeBarre = ?";
+
+	private static final String _FINDER_COLUMN_CODEBARRE_CODEBARRE_3 =
+		"(medicament.codeBarre IS NULL OR medicament.codeBarre = '')";
+
 	private FinderPath _finderPathWithPaginationFindByNom;
 	private FinderPath _finderPathWithoutPaginationFindByNom;
 	private FinderPath _finderPathCountByNom;
@@ -1671,6 +2738,42 @@ public class MedicamentPersistenceImpl
 		_finderPathCountAll = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll",
 			new String[0], new String[0], false);
+
+		_finderPathWithPaginationFindByCode = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByCode",
+			new String[] {
+				String.class.getName(), Integer.class.getName(),
+				Integer.class.getName(), OrderByComparator.class.getName()
+			},
+			new String[] {"code_"}, true);
+
+		_finderPathWithoutPaginationFindByCode = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByCode",
+			new String[] {String.class.getName()}, new String[] {"code_"},
+			true);
+
+		_finderPathCountByCode = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByCode",
+			new String[] {String.class.getName()}, new String[] {"code_"},
+			false);
+
+		_finderPathWithPaginationFindByCodeBarre = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByCodeBarre",
+			new String[] {
+				String.class.getName(), Integer.class.getName(),
+				Integer.class.getName(), OrderByComparator.class.getName()
+			},
+			new String[] {"codeBarre"}, true);
+
+		_finderPathWithoutPaginationFindByCodeBarre = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByCodeBarre",
+			new String[] {String.class.getName()}, new String[] {"codeBarre"},
+			true);
+
+		_finderPathCountByCodeBarre = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByCodeBarre",
+			new String[] {String.class.getName()}, new String[] {"codeBarre"},
+			false);
 
 		_finderPathWithPaginationFindByNom = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByNom",

@@ -60,9 +60,10 @@ public class MedicamentModelImpl
 
 	public static final Object[][] TABLE_COLUMNS = {
 		{"idMedicament", Types.BIGINT}, {"code_", Types.VARCHAR},
-		{"nom", Types.VARCHAR}, {"description", Types.VARCHAR},
-		{"categorie", Types.VARCHAR}, {"prixUnitaire", Types.DOUBLE},
-		{"seuilMinimum", Types.INTEGER}, {"dateAjout", Types.TIMESTAMP}
+		{"codeBarre", Types.VARCHAR}, {"nom", Types.VARCHAR},
+		{"description", Types.VARCHAR}, {"categorie", Types.VARCHAR},
+		{"prixUnitaire", Types.DOUBLE}, {"seuilMinimum", Types.INTEGER},
+		{"dateAjout", Types.TIMESTAMP}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -71,6 +72,7 @@ public class MedicamentModelImpl
 	static {
 		TABLE_COLUMNS_MAP.put("idMedicament", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("code_", Types.VARCHAR);
+		TABLE_COLUMNS_MAP.put("codeBarre", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("nom", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("description", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("categorie", Types.VARCHAR);
@@ -80,7 +82,7 @@ public class MedicamentModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table Pharma_Medicament (idMedicament LONG not null primary key,code_ VARCHAR(75) null,nom VARCHAR(75) null,description VARCHAR(75) null,categorie VARCHAR(75) null,prixUnitaire DOUBLE,seuilMinimum INTEGER,dateAjout DATE null)";
+		"create table Pharma_Medicament (idMedicament LONG not null primary key,code_ VARCHAR(75) null,codeBarre VARCHAR(75) null,nom VARCHAR(75) null,description VARCHAR(75) null,categorie VARCHAR(75) null,prixUnitaire DOUBLE,seuilMinimum INTEGER,dateAjout DATE null)";
 
 	public static final String TABLE_SQL_DROP = "drop table Pharma_Medicament";
 
@@ -106,14 +108,26 @@ public class MedicamentModelImpl
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)}
 	 */
 	@Deprecated
-	public static final long NOM_COLUMN_BITMASK = 2L;
+	public static final long CODE_COLUMN_BITMASK = 2L;
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)}
+	 */
+	@Deprecated
+	public static final long CODEBARRE_COLUMN_BITMASK = 4L;
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)}
+	 */
+	@Deprecated
+	public static final long NOM_COLUMN_BITMASK = 8L;
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
 	 *		#getColumnBitmask(String)}
 	 */
 	@Deprecated
-	public static final long IDMEDICAMENT_COLUMN_BITMASK = 4L;
+	public static final long IDMEDICAMENT_COLUMN_BITMASK = 16L;
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
@@ -225,6 +239,7 @@ public class MedicamentModelImpl
 			attributeGetterFunctions.put(
 				"idMedicament", Medicament::getIdMedicament);
 			attributeGetterFunctions.put("code", Medicament::getCode);
+			attributeGetterFunctions.put("codeBarre", Medicament::getCodeBarre);
 			attributeGetterFunctions.put("nom", Medicament::getNom);
 			attributeGetterFunctions.put(
 				"description", Medicament::getDescription);
@@ -255,6 +270,9 @@ public class MedicamentModelImpl
 				(BiConsumer<Medicament, Long>)Medicament::setIdMedicament);
 			attributeSetterBiConsumers.put(
 				"code", (BiConsumer<Medicament, String>)Medicament::setCode);
+			attributeSetterBiConsumers.put(
+				"codeBarre",
+				(BiConsumer<Medicament, String>)Medicament::setCodeBarre);
 			attributeSetterBiConsumers.put(
 				"nom", (BiConsumer<Medicament, String>)Medicament::setNom);
 			attributeSetterBiConsumers.put(
@@ -312,6 +330,44 @@ public class MedicamentModelImpl
 		}
 
 		_code = code;
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
+	public String getOriginalCode() {
+		return getColumnOriginalValue("code_");
+	}
+
+	@JSON
+	@Override
+	public String getCodeBarre() {
+		if (_codeBarre == null) {
+			return "";
+		}
+		else {
+			return _codeBarre;
+		}
+	}
+
+	@Override
+	public void setCodeBarre(String codeBarre) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_codeBarre = codeBarre;
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
+	public String getOriginalCodeBarre() {
+		return getColumnOriginalValue("codeBarre");
 	}
 
 	@JSON
@@ -495,6 +551,7 @@ public class MedicamentModelImpl
 
 		medicamentImpl.setIdMedicament(getIdMedicament());
 		medicamentImpl.setCode(getCode());
+		medicamentImpl.setCodeBarre(getCodeBarre());
 		medicamentImpl.setNom(getNom());
 		medicamentImpl.setDescription(getDescription());
 		medicamentImpl.setCategorie(getCategorie());
@@ -514,6 +571,8 @@ public class MedicamentModelImpl
 		medicamentImpl.setIdMedicament(
 			this.<Long>getColumnOriginalValue("idMedicament"));
 		medicamentImpl.setCode(this.<String>getColumnOriginalValue("code_"));
+		medicamentImpl.setCodeBarre(
+			this.<String>getColumnOriginalValue("codeBarre"));
 		medicamentImpl.setNom(this.<String>getColumnOriginalValue("nom"));
 		medicamentImpl.setDescription(
 			this.<String>getColumnOriginalValue("description"));
@@ -608,6 +667,14 @@ public class MedicamentModelImpl
 
 		if ((code != null) && (code.length() == 0)) {
 			medicamentCacheModel.code = null;
+		}
+
+		medicamentCacheModel.codeBarre = getCodeBarre();
+
+		String codeBarre = medicamentCacheModel.codeBarre;
+
+		if ((codeBarre != null) && (codeBarre.length() == 0)) {
+			medicamentCacheModel.codeBarre = null;
 		}
 
 		medicamentCacheModel.nom = getNom();
@@ -710,6 +777,7 @@ public class MedicamentModelImpl
 
 	private long _idMedicament;
 	private String _code;
+	private String _codeBarre;
 	private String _nom;
 	private String _description;
 	private String _categorie;
@@ -749,6 +817,7 @@ public class MedicamentModelImpl
 
 		_columnOriginalValues.put("idMedicament", _idMedicament);
 		_columnOriginalValues.put("code_", _code);
+		_columnOriginalValues.put("codeBarre", _codeBarre);
 		_columnOriginalValues.put("nom", _nom);
 		_columnOriginalValues.put("description", _description);
 		_columnOriginalValues.put("categorie", _categorie);
@@ -782,17 +851,19 @@ public class MedicamentModelImpl
 
 		columnBitmasks.put("code_", 2L);
 
-		columnBitmasks.put("nom", 4L);
+		columnBitmasks.put("codeBarre", 4L);
 
-		columnBitmasks.put("description", 8L);
+		columnBitmasks.put("nom", 8L);
 
-		columnBitmasks.put("categorie", 16L);
+		columnBitmasks.put("description", 16L);
 
-		columnBitmasks.put("prixUnitaire", 32L);
+		columnBitmasks.put("categorie", 32L);
 
-		columnBitmasks.put("seuilMinimum", 64L);
+		columnBitmasks.put("prixUnitaire", 64L);
 
-		columnBitmasks.put("dateAjout", 128L);
+		columnBitmasks.put("seuilMinimum", 128L);
+
+		columnBitmasks.put("dateAjout", 256L);
 
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}

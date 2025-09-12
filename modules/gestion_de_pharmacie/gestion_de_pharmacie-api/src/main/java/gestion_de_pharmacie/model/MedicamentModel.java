@@ -76,6 +76,21 @@ public interface MedicamentModel extends BaseModel<Medicament> {
 	public void setCode(String code);
 
 	/**
+	 * Returns the code barre of this medicament.
+	 *
+	 * @return the code barre of this medicament
+	 */
+	@AutoEscape
+	public String getCodeBarre();
+
+	/**
+	 * Sets the code barre of this medicament.
+	 *
+	 * @param codeBarre the code barre of this medicament
+	 */
+	public void setCodeBarre(String codeBarre);
+
+	/**
 	 * Returns the nom of this medicament.
 	 *
 	 * @return the nom of this medicament
