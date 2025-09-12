@@ -118,12 +118,12 @@
         /* make the textarea taller by default */
         .med-add-grid textarea{ min-height:96px; resize:vertical; }
         /* Actions column: keep buttons on one line with spacing */
-        #medsTable td:last-child{
+/*        #medsTable td:last-child{
             display:flex;
             align-items:center;
-            gap:8px;             /* space between Edit/Supprimer */
-            white-space:nowrap;  /* prevent wrapping to next line */
-        }
+            gap:8px;             !* space between Edit/Supprimer *!
+            white-space:nowrap;  !* prevent wrapping to next line *!
+        }*/
         #medsTable td:last-child form{
             margin:0;            /* remove default form margins */
             display:inline;      /* stay inline with the link */
@@ -133,6 +133,25 @@
         }
         #<portlet:namespace/>medModal .modal-dialog { max-width: 1000px; width: 92vw; }
         #<portlet:namespace/>medModal .modal-body { max-height: calc(100vh - 180px); overflow: auto; }
+        /* keep one continuous bottom line */
+        tbody td { border-bottom: 1px solid var(--border); vertical-align: middle; }
+
+        /* actions cell: no flex on the TD */
+        #medsTable td:last-child{
+            white-space: nowrap;           /* keep buttons on one line */
+        }
+
+        /* space the link + form like flex would */
+        #medsTable td:last-child a,
+        #medsTable td:last-child form{
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        #medsTable td:last-child form{ margin: 0; }
+        #medsTable td:last-child a:last-child,
+        #medsTable td:last-child form:last-child{ margin-right: 0; }
 
     </style>
 </head>
@@ -462,12 +481,11 @@
 <script>
     (function () {
         const ns = '<portlet:namespace/>';
-        const modalId = ns + 'medModal';
         const addURL = '${addMedURL}';
         const updateURL = '${updateMedURL}';
 
-        // --- EAN helpers ---
-        const ENFORCE_EAN13 = false; // set true in prod
+        // ---- EAN helpers ----
+        const ENFORCE_EAN13 = false;
         const cleanDigits = s => (s || '').replace(/\D/g, '');
         function computeEAN13(b12){ let s=0; for(let i=0;i<12;i++){const d=b12.charCodeAt(i)-48; s+=(i%2?3:1)*d;} return (10-(s%10))%10; }
         function isValidEAN13(s){ return /^[0-9]{13}$/.test(s) && (s.charCodeAt(12)-48)===computeEAN13(s.slice(0,12)); }
@@ -490,20 +508,20 @@
         }
 
         function submitForm(){
-            const form = document.querySelector('#'+modalId+' form#'+ns+'medForm');
+            const form = document.getElementById(ns+'medForm');
             if(!form) return;
             if(!prepareBarcode(form)) return;
             if(form.checkValidity && !form.checkValidity()){ form.reportValidity && form.reportValidity(); return; }
             form.requestSubmit ? form.requestSubmit() : form.submit();
         }
 
-        // Wait until the modal's form is actually inserted
-        function whenFormInDOM(cb){
+        // Wait until the form node exists (robust against animations)
+        function whenFormReady(cb){
             const obs = new MutationObserver(() => {
-                const form = document.querySelector('#'+modalId+' form#'+ns+'medForm');
+                const form = document.getElementById(ns+'medForm');
                 if(form){
                     obs.disconnect();
-                    cb(form, document.getElementById(modalId));
+                    cb(form);
                 }
             });
             obs.observe(document.body, {childList:true, subtree:true});
@@ -511,9 +529,8 @@
 
         function openForm(mode, data){
             const tpl = document.getElementById('medFormTPL');
-
             Liferay.Util.openModal({
-                id: modalId,
+                id: ns + 'medModal',
                 title: mode==='add' ? 'Ajouter un Médicament' : ('Modifier : ' + (data.nom || '')),
                 size: 'lg',
                 bodyHTML: tpl.innerHTML,
@@ -523,13 +540,13 @@
                 ]
             });
 
-            whenFormInDOM((form, modalEl) => {
-                // choose action
+            whenFormReady((form) => {
+                // target action
                 form.action = (mode==='add') ? addURL : updateURL;
 
                 const norm = v => (v===undefined || v===null || v==='null') ? '' : v;
                 const set = (name, val) => {
-                    const el = modalEl.querySelector('[name="'+ns+name+'"]');
+                    const el = form.querySelector('[name="'+ns+name+'"]');
                     if(el) el.value = norm(val);
                 };
 
@@ -542,15 +559,14 @@
                     set('categorie',   data.categorie);
                     set('seuilMinimum',data.seuil);
                     set('description', data.description);
-                }else{
-                    // clear for add
+                } else {
                     ['medicamentId','code','codeBarre','nom','prix','categorie','seuilMinimum','description']
                         .forEach(k => set(k, ''));
                 }
 
-                // EAN hint
-                const cb = modalEl.querySelector('[name="'+ns+'codeBarre"]');
-                const hint = modalEl.querySelector('#'+ns+'eanHint');
+                // live EAN hint
+                const cb = form.querySelector('[name="'+ns+'codeBarre"]');
+                const hint = form.querySelector('#'+ns+'eanHint');
                 if(cb && hint){
                     const updateHint = () => {
                         const raw = cleanDigits(cb.value||'');
@@ -565,7 +581,7 @@
             });
         }
 
-        // Openers (Add + Edit)
+        // Buttons (Add + Edit)
         document.querySelectorAll('.js-med-open').forEach(el=>{
             el.addEventListener('click', e=>{
                 e.preventDefault();
@@ -585,6 +601,7 @@
         });
     })();
 </script>
+
 
 
 </body>

@@ -962,7 +962,9 @@
     </c:if>
 
     <!-- Test Page Link (optional) -->
+<%--
     <a href="${testPageURL}" class="test-page-link"><i class="fas fa-vial"></i> Page de test</a>
+--%>
 
     <div class="container">
         <!-- Left Section - Forms -->
