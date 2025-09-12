@@ -35,6 +35,7 @@ public class MedicamentWrapper
 
 		attributes.put("idMedicament", getIdMedicament());
 		attributes.put("code", getCode());
+		attributes.put("codeBarre", getCodeBarre());
 		attributes.put("nom", getNom());
 		attributes.put("description", getDescription());
 		attributes.put("categorie", getCategorie());
@@ -57,6 +58,12 @@ public class MedicamentWrapper
 
 		if (code != null) {
 			setCode(code);
+		}
+
+		String codeBarre = (String)attributes.get("codeBarre");
+
+		if (codeBarre != null) {
+			setCodeBarre(codeBarre);
 		}
 
 		String nom = (String)attributes.get("nom");
@@ -119,6 +126,16 @@ public class MedicamentWrapper
 	@Override
 	public String getCode() {
 		return model.getCode();
+	}
+
+	/**
+	 * Returns the code barre of this medicament.
+	 *
+	 * @return the code barre of this medicament
+	 */
+	@Override
+	public String getCodeBarre() {
+		return model.getCodeBarre();
 	}
 
 	/**
@@ -214,6 +231,16 @@ public class MedicamentWrapper
 	@Override
 	public void setCode(String code) {
 		model.setCode(code);
+	}
+
+	/**
+	 * Sets the code barre of this medicament.
+	 *
+	 * @param codeBarre the code barre of this medicament
+	 */
+	@Override
+	public void setCodeBarre(String codeBarre) {
+		model.setCodeBarre(codeBarre);
 	}
 
 	/**

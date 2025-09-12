@@ -54,12 +54,14 @@ public class MedicamentCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(17);
+		StringBundler sb = new StringBundler(19);
 
 		sb.append("{idMedicament=");
 		sb.append(idMedicament);
 		sb.append(", code=");
 		sb.append(code);
+		sb.append(", codeBarre=");
+		sb.append(codeBarre);
 		sb.append(", nom=");
 		sb.append(nom);
 		sb.append(", description=");
@@ -88,6 +90,13 @@ public class MedicamentCacheModel
 		}
 		else {
 			medicamentImpl.setCode(code);
+		}
+
+		if (codeBarre == null) {
+			medicamentImpl.setCodeBarre("");
+		}
+		else {
+			medicamentImpl.setCodeBarre(codeBarre);
 		}
 
 		if (nom == null) {
@@ -130,6 +139,7 @@ public class MedicamentCacheModel
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		idMedicament = objectInput.readLong();
 		code = objectInput.readUTF();
+		codeBarre = objectInput.readUTF();
 		nom = objectInput.readUTF();
 		description = objectInput.readUTF();
 		categorie = objectInput.readUTF();
@@ -149,6 +159,13 @@ public class MedicamentCacheModel
 		}
 		else {
 			objectOutput.writeUTF(code);
+		}
+
+		if (codeBarre == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(codeBarre);
 		}
 
 		if (nom == null) {
@@ -180,6 +197,7 @@ public class MedicamentCacheModel
 
 	public long idMedicament;
 	public String code;
+	public String codeBarre;
 	public String nom;
 	public String description;
 	public String categorie;

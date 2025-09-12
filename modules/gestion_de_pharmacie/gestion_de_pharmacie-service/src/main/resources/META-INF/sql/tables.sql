@@ -52,6 +52,7 @@ create table Pharma_Fournisseur (
 create table Pharma_Medicament (
 	idMedicament LONG not null primary key,
 	code_ VARCHAR(75) null,
+	codeBarre VARCHAR(75) null,
 	nom VARCHAR(75) null,
 	description VARCHAR(75) null,
 	categorie VARCHAR(75) null,

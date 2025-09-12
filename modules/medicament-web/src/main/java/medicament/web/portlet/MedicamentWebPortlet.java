@@ -79,6 +79,7 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 
+import com.liferay.portal.kernel.util.Validator;
 import gestion_de_pharmacie.model.Medicament;
 import gestion_de_pharmacie.model.Stock;
 import gestion_de_pharmacie.service.MedicamentLocalServiceUtil;
@@ -116,7 +117,7 @@ public class MedicamentWebPortlet extends MVCPortlet {
 
     private static final Log _log = LogFactoryUtil.getLog(MedicamentWebPortlet.class);
 
-    @Override
+/*    @Override
     public void processAction(ActionRequest actionRequest, ActionResponse actionResponse)
             throws IOException, PortletException {
 
@@ -127,8 +128,9 @@ public class MedicamentWebPortlet extends MVCPortlet {
         }
 
         super.processAction(actionRequest, actionResponse);
-    }
+    }*/
 
+/*
     @ProcessAction(name = "ajouterMedicament")
     public void ajouterMedicament(ActionRequest request, ActionResponse response) {
         try {
@@ -177,7 +179,53 @@ public class MedicamentWebPortlet extends MVCPortlet {
             _log.error("Error adding medicament: " + e.getMessage(), e);
         }
     }
+*/
 
+   /* @ProcessAction(name = "ajouterMedicament")
+    public void ajouterMedicament(ActionRequest request, ActionResponse response) {
+        try {
+            String nom = ParamUtil.getString(request, "nom");
+            double prix = ParamUtil.getDouble(request, "prix");
+            String description = ParamUtil.getString(request, "description");
+            String categorie = ParamUtil.getString(request, "categorie");
+            int seuilMinimum = ParamUtil.getInteger(request, "seuilMinimum");
+
+            // duplicate name check
+            List<Medicament> existing = findByNom(nom);
+            if (!existing.isEmpty()) {
+                SessionErrors.add(request, "medicament-already-exists");
+                response.setRenderParameter("mvcPath", "/view.jsp");
+                return;
+            }
+
+            // Create Medicament
+            Medicament medicament = MedicamentLocalServiceUtil.createMedicament(
+                    CounterLocalServiceUtil.increment()
+            );
+            medicament.setNom(nom);
+            medicament.setPrixUnitaire(prix);
+            medicament.setDescription(description);
+            medicament.setCategorie(categorie);
+            medicament.setSeuilMinimum(seuilMinimum);
+            medicament.setDateAjout(new Date());
+            MedicamentLocalServiceUtil.addMedicament(medicament);
+
+            // Init empty stock exactly ONCE
+            Stock stock = StockLocalServiceUtil.createStock(CounterLocalServiceUtil.increment());
+            stock.setIdMedicament(medicament.getIdMedicament());
+            stock.setQuantiteDisponible(0);
+            stock.setDateDerniereMaj(new Date());
+            StockLocalServiceUtil.addStock(stock); // <-- keep this single call
+
+            SessionMessages.add(request, "medicament-added-successfully");
+
+            // force rerender to view
+            response.setRenderParameter("mvcPath", "/view.jsp");
+        } catch (Exception e) {
+            _log.error("Error adding medicament: " + e.getMessage(), e);
+            SessionErrors.add(request, "medicament-add-error");
+        }
+    }
 
 
     @ProcessAction(name = "updateMedicament")
@@ -201,6 +249,184 @@ public class MedicamentWebPortlet extends MVCPortlet {
 
         SessionMessages.add(request, "medicament-updated-successfully");
         response.setRenderParameter("mvcPath", "/view.jsp");
+    }
+*/
+   @ProcessAction(name = "ajouterMedicament")
+   public void ajouterMedicament(ActionRequest request, ActionResponse response) {
+       try {
+           String code       = ParamUtil.getString(request, "code");
+           String codeBarre  = ParamUtil.getString(request, "codeBarre");
+           String nom        = ParamUtil.getString(request, "nom");
+           double prix       = ParamUtil.getDouble(request, "prix");
+           String description= ParamUtil.getString(request, "description");
+           String categorie  = ParamUtil.getString(request, "categorie");
+           int seuilMinimum  = ParamUtil.getInteger(request, "seuilMinimum");
+
+           if (Validator.isNull(nom) || Validator.isNull(code)) {
+               SessionErrors.add(request, "medicament-required");
+               return;
+           }
+           if (Validator.isNotNull(codeBarre) && !isValidEAN13(codeBarre)) {
+               SessionErrors.add(request, "medicament-barcode-invalid");
+               return;
+           }
+           if (!findByCode(code).isEmpty()) {
+               SessionErrors.add(request, "medicament-code-exists");
+               return;
+           }
+           if (Validator.isNotNull(codeBarre) && !findByBarcode(codeBarre).isEmpty()) {
+               SessionErrors.add(request, "medicament-barcode-exists");
+               return;
+           }
+
+           Medicament medicament = MedicamentLocalServiceUtil.createMedicament(
+                   CounterLocalServiceUtil.increment()
+           );
+           medicament.setCode(code);
+           medicament.setCodeBarre(codeBarre);
+           medicament.setNom(nom);
+           medicament.setPrixUnitaire(prix);
+           medicament.setDescription(description);
+           medicament.setCategorie(categorie);
+           medicament.setSeuilMinimum(seuilMinimum);
+           medicament.setDateAjout(new Date());
+
+           MedicamentLocalServiceUtil.addMedicament(medicament);
+
+           // Stock init
+           Stock stock = StockLocalServiceUtil.createStock(CounterLocalServiceUtil.increment());
+           stock.setIdMedicament(medicament.getIdMedicament());
+           stock.setQuantiteDisponible(0);
+           stock.setDateDerniereMaj(new Date());
+           StockLocalServiceUtil.addStock(stock);
+
+           SessionMessages.add(request, "medicament-added-successfully");
+           response.setRenderParameter("mvcPath", "/view.jsp");
+       } catch (Exception e) {
+           _log.error("Error adding medicament: " + e.getMessage(), e);
+           SessionErrors.add(request, "medicament-add-error");
+       }
+   }
+
+   /* @ProcessAction(name = "updateMedicament")
+    public void updateMedicament(ActionRequest request, ActionResponse response) throws Exception {
+        long medicamentId   = ParamUtil.getLong(request, "medicamentId");
+        String code         = ParamUtil.getString(request, "code");
+        String codeBarre    = ParamUtil.getString(request, "codeBarre");
+        String nom          = ParamUtil.getString(request, "nom");
+        double prix         = ParamUtil.getDouble(request, "prix");
+        String description  = ParamUtil.getString(request, "description");
+        String categorie    = ParamUtil.getString(request, "categorie");
+        int seuilMinimum    = ParamUtil.getInteger(request, "seuilMinimum");
+
+        Medicament m = MedicamentLocalServiceUtil.getMedicament(medicamentId);
+
+        // Simple conflicts check (ignore current record)
+        if (!code.equals(m.getCode()) && !findByCode(code).isEmpty()) {
+            SessionErrors.add(request, "medicament-code-exists"); return;
+        }
+        if (Validator.isNotNull(codeBarre) && !isValidEAN13(codeBarre)) {
+            SessionErrors.add(request, "medicament-barcode-invalid"); return;
+        }
+        if (Validator.isNotNull(codeBarre)
+                && !codeBarre.equals(m.getCodeBarre())
+                && !findByBarcode(codeBarre).isEmpty()) {
+            SessionErrors.add(request, "medicament-barcode-exists"); return;
+        }
+
+        m.setCode(code);
+        m.setCodeBarre(codeBarre);
+        m.setNom(nom);
+        m.setPrixUnitaire(prix);
+        m.setDescription(description);
+        m.setCategorie(categorie);
+        m.setSeuilMinimum(seuilMinimum);
+
+        MedicamentLocalServiceUtil.updateMedicament(m);
+
+        SessionMessages.add(request, "medicament-updated-successfully");
+        response.setRenderParameter("mvcPath", "/view.jsp");
+    }*/
+   @ProcessAction(name = "updateMedicament")
+   public void updateMedicament(ActionRequest request, ActionResponse response) throws Exception {
+       long medicamentId = ParamUtil.getLong(request, "medicamentId");
+       String code         = ParamUtil.getString(request, "code");
+       String codeBarre    = ParamUtil.getString(request, "codeBarre");
+       String nom          = ParamUtil.getString(request, "nom");
+       double prix         = ParamUtil.getDouble(request, "prix");
+       String description  = ParamUtil.getString(request, "description");
+       String categorie    = ParamUtil.getString(request, "categorie");
+       int seuilMinimum    = ParamUtil.getInteger(request, "seuilMinimum");
+
+       Medicament m = MedicamentLocalServiceUtil.getMedicament(medicamentId);
+
+       // Simple conflicts check (ignore current record)
+       if (!code.equals(m.getCode()) && !findByCode(code).isEmpty()) {
+           SessionErrors.add(request, "medicament-code-exists"); return;
+       }
+       if (Validator.isNotNull(codeBarre) && !isValidEAN13(codeBarre)) {
+           SessionErrors.add(request, "medicament-barcode-invalid"); return;
+       }
+       if (Validator.isNotNull(codeBarre)
+               && !codeBarre.equals(m.getCodeBarre())
+               && !findByBarcode(codeBarre).isEmpty()) {
+           SessionErrors.add(request, "medicament-barcode-exists"); return;
+       }
+
+       m.setCode(code);
+       m.setCodeBarre(codeBarre);
+       m.setNom(nom);
+       m.setPrixUnitaire(prix);
+       m.setDescription(description);
+       m.setCategorie(categorie);
+       m.setSeuilMinimum(seuilMinimum);
+
+       MedicamentLocalServiceUtil.updateMedicament(m);
+       SessionMessages.add(request, "medicament-updated-successfully");
+
+       boolean fromModal = ParamUtil.getBoolean(request, "fromModal");
+
+       if (fromModal) {
+           // Re-render edit_medicament.jsp inside the iframe with a close instruction
+           response.setRenderParameter("mvcPath", "/edit_medicament.jsp");
+           response.setRenderParameter("medicamentId", String.valueOf(medicamentId));
+           response.setRenderParameter("modal", "1");
+           response.setRenderParameter("close", "1");
+       } else {
+           response.setRenderParameter("mvcPath", "/view.jsp");
+       }
+   }
+
+
+    // --- helpers ---
+    private boolean isValidEAN13(String s) {
+        if (Validator.isNull(s) || !s.matches("\\d{13}")) return false;
+        int sum=0;
+        for (int i=0;i<12;i++){ int n=s.charAt(i)-'0'; sum += (i%2==0)? n : n*3; }
+        int check = (10 - (sum % 10)) % 10;
+        return check == (s.charAt(12)-'0');
+    }
+
+    private List<Medicament> findByCode(String code) {
+        try {
+            DynamicQuery dq = MedicamentLocalServiceUtil.dynamicQuery();
+            dq.add(RestrictionsFactoryUtil.eq("code", code));
+            List<Object> res = MedicamentLocalServiceUtil.dynamicQuery(dq);
+            List<Medicament> out = new ArrayList<>();
+            for (Object o: res) out.add((Medicament)o);
+            return out;
+        } catch (Exception e) { return Collections.emptyList(); }
+    }
+
+    private List<Medicament> findByBarcode(String codeBarre) {
+        try {
+            DynamicQuery dq = MedicamentLocalServiceUtil.dynamicQuery();
+            dq.add(RestrictionsFactoryUtil.eq("codeBarre", codeBarre));
+            List<Object> res = MedicamentLocalServiceUtil.dynamicQuery(dq);
+            List<Medicament> out = new ArrayList<>();
+            for (Object o: res) out.add((Medicament)o);
+            return out;
+        } catch (Exception e) { return Collections.emptyList(); }
     }
 
 

@@ -21,12 +21,19 @@
     <entity name="Medicament" local-service="true" remote-service="true">
         <column name="idMedicament" type="long" primary="true" />
         <column name="code" type="String" />
+        <column name="codeBarre" type="String" />
         <column name="nom" type="String" />
         <column name="description" type="String" />
         <column name="categorie" type="String" />
         <column name="prixUnitaire" type="double" />
         <column name="seuilMinimum" type="int" />
         <column name="dateAjout" type="Date" />
+        <finder name="Code" return-type="Collection">
+            <finder-column name="code" />
+        </finder>
+        <finder name="CodeBarre" return-type="Collection">
+            <finder-column name="codeBarre" />
+        </finder>
         <finder name="Nom" return-type="Collection">
             <finder-column name="nom" />
         </finder>

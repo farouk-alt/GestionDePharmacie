@@ -34,6 +34,292 @@ public interface MedicamentPersistence extends BasePersistence<Medicament> {
 	 */
 
 	/**
+	 * Returns all the medicaments where code = &#63;.
+	 *
+	 * @param code the code
+	 * @return the matching medicaments
+	 */
+	public java.util.List<Medicament> findByCode(String code);
+
+	/**
+	 * Returns a range of all the medicaments where code = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>MedicamentModelImpl</code>.
+	 * </p>
+	 *
+	 * @param code the code
+	 * @param start the lower bound of the range of medicaments
+	 * @param end the upper bound of the range of medicaments (not inclusive)
+	 * @return the range of matching medicaments
+	 */
+	public java.util.List<Medicament> findByCode(
+		String code, int start, int end);
+
+	/**
+	 * Returns an ordered range of all the medicaments where code = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>MedicamentModelImpl</code>.
+	 * </p>
+	 *
+	 * @param code the code
+	 * @param start the lower bound of the range of medicaments
+	 * @param end the upper bound of the range of medicaments (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching medicaments
+	 */
+	public java.util.List<Medicament> findByCode(
+		String code, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<Medicament>
+			orderByComparator);
+
+	/**
+	 * Returns an ordered range of all the medicaments where code = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>MedicamentModelImpl</code>.
+	 * </p>
+	 *
+	 * @param code the code
+	 * @param start the lower bound of the range of medicaments
+	 * @param end the upper bound of the range of medicaments (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching medicaments
+	 */
+	public java.util.List<Medicament> findByCode(
+		String code, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<Medicament>
+			orderByComparator,
+		boolean useFinderCache);
+
+	/**
+	 * Returns the first medicament in the ordered set where code = &#63;.
+	 *
+	 * @param code the code
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching medicament
+	 * @throws NoSuchMedicamentException if a matching medicament could not be found
+	 */
+	public Medicament findByCode_First(
+			String code,
+			com.liferay.portal.kernel.util.OrderByComparator<Medicament>
+				orderByComparator)
+		throws NoSuchMedicamentException;
+
+	/**
+	 * Returns the first medicament in the ordered set where code = &#63;.
+	 *
+	 * @param code the code
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching medicament, or <code>null</code> if a matching medicament could not be found
+	 */
+	public Medicament fetchByCode_First(
+		String code,
+		com.liferay.portal.kernel.util.OrderByComparator<Medicament>
+			orderByComparator);
+
+	/**
+	 * Returns the last medicament in the ordered set where code = &#63;.
+	 *
+	 * @param code the code
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching medicament
+	 * @throws NoSuchMedicamentException if a matching medicament could not be found
+	 */
+	public Medicament findByCode_Last(
+			String code,
+			com.liferay.portal.kernel.util.OrderByComparator<Medicament>
+				orderByComparator)
+		throws NoSuchMedicamentException;
+
+	/**
+	 * Returns the last medicament in the ordered set where code = &#63;.
+	 *
+	 * @param code the code
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching medicament, or <code>null</code> if a matching medicament could not be found
+	 */
+	public Medicament fetchByCode_Last(
+		String code,
+		com.liferay.portal.kernel.util.OrderByComparator<Medicament>
+			orderByComparator);
+
+	/**
+	 * Returns the medicaments before and after the current medicament in the ordered set where code = &#63;.
+	 *
+	 * @param idMedicament the primary key of the current medicament
+	 * @param code the code
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next medicament
+	 * @throws NoSuchMedicamentException if a medicament with the primary key could not be found
+	 */
+	public Medicament[] findByCode_PrevAndNext(
+			long idMedicament, String code,
+			com.liferay.portal.kernel.util.OrderByComparator<Medicament>
+				orderByComparator)
+		throws NoSuchMedicamentException;
+
+	/**
+	 * Removes all the medicaments where code = &#63; from the database.
+	 *
+	 * @param code the code
+	 */
+	public void removeByCode(String code);
+
+	/**
+	 * Returns the number of medicaments where code = &#63;.
+	 *
+	 * @param code the code
+	 * @return the number of matching medicaments
+	 */
+	public int countByCode(String code);
+
+	/**
+	 * Returns all the medicaments where codeBarre = &#63;.
+	 *
+	 * @param codeBarre the code barre
+	 * @return the matching medicaments
+	 */
+	public java.util.List<Medicament> findByCodeBarre(String codeBarre);
+
+	/**
+	 * Returns a range of all the medicaments where codeBarre = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>MedicamentModelImpl</code>.
+	 * </p>
+	 *
+	 * @param codeBarre the code barre
+	 * @param start the lower bound of the range of medicaments
+	 * @param end the upper bound of the range of medicaments (not inclusive)
+	 * @return the range of matching medicaments
+	 */
+	public java.util.List<Medicament> findByCodeBarre(
+		String codeBarre, int start, int end);
+
+	/**
+	 * Returns an ordered range of all the medicaments where codeBarre = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>MedicamentModelImpl</code>.
+	 * </p>
+	 *
+	 * @param codeBarre the code barre
+	 * @param start the lower bound of the range of medicaments
+	 * @param end the upper bound of the range of medicaments (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching medicaments
+	 */
+	public java.util.List<Medicament> findByCodeBarre(
+		String codeBarre, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<Medicament>
+			orderByComparator);
+
+	/**
+	 * Returns an ordered range of all the medicaments where codeBarre = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>MedicamentModelImpl</code>.
+	 * </p>
+	 *
+	 * @param codeBarre the code barre
+	 * @param start the lower bound of the range of medicaments
+	 * @param end the upper bound of the range of medicaments (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching medicaments
+	 */
+	public java.util.List<Medicament> findByCodeBarre(
+		String codeBarre, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<Medicament>
+			orderByComparator,
+		boolean useFinderCache);
+
+	/**
+	 * Returns the first medicament in the ordered set where codeBarre = &#63;.
+	 *
+	 * @param codeBarre the code barre
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching medicament
+	 * @throws NoSuchMedicamentException if a matching medicament could not be found
+	 */
+	public Medicament findByCodeBarre_First(
+			String codeBarre,
+			com.liferay.portal.kernel.util.OrderByComparator<Medicament>
+				orderByComparator)
+		throws NoSuchMedicamentException;
+
+	/**
+	 * Returns the first medicament in the ordered set where codeBarre = &#63;.
+	 *
+	 * @param codeBarre the code barre
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching medicament, or <code>null</code> if a matching medicament could not be found
+	 */
+	public Medicament fetchByCodeBarre_First(
+		String codeBarre,
+		com.liferay.portal.kernel.util.OrderByComparator<Medicament>
+			orderByComparator);
+
+	/**
+	 * Returns the last medicament in the ordered set where codeBarre = &#63;.
+	 *
+	 * @param codeBarre the code barre
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching medicament
+	 * @throws NoSuchMedicamentException if a matching medicament could not be found
+	 */
+	public Medicament findByCodeBarre_Last(
+			String codeBarre,
+			com.liferay.portal.kernel.util.OrderByComparator<Medicament>
+				orderByComparator)
+		throws NoSuchMedicamentException;
+
+	/**
+	 * Returns the last medicament in the ordered set where codeBarre = &#63;.
+	 *
+	 * @param codeBarre the code barre
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching medicament, or <code>null</code> if a matching medicament could not be found
+	 */
+	public Medicament fetchByCodeBarre_Last(
+		String codeBarre,
+		com.liferay.portal.kernel.util.OrderByComparator<Medicament>
+			orderByComparator);
+
+	/**
+	 * Returns the medicaments before and after the current medicament in the ordered set where codeBarre = &#63;.
+	 *
+	 * @param idMedicament the primary key of the current medicament
+	 * @param codeBarre the code barre
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next medicament
+	 * @throws NoSuchMedicamentException if a medicament with the primary key could not be found
+	 */
+	public Medicament[] findByCodeBarre_PrevAndNext(
+			long idMedicament, String codeBarre,
+			com.liferay.portal.kernel.util.OrderByComparator<Medicament>
+				orderByComparator)
+		throws NoSuchMedicamentException;
+
+	/**
+	 * Removes all the medicaments where codeBarre = &#63; from the database.
+	 *
+	 * @param codeBarre the code barre
+	 */
+	public void removeByCodeBarre(String codeBarre);
+
+	/**
+	 * Returns the number of medicaments where codeBarre = &#63;.
+	 *
+	 * @param codeBarre the code barre
+	 * @return the number of matching medicaments
+	 */
+	public int countByCodeBarre(String codeBarre);
+
+	/**
 	 * Returns all the medicaments where nom = &#63;.
 	 *
 	 * @param nom the nom
