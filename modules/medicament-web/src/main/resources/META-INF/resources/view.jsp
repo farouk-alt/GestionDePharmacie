@@ -136,22 +136,32 @@
         /* keep one continuous bottom line */
         tbody td { border-bottom: 1px solid var(--border); vertical-align: middle; }
 
-        /* actions cell: no flex on the TD */
-        #medsTable td:last-child{
-            white-space: nowrap;           /* keep buttons on one line */
+        /* actions cell: no flex on the TD *//* keep one continuous bottom line just for this table */
+        #medsTable tbody td {
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        /* Actions column (no flex on the TD) */
+        #medsTable td:last-child {
+            white-space: nowrap;            /* keep buttons on a single line */
         }
 
         /* space the link + form like flex would */
         #medsTable td:last-child a,
-        #medsTable td:last-child form{
+        #medsTable td:last-child form {
             display: inline-block;
             vertical-align: middle;
             margin-right: 8px;
         }
 
-        #medsTable td:last-child form{ margin: 0; }
+        #medsTable td:last-child form { margin: 0 8px 0 0; }
         #medsTable td:last-child a:last-child,
-        #medsTable td:last-child form:last-child{ margin-right: 0; }
+        #medsTable td:last-child form:last-child { margin-right: 0; }
+
+        /* optional: keeps button text from wrapping */
+        #medsTable td:last-child .btn { white-space: nowrap; }
+
 
     </style>
 </head>
