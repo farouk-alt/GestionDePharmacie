@@ -1,5 +1,14 @@
 dependencies {
 	compileOnly group: "com.liferay.portal", name: "release.dxp.api"
 
+	// Link to your Service Builder modules
+	compileOnly project(":modules:gestion_de_pharmacie:gestion_de_pharmacie-api")
+	compileOnly project(":modules:gestion_de_pharmacie:gestion_de_pharmacie-service")
+
+	// Portlet + OSGi annotations
+	compileOnly group: "javax.portlet", name: "portlet-api"
+	compileOnly group: "org.osgi", name: "org.osgi.service.component.annotations"
+
+	// CSS builder
 	cssBuilder group: "com.liferay", name: "com.liferay.css.builder", version: "3.1.4"
 }
