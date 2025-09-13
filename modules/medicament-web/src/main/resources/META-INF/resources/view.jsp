@@ -10,10 +10,10 @@
 <%@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page import="com.liferay.portal.kernel.portlet.LiferayWindowState" %>
+<%@ taglib uri="http://liferay.com/tld/clay" prefix="clay" %>
 
 <portlet:actionURL name="ajouterMedicament" var="addMedURL" />
 <portlet:actionURL name="updateMedicament"  var="updateMedURL" />
-
 
 <%
     List<Medicament> medicaments = MedicamentLocalServiceUtil.getMedicaments(-1, -1);
@@ -28,10 +28,8 @@
     <meta charset="UTF-8" />
     <title>Liste des Médicaments</title>
     <style>
-        :root{
-            --primary:#1E3A8A; --secondary:#3B82F6; --accent:#10B981;
-            --bg:#F3F4F6; --white:#FFFFFF; --text:#111827; --muted:#6B7280; --border:#E5E7EB;
-        }
+        :root{ --primary:#1E3A8A; --secondary:#3B82F6; --accent:#10B981;
+            --bg:#F3F4F6; --white:#FFFFFF; --text:#111827; --muted:#6B7280; --border:#E5E7EB; }
         body{background:var(--bg);margin:0;color:var(--text);font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
         .wrap{max-width:1200px;margin:24px auto;padding:0 16px}
         .header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;border-radius:14px;padding:18px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 10px 24px rgba(30,58,138,.25)}
@@ -47,9 +45,10 @@
         .controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
         .controls input[type="search"]{flex:1;min-width:240px;padding:10px;border:1px solid var(--border);border-radius:10px;background:#fff}
         .count{color:var(--bg);font-size:12px;margin-left:auto}
+        #rangeText{color:var(--muted);font-size:12px;margin-left:auto}
         table{width:100%;border-collapse:collapse}
         thead th{text-align:left;background:#F8FAFC;color:var(--primary);padding:10px 12px;border-bottom:1px solid var(--border);font-weight:700}
-        tbody td{padding:10px 12px;border-bottom:1px solid var(--border)}
+        tbody td{padding:10px 12px}
         tr:hover td{background:#F9FAFB}
         th.sortable{cursor:pointer;user-select:none}
         th.sortable .arrow{font-size:12px;opacity:.6;margin-left:6px}
@@ -58,111 +57,55 @@
         .pager .btn{padding:6px 12px}
         .pager .btn.btn-primary{background:var(--secondary);border-color:var(--secondary)}
 
-        /* Form fields in modal */
-        .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-        .form-grid .fld{display:flex;flex-direction:column;gap:6px}
-        .form-grid label{font-weight:600;color:var(--primary)}
-        .form-grid input,.form-grid textarea,
-        .modal-body .form-grid input,.modal-body .form-grid textarea{
-            width:100%;box-sizing:border-box;background:#fff;color:var(--text);
-            border:1px solid var(--border);border-radius:10px;padding:10px;
+        /* Modal size like Admin */
+        #<portlet:namespace/>medModal .modal-dialog{
+            max-width:720px; width:min(92vw,720px); margin-top:6vh; margin-bottom:6vh;
         }
-        .form-grid input:focus,.form-grid textarea:focus{
-            outline:none;border-color:var(--secondary);box-shadow:0 0 0 3px rgba(59,130,246,.15);
-        }
-        .form-grid input[type="number"]::-webkit-inner-spin-button,
-        .form-grid input[type="number"]::-webkit-outer-spin-button{ -webkit-appearance:none; margin:0; }
-        .form-grid input[type="number"]{ -moz-appearance:textfield; }
-        .med-add-modal { padding-top: 6px; }
-
-        .med-add-grid{
-            display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-            gap:12px;
+        #<portlet:namespace/>medModal .modal-content{ min-height:560px; }
+        #<portlet:namespace/>medModal .modal-body{
+            max-height:calc(100vh - 180px); overflow:auto; padding-bottom:24px;
         }
 
-        /* field wrapper */
-        .med-add-grid .fld{ display:flex; flex-direction:column; gap:6px; }
-
-        /* labels */
-        .med-add-grid label{ font-weight:600; color:var(--primary); }
-
-        /* inputs */
-        .med-add-grid input,
-        .med-add-grid textarea{
-            display:block !important;
-            width:100% !important;
-            box-sizing:border-box !important;
-            background:#fff !important;
-            color:var(--text) !important;
-            border:1px solid var(--border) !important;
-            border-radius:10px !important;
-            padding:10px !important;
-            line-height:1.2 !important;
-            min-height:40px;
+        /* Stacked form layout */
+        #<portlet:namespace/>medModal .med-form .stack{
+            display:grid; grid-template-columns:1fr; gap:16px; align-items:start;
         }
+        #<portlet:namespace/>medModal .med-form .fld{ display:flex; flex-direction:column; }
+        #<portlet:namespace/>medModal .med-form label{ font-weight:600; margin-bottom:6px; color:var(--primary); }
+        #<portlet:namespace/>medModal .med-form .hint{ color:#6B7280; font-size:12px; margin-top:6px; }
 
-        /* focus */
-        .med-add-grid input:focus,
-        .med-add-grid textarea:focus{
-            outline:none;
-            border-color:var(--secondary) !important;
-            box-shadow:0 0 0 3px rgba(59,130,246,.15) !important;
+        #<portlet:namespace/>medModal .form-control{
+            width:100%; height:52px; padding:12px 14px; line-height:normal; box-sizing:border-box;
+            background:#fff; color:#111827; border:1px solid #E5E7EB; border-radius:10px;
+            box-shadow:inset 0 1px 2px rgba(0,0,0,.04);
         }
-
-        /* number spinners off for a cleaner UI */
-        .med-add-grid input[type="number"]::-webkit-inner-spin-button,
-        .med-add-grid input[type="number"]::-webkit-outer-spin-button{ -webkit-appearance:none; margin:0; }
-        .med-add-grid input[type="number"]{ -moz-appearance:textfield; }
-
-        /* make the textarea taller by default */
-        .med-add-grid textarea{ min-height:96px; resize:vertical; }
-        /* Actions column: keep buttons on one line with spacing */
-/*        #medsTable td:last-child{
-            display:flex;
-            align-items:center;
-            gap:8px;             !* space between Edit/Supprimer *!
-            white-space:nowrap;  !* prevent wrapping to next line *!
-        }*/
-        #medsTable td:last-child form{
-            margin:0;            /* remove default form margins */
-            display:inline;      /* stay inline with the link */
+        #<portlet:namespace/>medModal .form-control:focus{
+            outline:none; border-color:#3B82F6; box-shadow:0 0 0 3px rgba(59,130,246,.15);
         }
-        #medsTable td:last-child .btn{
-            white-space:nowrap;  /* button text won’t wrap either */
-        }
-        #<portlet:namespace/>medModal .modal-dialog { max-width: 1000px; width: 92vw; }
-        #<portlet:namespace/>medModal .modal-body { max-height: calc(100vh - 180px); overflow: auto; }
-        /* keep one continuous bottom line */
-        tbody td { border-bottom: 1px solid var(--border); vertical-align: middle; }
+        #<portlet:namespace/>medModal textarea.form-control{ min-height:120px; height:auto; resize:vertical; }
 
-        /* actions cell: no flex on the TD *//* keep one continuous bottom line just for this table */
-        #medsTable tbody td {
-            border-bottom: 1px solid var(--border);
-            vertical-align: middle;
-        }
+        #<portlet:namespace/>medModal input[type="number"]::-webkit-outer-spin-button,
+        #<portlet:namespace/>medModal input[type="number"]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+        #<portlet:namespace/>medModal input[type="number"]{ -moz-appearance:textfield; }
 
-        /* Actions column (no flex on the TD) */
-        #medsTable td:last-child {
-            white-space: nowrap;            /* keep buttons on a single line */
-        }
+        /* Row separators in table */
+        #medsTable tbody td { border-bottom: 0; }
+        #medsTable tbody tr { box-shadow: inset 0 -1px 0 var(--border); }
+        #medsTable tbody tr:last-child { box-shadow: none; }
 
-        /* space the link + form like flex would */
-        #medsTable td:last-child a,
-        #medsTable td:last-child form {
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 8px;
-        }
-
-        #medsTable td:last-child form { margin: 0 8px 0 0; }
-        #medsTable td:last-child a:last-child,
-        #medsTable td:last-child form:last-child { margin-right: 0; }
-
-        /* optional: keeps button text from wrapping */
-        #medsTable td:last-child .btn { white-space: nowrap; }
-
-
+        /* Actions */
+        #medsTable td.actions{ white-space:nowrap; vertical-align:middle; }
+        #medsTable td.actions form{ display:inline; margin:0; }
+        .icon-btn{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; margin-right:6px;
+            background:transparent; border:1px solid transparent; border-radius:8px; color:#334155; cursor:pointer;
+            transition:background .15s, color .15s, border-color .15s, transform .05s; vertical-align:middle; }
+        .icon-btn:last-child{ margin-right:0; }
+        .icon-btn:hover{ background:#F1F5F9; color:#0f172a; }
+        .icon-btn:active{ transform:scale(.98); }
+        .icon-btn:focus{ outline:0; box-shadow:0 0 0 2px rgba(59,130,246,.35); }
+        .icon-btn.danger{ color:#b91c1c; }
+        .icon-btn.danger:hover{ background:rgba(220,38,38,.08); color:#991b1b; }
+        .icon-btn .lexicon-icon{ width:18px; height:18px; }
     </style>
 </head>
 <body>
@@ -171,11 +114,7 @@
         <h2>💊 Liste des Médicaments</h2>
         <div class="header-actions">
             <div class="count" id="topCount"></div>
-<%--
-            <button id="openAddModal" type="button" class="btn btn-primary">+ Ajouter</button>
---%>
             <button type="button" class="btn btn-primary js-med-open" data-mode="add">+ Ajouter</button>
-
         </div>
     </div>
 
@@ -219,19 +158,10 @@
                 <td class="desc" title="<%= HtmlUtil.escape(m.getDescription()!=null? m.getDescription() : "") %>">
                     <%= HtmlUtil.escape(m.getDescription()!=null? m.getDescription() : "-") %>
                 </td>
-                <td>
-<%--                    <portlet:renderURL var="editURL"
-                                       windowState="<%= LiferayWindowState.POP_UP.toString() %>">
-                        <portlet:param name="mvcPath" value="/edit_medicament.jsp" />
-                        <portlet:param name="medicamentId" value="<%= String.valueOf(m.getIdMedicament()) %>" />
-                        <portlet:param name="modal" value="1" />
-                    </portlet:renderURL>
-
-
-                    <a href="${editURL}" class="btn btn-primary btn-sm js-open-edit"
-                       data-title="Modifier : <%= HtmlUtil.escape(m.getNom()) %>">Éditer</a>--%>
+                <td class="actions">
+                    <!-- Edit -->
                     <a href="#"
-                       class="btn btn-primary btn-sm js-med-open"
+                       class="icon-btn js-med-open"
                        data-mode="edit"
                        data-id="<%= m.getIdMedicament() %>"
                        data-code="<%= HtmlUtil.escapeAttribute(String.valueOf(m.getCode())) %>"
@@ -240,19 +170,23 @@
                        data-prix="<%= m.getPrixUnitaire() %>"
                        data-categorie="<%= HtmlUtil.escapeAttribute(String.valueOf(m.getCategorie())) %>"
                        data-seuil="<%= m.getSeuilMinimum() %>"
-                       data-description="<%= HtmlUtil.escapeAttribute(String.valueOf(m.getDescription())) %>">
-                        Éditer
+                       data-description="<%= HtmlUtil.escapeAttribute(String.valueOf(m.getDescription())) %>"
+                       aria-label="Éditer" title="Éditer">
+                        <clay:icon symbol="pencil" />
                     </a>
 
-
-
-    <portlet:actionURL name="deleteMedicament" var="deleteURL">
+                    <!-- Delete -->
+                    <portlet:actionURL name="deleteMedicament" var="deleteURL">
                         <portlet:param name="medicamentId" value="<%= String.valueOf(m.getIdMedicament()) %>" />
                     </portlet:actionURL>
-                    <form action="${deleteURL}" method="post" style="display:inline;" onsubmit="return confirm('Voulez-vous vraiment supprimer ce médicament ?');">
-                        <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                    <form action="${deleteURL}" method="post"
+                          onsubmit="return confirm('Voulez-vous vraiment supprimer ce médicament ?');">
+                        <button type="submit" class="icon-btn danger" aria-label="Supprimer" title="Supprimer">
+                            <clay:icon symbol="trash" />
+                        </button>
                     </form>
                 </td>
+
             </tr>
             <% } %>
             </tbody>
@@ -265,7 +199,6 @@
     <liferay-ui:success key="medicament-added-successfully"    message="Médicament ajouté avec succès !" />
     <liferay-ui:success key="medicament-updated-successfully"  message="Médicament mis à jour avec succès !" />
     <liferay-ui:success key="medicament-deleted-successfully"  message="Médicament supprimé avec succès !" />
-    <!-- Support both legacy and new keys -->
     <liferay-ui:error   key="medicament-already-exists"        message="Un médicament avec ce nom existe déjà." />
     <liferay-ui:error   key="medicament-required"               message="Veuillez renseigner au minimum le nom et le code." />
     <liferay-ui:error   key="medicament-code-exists"            message="Ce code interne existe déjà." />
@@ -273,111 +206,46 @@
     <liferay-ui:error   key="medicament-barcode-exists"         message="Ce code-barres existe déjà." />
 </div>
 
-<!-- Modal template -->
-<%--<template id="addMedModalTPL">
-    <div class="med-add-modal">
-        <portlet:actionURL name="ajouterMedicament" var="addMedicamentURL" />
-        <form action="${addMedicamentURL}"
-              method="post"
-              id="<portlet:namespace/>addMedForm"
-              class="med-add-grid">
-
-
+<!-- Modal form template -->
+<template id="medFormTPL">
+    <form id="<portlet:namespace/>medForm" class="med-form" method="post">
+        <input type="hidden" id="<portlet:namespace/>medicamentId" name="<portlet:namespace/>medicamentId"/>
+        <div class="stack">
             <div class="fld">
                 <label for="<portlet:namespace/>code">Code (interne)</label>
-                <input id="<portlet:namespace/>code" name="<portlet:namespace/>code"
-                       maxlength="64" required placeholder="Ex. AMOX500-CAP-20" />
+                <input class="form-control" id="<portlet:namespace/>code" name="<portlet:namespace/>code" maxlength="64" required placeholder="Ex. AMOX500-CAP-20" />
             </div>
-
             <div class="fld">
                 <label for="<portlet:namespace/>codeBarre">Code-barres (EAN-13)</label>
-                <input id="<portlet:namespace/>codeBarre"
-                       name="<portlet:namespace/>codeBarre"
-                       inputmode="numeric"
-                       autocomplete="off"
-                       pattern="[0-9]{12,13}"
-                maxlength="13"
-                placeholder="12 ou 13 chiffres (auto-complété)"/>
-
-                <small id="<portlet:namespace/>eanHint" style="color:#6B7280"></small>
+                <input class="form-control" id="<portlet:namespace/>codeBarre" name="<portlet:namespace/>codeBarre" inputmode="numeric" autocomplete="off" pattern="[0-9]{12,13}" maxlength="13" placeholder="12 ou 13 chiffres (auto-complété)" />
+                <small id="<portlet:namespace/>eanHint" class="hint"></small>
             </div>
-
-
             <div class="fld">
                 <label for="<portlet:namespace/>nom">Nom</label>
-                <input id="<portlet:namespace/>nom" name="<portlet:namespace/>nom" required />
+                <input class="form-control" id="<portlet:namespace/>nom" name="<portlet:namespace/>nom" required />
             </div>
-
             <div class="fld">
                 <label for="<portlet:namespace/>prix">Prix Unitaire (DH)</label>
-                <input id="<portlet:namespace/>prix" name="<portlet:namespace/>prix"
-                       type="number" step="0.01" min="0" required />
+                <input class="form-control" id="<portlet:namespace/>prix" name="<portlet:namespace/>prix" type="number" step="0.01" min="0" required />
             </div>
-
             <div class="fld">
                 <label for="<portlet:namespace/>categorie">Catégorie</label>
-                <input id="<portlet:namespace/>categorie" name="<portlet:namespace/>categorie" />
+                <input class="form-control" id="<portlet:namespace/>categorie" name="<portlet:namespace/>categorie" />
             </div>
-
             <div class="fld">
                 <label for="<portlet:namespace/>seuilMinimum">Seuil Minimum</label>
-                <input id="<portlet:namespace/>seuilMinimum" name="<portlet:namespace/>seuilMinimum"
-                       type="number" min="0" />
+                <input class="form-control" id="<portlet:namespace/>seuilMinimum" name="<portlet:namespace/>seuilMinimum" type="number" min="0" />
             </div>
-
-            <div class="fld" style="grid-column:1/-1">
+            <div class="fld">
                 <label for="<portlet:namespace/>description">Description</label>
-                <textarea id="<portlet:namespace/>description" name="<portlet:namespace/>description"></textarea>
+                <textarea class="form-control" id="<portlet:namespace/>description" name="<portlet:namespace/>description"></textarea>
             </div>
-        </form>
-    </div>
-</template>--%>
-<template id="medFormTPL">
-    <form id="<portlet:namespace/>medForm" class="med-add-grid" method="post">
-        <!-- hidden for EDIT -->
-        <input type="hidden" id="<portlet:namespace/>medicamentId" name="<portlet:namespace/>medicamentId"/>
-
-        <div class="fld">
-            <label for="<portlet:namespace/>code">Code (interne)</label>
-            <input id="<portlet:namespace/>code" name="<portlet:namespace/>code" maxlength="64" required placeholder="Ex. AMOX500-CAP-20" />
-        </div>
-
-        <div class="fld">
-            <label for="<portlet:namespace/>codeBarre">Code-barres (EAN-13)</label>
-            <input id="<portlet:namespace/>codeBarre" name="<portlet:namespace/>codeBarre"
-                   inputmode="numeric" autocomplete="off" pattern="[0-9]{12,13}" maxlength="13"
-                   placeholder="12 ou 13 chiffres (auto-complété)" />
-            <small id="<portlet:namespace/>eanHint" style="color:#6B7280"></small>
-        </div>
-
-        <div class="fld">
-            <label for="<portlet:namespace/>nom">Nom</label>
-            <input id="<portlet:namespace/>nom" name="<portlet:namespace/>nom" required />
-        </div>
-
-        <div class="fld">
-            <label for="<portlet:namespace/>prix">Prix Unitaire (DH)</label>
-            <input id="<portlet:namespace/>prix" name="<portlet:namespace/>prix" type="number" step="0.01" min="0" required />
-        </div>
-
-        <div class="fld">
-            <label for="<portlet:namespace/>categorie">Catégorie</label>
-            <input id="<portlet:namespace/>categorie" name="<portlet:namespace/>categorie" />
-        </div>
-
-        <div class="fld">
-            <label for="<portlet:namespace/>seuilMinimum">Seuil Minimum</label>
-            <input id="<portlet:namespace/>seuilMinimum" name="<portlet:namespace/>seuilMinimum" type="number" min="0" />
-        </div>
-
-        <div class="fld" style="grid-column:1/-1">
-            <label for="<portlet:namespace/>description">Description</label>
-            <textarea id="<portlet:namespace/>description" name="<portlet:namespace/>description"></textarea>
         </div>
     </form>
 </template>
 
 <script>
+    /* List filtering/sorting/paging */
     (function(){
         var table = document.getElementById('medsTable');
         if(!table) return;
@@ -488,19 +356,23 @@
         applyFilter();
     })();
 </script>
+
 <script>
+    /* Modal open + PREFILL (by ID) — no MutationObserver, no template.content */
     (function () {
         const ns = '<portlet:namespace/>';
+        const modalId = ns + 'medModal';
         const addURL = '${addMedURL}';
         const updateURL = '${updateMedURL}';
 
-        // ---- EAN helpers ----
+        // EAN helpers
         const ENFORCE_EAN13 = false;
         const cleanDigits = s => (s || '').replace(/\D/g, '');
         function computeEAN13(b12){ let s=0; for(let i=0;i<12;i++){const d=b12.charCodeAt(i)-48; s+=(i%2?3:1)*d;} return (10-(s%10))%10; }
         function isValidEAN13(s){ return /^[0-9]{13}$/.test(s) && (s.charCodeAt(12)-48)===computeEAN13(s.slice(0,12)); }
-        function prepareBarcode(form){
-            const cb = form.querySelector('[name="'+ns+'codeBarre"]');
+
+        function prepareBarcode(){
+            const cb = document.getElementById(ns+'codeBarre');
             if(!cb) return true;
             cb.value = cleanDigits(cb.value);
             if(cb.value.length===12){ cb.value += computeEAN13(cb.value); }
@@ -520,98 +392,99 @@
         function submitForm(){
             const form = document.getElementById(ns+'medForm');
             if(!form) return;
-            if(!prepareBarcode(form)) return;
+            if(!prepareBarcode()) return;
             if(form.checkValidity && !form.checkValidity()){ form.reportValidity && form.reportValidity(); return; }
             form.requestSubmit ? form.requestSubmit() : form.submit();
         }
 
-        // Wait until the form node exists (robust against animations)
-        function whenFormReady(cb){
-            const obs = new MutationObserver(() => {
-                const form = document.getElementById(ns+'medForm');
-                if(form){
-                    obs.disconnect();
-                    cb(form);
-                }
-            });
-            obs.observe(document.body, {childList:true, subtree:true});
+        // Prefill helpers
+        const setVal = (idNoNS, val) => {
+            const el = document.getElementById(ns + idNoNS);
+            if(el) el.value = (val===undefined || val===null || val==='null') ? '' : val;
+        };
+
+        function wireEANHint(){
+            const cb = document.getElementById(ns+'codeBarre');
+            const hint = document.getElementById(ns+'eanHint');
+            if (cb && hint){
+                const updateHint = () => {
+                    const raw = cleanDigits(cb.value||'');
+                    if(raw.length===12) hint.textContent = 'Calcul : ' + raw + computeEAN13(raw);
+                    else if(raw.length===13) hint.textContent = isValidEAN13(raw) ? 'EAN-13 valide'
+                        : 'EAN-13 invalide — devrait finir par ' + computeEAN13(raw.slice(0,12));
+                    else hint.textContent = '';
+                };
+                cb.addEventListener('input', updateHint);
+                updateHint();
+            }
+        }
+
+        function populate(mode, data){
+            const form = document.getElementById(ns+'medForm');
+            if(form) form.action = (mode==='add') ? addURL : updateURL;
+
+            if(mode==='edit'){
+                setVal('medicamentId', data.id);
+                setVal('code',        data.code);
+                setVal('codeBarre',   data.codebarre);
+                setVal('nom',         data.nom);
+                setVal('prix',        data.prix);
+                setVal('categorie',   data.categorie);
+                setVal('seuilMinimum',data.seuil);
+                setVal('description', data.description);
+            } else {
+                ['medicamentId','code','codeBarre','nom','prix','categorie','seuilMinimum','description']
+                    .forEach(k => setVal(k, ''));
+            }
+
+            const first = document.getElementById(ns+'code');
+            if (first) first.focus();
+
+            wireEANHint();
         }
 
         function openForm(mode, data){
             const tpl = document.getElementById('medFormTPL');
+            const bodyHTML = tpl ? tpl.innerHTML : '<div>Form template introuvable</div>';
+
             Liferay.Util.openModal({
-                id: ns + 'medModal',
+                id: modalId,
                 title: mode==='add' ? 'Ajouter un Médicament' : ('Modifier : ' + (data.nom || '')),
                 size: 'lg',
-                bodyHTML: tpl.innerHTML,
+                bodyHTML,
                 buttons: [
                     { label: 'Annuler', onClick: ({processClose}) => processClose && processClose() },
                     { label: mode==='add' ? 'Ajouter' : 'Mettre à jour', primary: true, onClick: submitForm }
-                ]
-            });
-
-            whenFormReady((form) => {
-                // target action
-                form.action = (mode==='add') ? addURL : updateURL;
-
-                const norm = v => (v===undefined || v===null || v==='null') ? '' : v;
-                const set = (name, val) => {
-                    const el = form.querySelector('[name="'+ns+name+'"]');
-                    if(el) el.value = norm(val);
-                };
-
-                if(mode==='edit'){
-                    set('medicamentId', data.id);
-                    set('code',        data.code);
-                    set('codeBarre',   data.codebarre);
-                    set('nom',         data.nom);
-                    set('prix',        data.prix);
-                    set('categorie',   data.categorie);
-                    set('seuilMinimum',data.seuil);
-                    set('description', data.description);
-                } else {
-                    ['medicamentId','code','codeBarre','nom','prix','categorie','seuilMinimum','description']
-                        .forEach(k => set(k, ''));
-                }
-
-                // live EAN hint
-                const cb = form.querySelector('[name="'+ns+'codeBarre"]');
-                const hint = form.querySelector('#'+ns+'eanHint');
-                if(cb && hint){
-                    const updateHint = () => {
-                        const raw = cleanDigits(cb.value||'');
-                        if(raw.length===12) hint.textContent = 'Calcul : ' + raw + computeEAN13(raw);
-                        else if(raw.length===13) hint.textContent = isValidEAN13(raw) ? 'EAN-13 valide'
-                            : 'EAN-13 invalide — devrait finir par ' + computeEAN13(raw.slice(0,12));
-                        else hint.textContent = '';
-                    };
-                    cb.addEventListener('input', updateHint);
-                    updateHint();
+                ],
+                onOpen: () => {
+                    // Give Clay a tick to mount, then fill
+                    setTimeout(() => populate(mode, data), 0);
                 }
             });
         }
 
-        // Buttons (Add + Edit)
-        document.querySelectorAll('.js-med-open').forEach(el=>{
-            el.addEventListener('click', e=>{
-                e.preventDefault();
-                const mode = el.dataset.mode || 'add';
-                const data = (mode==='edit') ? {
-                    id: el.dataset.id,
-                    code: el.dataset.code,
-                    codebarre: el.dataset.codebarre,
-                    nom: el.dataset.nom,
-                    prix: el.dataset.prix,
-                    categorie: el.dataset.categorie,
-                    seuil: el.dataset.seuil,
-                    description: el.dataset.description
-                } : {};
-                openForm(mode, data);
-            });
+        // Event delegation for openers
+        document.addEventListener('click', function (e) {
+            const trigger = e.target.closest('.js-med-open');
+            if (!trigger) return;
+            e.preventDefault();
+
+            const mode = trigger.dataset.mode || 'add';
+            const data = (mode === 'edit') ? {
+                id:          trigger.dataset.id,
+                code:        trigger.dataset.code,
+                codebarre:   trigger.dataset.codebarre,
+                nom:         trigger.dataset.nom,
+                prix:        trigger.dataset.prix,
+                categorie:   trigger.dataset.categorie,
+                seuil:       trigger.dataset.seuil,
+                description: trigger.dataset.description
+            } : {};
+
+            openForm(mode, data);
         });
     })();
 </script>
-
 
 
 </body>
