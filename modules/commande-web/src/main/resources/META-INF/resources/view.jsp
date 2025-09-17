@@ -3,7 +3,6 @@
 <%@ page import="gestion_de_pharmacie.model.Medicament" %>
 <%@ taglib uri="http://liferay.com/tld/aui" prefix="aui" %>
 <%@ taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %>
-<%@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 
 <liferay-theme:defineObjects />
 
@@ -14,14 +13,16 @@
 	List<Medicament> medicaments = (List<Medicament>) request.getAttribute("medicaments");
 %>
 
-<aui:form action="<portlet:actionURL name='createCommande'/>" method="post">
+<aui:form actionName="createCommande" method="post">
 
 	<!-- Fournisseur -->
 	<aui:select label="Fournisseur" name="fournisseurId" required="true">
 		<%
 			for (Utilisateur f : fournisseurs) {
 		%>
-		<aui:option value="<%=f.getIdUtilisateur()%>"><%=f.getNom() + " " + f.getPrenom()%></aui:option>
+		<aui:option value="<%= f.getIdUtilisateur() %>">
+			<%= f.getNom() + " " + f.getPrenom() %>
+		</aui:option>
 		<%
 			}
 		%>
@@ -44,10 +45,10 @@
 		%>
 		<tr>
 			<td>
-				<aui:input type="checkbox" name="medicamentId" value="<%=m.getIdMedicament()%>" />
-				<%=m.getNom()%>
+				<aui:input type="checkbox" name="medicamentId" value="<%= m.getIdMedicament() %>" />
+				<%= m.getNom() %>
 			</td>
-			<td><%=m.getPrixUnitaire()%> DH</td>
+			<td><%= m.getPrixUnitaire() %> DH</td>
 			<td>
 				<aui:input type="number" name="quantite" value="1" min="1" />
 			</td>
