@@ -7,6 +7,7 @@ package gestion_de_pharmacie.service;
 
 import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.PersistedModel;
 import com.liferay.portal.kernel.module.service.Snapshot;
@@ -292,4 +293,19 @@ public class FournisseurLocalServiceUtil {
 		new Snapshot<>(
 			FournisseurLocalServiceUtil.class, FournisseurLocalService.class);
 
+    public static Fournisseur fetchFournisseurByEmail(String userEmail) {
+		try {
+			DynamicQuery query = dynamicQuery()
+					.add(RestrictionsFactoryUtil.eq("email", userEmail));
+
+			List<Fournisseur> list = dynamicQuery(query, 0, 1); // get first match only
+			if (!list.isEmpty()) {
+				return list.get(0);
+			}
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+    }
 }

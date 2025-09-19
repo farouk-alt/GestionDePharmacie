@@ -1,6 +1,8 @@
 package auth.web.portlet;
 
 import auth.web.constants.AuthWebPortletKeys;
+import auth.web.constants.PortalSessionKeys;
+import auth.web.util.PortalSessionUtil; // <-- make sure this exists in auth-web (same code as in dashboard)
 import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -9,9 +11,11 @@ import gestion_de_pharmacie.service.UtilisateurLocalServiceUtil;
 import org.osgi.service.component.annotations.Component;
 
 import javax.portlet.*;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 
 @Component(
         property = {
@@ -30,24 +34,18 @@ import java.security.NoSuchAlgorithmException;
 )
 public class AuthWebPortlet extends MVCPortlet {
 
-    // Action method for registration
+    // REGISTER
     public void register(ActionRequest request, ActionResponse response) throws Exception {
         String fullname = ParamUtil.getString(request, "fullname");
         String email = ParamUtil.getString(request, "email");
         String password = ParamUtil.getString(request, "password");
         String confirmPassword = ParamUtil.getString(request, "confirmPassword");
 
-        System.out.println("Register attempt - Fullname: " + fullname + ", Email: " + email +
-                ", Password: " + password + ", Confirm Password: " + confirmPassword);
-
-        // Validation
         if (!password.equals(confirmPassword)) {
             request.setAttribute("errorMessage", "Les mots de passe ne correspondent pas !");
             response.setRenderParameter("mvcPath", "/pharmacy-register.jsp");
             return;
         }
-
-        // Check if email already exists
         if (UtilisateurLocalServiceUtil.getUtilisateurByEmail(email) != null) {
             request.setAttribute("errorMessage", "Cet email est déjà utilisé !");
             response.setRenderParameter("mvcPath", "/pharmacy-register.jsp");
@@ -56,165 +54,115 @@ public class AuthWebPortlet extends MVCPortlet {
 
         String[] names = fullname.split(" ", 2);
         String prenom = names.length > 1 ? names[0] : fullname;
-        String nom = names.length > 1 ? names[1] : "";
+        String nom    = names.length > 1 ? names[1] : "";
 
-        // Generate a unique ID using Liferay's counter service
         long newUserId = CounterLocalServiceUtil.increment();
+        Utilisateur u = UtilisateurLocalServiceUtil.createUtilisateur(newUserId);
+        u.setEmail(email);
+        u.setMotDePasse(hashPassword(password));
+        u.setPrenom(prenom);
+        u.setNom(nom);
+        u.setRole("PHARMACIEN");
+        u.setDateCreation(new Date());
 
-        // Create user with simple authentication
-        Utilisateur utilisateur = UtilisateurLocalServiceUtil.createUtilisateur(newUserId);
-        utilisateur.setEmail(email);
-        // Use hashed password instead of plain text
-        utilisateur.setMotDePasse(hashPassword(password));
-        utilisateur.setPrenom(prenom);
-        utilisateur.setNom(nom);
-        utilisateur.setRole("PHARMACIEN"); // Default role
-
-        System.out.println("Creating user with ID: " + newUserId + ", Prenom: " + prenom + ", Nom: " + nom + ", Email: " + email);
-
-        UtilisateurLocalServiceUtil.addUtilisateur(utilisateur);
+        UtilisateurLocalServiceUtil.addUtilisateur(u);
 
         request.setAttribute("successMessage", "Inscription réussie ! Vous pouvez maintenant vous connecter.");
         response.setRenderParameter("mvcPath", "/pharmacy-login.jsp");
     }
 
-/*
+    // LOGIN (HttpSession)
     public void login(ActionRequest request, ActionResponse response) throws Exception {
         String email = ParamUtil.getString(request, "email");
         String password = ParamUtil.getString(request, "password");
 
-        System.out.println("Login attempt - Email: " + email + ", Password: " + password);
-
-
-        // Super admin hardcoded (bypass hashing for demo) - CHECK THIS FIRST
+        // Demo SUPER_ADMIN
         if ("admin@pharma.com".equals(email) && "12345".equals(password)) {
-            PortletSession session = request.getPortletSession();
-            session.setAttribute("authenticated", true, PortletSession.APPLICATION_SCOPE);
-            session.setAttribute("userEmail", email, PortletSession.APPLICATION_SCOPE);
-            session.setAttribute("userRole", "SUPER_ADMIN", PortletSession.APPLICATION_SCOPE);
-            session.setAttribute("currentUser", null, PortletSession.APPLICATION_SCOPE); // no DB entry
-
-            response.sendRedirect("/web/guest/dashboard"); // Super Admin dashboard
-            return;  // IMPORTANT: Exit the method after handling admin login
-        }
-
-        // Normal users - compare hashed passwords
-        Utilisateur utilisateur = UtilisateurLocalServiceUtil.getUtilisateurByEmail(email);
-
-        if (utilisateur != null && utilisateur.getMotDePasse().equals(hashPassword(password))) {
-            PortletSession session = request.getPortletSession();
-            session.setAttribute("authenticated", true, PortletSession.APPLICATION_SCOPE);
-            session.setAttribute("userEmail", utilisateur.getEmail(), PortletSession.APPLICATION_SCOPE);
-            session.setAttribute("userRole", utilisateur.getRole(), PortletSession.APPLICATION_SCOPE);
-            session.setAttribute("currentUser", utilisateur, PortletSession.APPLICATION_SCOPE);
-
-            response.sendRedirect("/web/guest/dashboard"); // Normal dashboard
-        } else {
-            request.setAttribute("loginError", "Email ou mot de passe incorrect !");
-            response.setRenderParameter("mvcPath", "/pharmacy-login.jsp");
-        }
-    }
-*/
-// Action method for login
-    public void login(ActionRequest request, ActionResponse response) throws Exception {
-        String email = ParamUtil.getString(request, "email");
-        String password = ParamUtil.getString(request, "password");
-
-        System.out.println("Login attempt - Email: " + email + ", Password: " + password);
-
-        // Super admin hardcoded (bypass hashing for demo)
-        if ("admin@pharma.com".equals(email) && "12345".equals(password)) {
-            System.out.println("Super admin login successful");
-            PortletSession session = request.getPortletSession();
-            session.setAttribute("authenticated", true, PortletSession.APPLICATION_SCOPE);
-            session.setAttribute("userEmail", email, PortletSession.APPLICATION_SCOPE);
-            session.setAttribute("userRole", "SUPER_ADMIN", PortletSession.APPLICATION_SCOPE);
-            session.setAttribute("currentUser", null, PortletSession.APPLICATION_SCOPE);
-
-            // Use render parameter instead of redirect
-            response.setRenderParameter("mvcPath", "/dashboard.jsp");
+            HttpSession hs = PortalSessionUtil.httpSession(request);
+            hs.setAttribute(PortalSessionKeys.AUTHENTICATED, Boolean.TRUE);
+            hs.setAttribute(PortalSessionKeys.USER_EMAIL, email);
+            hs.setAttribute(PortalSessionKeys.USER_ROLE, "SUPER_ADMIN");
+            response.sendRedirect("/web/guest/dashboard"); // page hosting dashboard-web
             return;
         }
 
-        // Normal users - compare hashed passwords
-        Utilisateur utilisateur = UtilisateurLocalServiceUtil.getUtilisateurByEmail(email);
+        // Normal users
+        Utilisateur u = UtilisateurLocalServiceUtil.getUtilisateurByEmail(email);
+        if (u != null && u.getMotDePasse().equals(hashPassword(password))) {
+            u.setLastLogin(new Date());
+            UtilisateurLocalServiceUtil.updateUtilisateur(u);
 
-        if (utilisateur != null && utilisateur.getMotDePasse().equals(hashPassword(password))) {
-            PortletSession session = request.getPortletSession();
-            session.setAttribute("authenticated", true, PortletSession.APPLICATION_SCOPE);
-            session.setAttribute("userEmail", utilisateur.getEmail(), PortletSession.APPLICATION_SCOPE);
-            session.setAttribute("userRole", utilisateur.getRole(), PortletSession.APPLICATION_SCOPE);
-            session.setAttribute("currentUser", utilisateur, PortletSession.APPLICATION_SCOPE);
+            HttpSession hs = PortalSessionUtil.httpSession(request);
+            hs.setAttribute(PortalSessionKeys.AUTHENTICATED, Boolean.TRUE);
+            hs.setAttribute(PortalSessionKeys.USER_EMAIL, u.getEmail());
+            hs.setAttribute(PortalSessionKeys.USER_ROLE, u.getRole());
 
-            // Use render parameter instead of redirect
-            response.setRenderParameter("mvcPath", "/dashboard.jsp");
+            // DEBUG: prove it's written
+            System.out.println("[AUTH] set HS id=" + hs.getId()
+                    + " email=" + hs.getAttribute(PortalSessionKeys.USER_EMAIL)
+                    + " role="  + hs.getAttribute(PortalSessionKeys.USER_ROLE));
+
+            response.sendRedirect("/web/guest/dashboard");
         } else {
             request.setAttribute("loginError", "Email ou mot de passe incorrect !");
             response.setRenderParameter("mvcPath", "/pharmacy-login.jsp");
         }
     }
-    // Action method for logout
+
+    // LOGOUT (HttpSession)
+    @ProcessAction(name = "logout")
     public void logout(ActionRequest request, ActionResponse response) throws IOException {
-        PortletSession session = request.getPortletSession();
-        session.removeAttribute("authenticated", PortletSession.APPLICATION_SCOPE);
-        session.removeAttribute("userEmail", PortletSession.APPLICATION_SCOPE);
-        session.removeAttribute("userRole", PortletSession.APPLICATION_SCOPE);
-        session.removeAttribute("currentUser", PortletSession.APPLICATION_SCOPE);
-        session.invalidate();
+        HttpSession hs = PortalSessionUtil.httpSession(request);
+        hs.removeAttribute(PortalSessionKeys.AUTHENTICATED);
+        hs.removeAttribute(PortalSessionKeys.USER_EMAIL);
+        hs.removeAttribute(PortalSessionKeys.USER_ROLE);
+        // hs.invalidate(); // optional
 
-        // Set success message and show login page
-        request.setAttribute("successMessage", "Vous avez été déconnecté avec succès.");
-        response.setRenderParameter("mvcPath", "/pharmacy-login.jsp");
+        // Redirect to the login page (portal URL that hosts AuthWeb)
+        response.sendRedirect("/login");
     }
 
-    public void doView(RenderRequest renderRequest, RenderResponse renderResponse)
-            throws IOException, PortletException {
+    @Override
+    public void doView(RenderRequest req, RenderResponse res) throws IOException, PortletException {
+        HttpSession hs = PortalSessionUtil.httpSession(req);
+        Boolean authenticated = (Boolean) hs.getAttribute(PortalSessionKeys.AUTHENTICATED);
 
-        PortletSession session = renderRequest.getPortletSession();
-        Boolean authenticated = (Boolean) session.getAttribute("authenticated", PortletSession.APPLICATION_SCOPE);
+        // Optional: if already logged in, send them to dashboard page
+        // if (Boolean.TRUE.equals(authenticated)) {
+        //     res.createRenderURL(); // no-op; better to use a page redirect
+        // }
 
-        // Check if we should show the test page
-        String showTest = ParamUtil.getString(renderRequest, "showTest");
-
-        if ("true".equals(showTest)) {
-            // Show test page
-            include("/test.jsp", renderRequest, renderResponse);
-            return;
-        }
-
-        if (Boolean.TRUE.equals(authenticated)) {
-            // User is logged in, show dashboard
-            include("/dashboard.jsp", renderRequest, renderResponse);
+        String action = ParamUtil.getString(req, "action");
+        if ("register".equals(action)) {
+            include("/pharmacy-register.jsp", req, res);
         } else {
-            // Not logged in → check action (login/register)
-            String action = ParamUtil.getString(renderRequest, "action");
-            if ("register".equals(action)) {
-                include("/pharmacy-register.jsp", renderRequest, renderResponse);
-            } else {
-                include("/pharmacy-login.jsp", renderRequest, renderResponse);
-            }
+            include("/pharmacy-login.jsp", req, res);
         }
     }
 
-    // Helper method to check if user is authenticated
+    // (If you keep these helpers, switch them to HttpSession too)
     public static boolean isAuthenticated(PortletRequest request) {
-        return request.getPortletSession().getAttribute("currentUser", PortletSession.APPLICATION_SCOPE) != null;
+        HttpSession hs = PortalSessionUtil.httpSession((RenderRequest) request);
+        Boolean auth = (Boolean) hs.getAttribute(PortalSessionKeys.AUTHENTICATED);
+        return Boolean.TRUE.equals(auth);
     }
-
-    // Helper method to get current user
     public static Utilisateur getCurrentUser(PortletRequest request) {
-        return (Utilisateur) request.getPortletSession().getAttribute("currentUser", PortletSession.APPLICATION_SCOPE);
+        // You don't store the full Utilisateur in session; fetch by email if needed
+        HttpSession hs = PortalSessionUtil.httpSession((RenderRequest) request);
+        String email = (String) hs.getAttribute(PortalSessionKeys.USER_EMAIL);
+        try {
+            return UtilisateurLocalServiceUtil.getUtilisateurByEmail(email);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
-    // Password hashing method
     private String hashPassword(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hashedBytes = md.digest(password.getBytes());
+            byte[] hashed = md.digest(password.getBytes());
             StringBuilder sb = new StringBuilder();
-            for (byte b : hashedBytes) {
-                sb.append(String.format("%02x", b));
-            }
+            for (byte b : hashed) sb.append(String.format("%02x", b));
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("Error hashing password", e);

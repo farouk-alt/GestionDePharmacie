@@ -74,6 +74,10 @@
         <column name="dateCommande" type="Date" />
         <column name="statut" type="String" />
         <column name="montantTotal" type="double" />
+
+        <finder name="Fournisseur" return-type="Collection">
+            <finder-column name="idFournisseur" />
+        </finder>
     </entity>
 
     <entity name="CommandeDetail" local-service="true" remote-service="true">
