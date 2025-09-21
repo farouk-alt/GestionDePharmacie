@@ -1,3 +1,4 @@
+<%@ page import="javax.portlet.PortletSession" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -5,14 +6,27 @@
 <%@ taglib uri="http://liferay.com/tld/util" prefix="liferay-util" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
+<c:set var="userEmail" value="${sessionScope.USER_EMAIL}" />
+<c:set var="userRole" value="${sessionScope.USER_ROLE}" />
 
+<portlet:defineObjects />
 
+<%
+    PortletSession ps = renderRequest.getPortletSession();
+
+    String userRole = (String) ps.getAttribute("USER_ROLE", PortletSession.APPLICATION_SCOPE);
+    String userEmail = (String) ps.getAttribute("USER_EMAIL", PortletSession.APPLICATION_SCOPE);
+
+    pageContext.setAttribute("userRole", userRole);
+    pageContext.setAttribute("userEmail", userEmail);
+%>
 
 <portlet:defineObjects />
 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tableau de Bord - PharmaCare</title>
@@ -733,7 +747,7 @@
 </head>
 <body>
 <div class="dashboard-container">
-
+    <p style="color:red;">Debug Role: '${userRole}'</p>
     <!-- Header -->
     <portlet:actionURL var="logoutURL" name="logout" />
     <div class="dashboard-header">
@@ -756,6 +770,10 @@
     <c:if test="${empty currentSection}">
         <c:set var="currentSection" value="overview"/>
     </c:if>
+    <portlet:renderURL var="tabCommandes">
+        <portlet:param name="mvcPath" value="/common/dashboard.jsp"/>
+        <portlet:param name="section" value="commandes"/>
+    </portlet:renderURL>
 
     <!-- Tabs -->
     <portlet:renderURL var="tabOverview"><portlet:param name="mvcPath" value="/common/dashboard.jsp"/><portlet:param name="section" value="overview"/></portlet:renderURL>
@@ -771,23 +789,31 @@
         <portlet:param name="mvcPath" value="/common/dashboard.jsp"/>
         <portlet:param name="section" value="medicaments"/>
     </portlet:renderURL>
+    <!-- Fournissuer -->
+    <portlet:renderURL var="tabCommandes">
+        <portlet:param name="mvcPath" value="/common/dashboard.jsp"/>
+        <portlet:param name="section" value="commandes"/>
+    </portlet:renderURL>
+
 
 
 
     <div class="tabs">
         <a class="tab ${currentSection=='overview' ? 'active' : ''}" href="${tabOverview}">Aperçu</a>
-        <a class="tab ${currentSection=='admins'   ? 'active' : ''}" href="${tabAdmins}">Admins</a>
-<%--
-        <a class="tab ${currentSection=='users'    ? 'active' : ''}" href="${tabUsers}">Employés</a>
---%>
-        <a class="tab ${currentSection=='logs'     ? 'active' : ''}" href="${tabLogs}">Logs</a>
-        <a class="tab ${currentSection=='stats'    ? 'active' : ''}" href="${tabStats}">Statistiques</a>
+        <a class="tab ${currentSection=='admins' ? 'active' : ''}" href="${tabAdmins}">Admins</a>
+        <a class="tab ${currentSection=='logs' ? 'active' : ''}" href="${tabLogs}">Logs</a>
+        <a class="tab ${currentSection=='stats' ? 'active' : ''}" href="${tabStats}">Statistiques</a>
         <a class="tab ${currentSection=='security' ? 'active' : ''}" href="${tabSecurity}">Sécurité</a>
-        <c:if test="${userRole == 'ADMIN'}">
+
+        <c:if test="${userRole eq 'ADMIN'}">
             <a class="tab ${currentSection=='medicaments' ? 'active' : ''}" href="${tabMedicaments}">Médicaments</a>
         </c:if>
 
-
+        <c:if test="${fn:trim(userRole) eq 'FOURNISSEUR'}">
+            <a class="tab ${currentSection=='commandes' ? 'active' : ''}" href="${tabCommandes}">
+                Commandes
+            </a>
+        </c:if>
 
     </div>
 
@@ -1073,6 +1099,16 @@
             </c:catch>
             <c:if test="${not empty incErr}">
                 <div class="message error">Impossible d’inclure ${fragBase}/logs.jsp. Vérifiez le chemin et les erreurs de compilation.</div>
+                <pre class="debug-info">${fn:escapeXml(incErr)}</pre>
+            </c:if>
+        </c:when>
+        <%-- commandes --%>
+        <c:when test="${currentSection == 'commandes'}">
+            <c:catch var="incErr">
+                <liferay-util:include page="${fragBase}/commandes.jsp" servletContext="<%= application %>" />
+            </c:catch>
+            <c:if test="${not empty incErr}">
+                <div class="message error">Impossible d’inclure ${fragBase}/commandes.jsp. Vérifiez le chemin et les erreurs de compilation.</div>
                 <pre class="debug-info">${fn:escapeXml(incErr)}</pre>
             </c:if>
         </c:when>
