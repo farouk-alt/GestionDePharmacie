@@ -50,8 +50,13 @@ public class CommandeWebPortlet extends MVCPortlet {
 			List<Medicament> medicaments =
 					MedicamentLocalServiceUtil.getMedicaments(-1, -1);
 
+			// List all commandes
+			List<Commande> commandes =
+					CommandeLocalServiceUtil.getCommandes(-1, -1);
+
 			renderRequest.setAttribute("fournisseurs", fournisseurs);
 			renderRequest.setAttribute("medicaments", medicaments);
+			renderRequest.setAttribute("commandes", commandes);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -60,12 +65,13 @@ public class CommandeWebPortlet extends MVCPortlet {
 		super.doView(renderRequest, renderResponse);
 	}
 
+
 	@ProcessAction(name = "createCommande")
 	public void createCommande(ActionRequest request, ActionResponse response) {
 		try {
 			long fournisseurId = ParamUtil.getLong(request, "fournisseurId");
 
-			// Create new Commande
+			// Create Commande
 			long cmdId = CounterLocalServiceUtil.increment();
 			Commande cmd = CommandeLocalServiceUtil.createCommande(cmdId);
 			cmd.setIdFournisseur(fournisseurId);
@@ -76,14 +82,14 @@ public class CommandeWebPortlet extends MVCPortlet {
 
 			double montantTotal = 0.0;
 
-			// Handle multiple medicaments selected
+			// Get selected medicaments
 			String[] medicamentIds = request.getParameterValues("medicamentId");
-			String[] quantities = request.getParameterValues("quantite");
+			if (medicamentIds != null) {
+				for (String medIdStr : medicamentIds) {
+					long medId = Long.parseLong(medIdStr);
 
-			if (medicamentIds != null && quantities != null) {
-				for (int i = 0; i < medicamentIds.length; i++) {
-					long medId = Long.parseLong(medicamentIds[i]);
-					int qte = Integer.parseInt(quantities[i]);
+					// fetch quantity by dynamic name
+					int qte = ParamUtil.getInteger(request, "quantite_" + medId, 1);
 
 					Medicament m = MedicamentLocalServiceUtil.getMedicament(medId);
 
@@ -94,7 +100,6 @@ public class CommandeWebPortlet extends MVCPortlet {
 					detail.setQuantite(qte);
 					detail.setPrixUnitaire(m.getPrixUnitaire());
 
-					// Calculate sousTotal on the fly
 					double sousTotal = qte * m.getPrixUnitaire();
 					montantTotal += sousTotal;
 
@@ -106,10 +111,11 @@ public class CommandeWebPortlet extends MVCPortlet {
 			cmd.setMontantTotal(montantTotal);
 			CommandeLocalServiceUtil.updateCommande(cmd);
 
-			response.setRenderParameter("mvcPath", "/success.jsp");
+			response.setRenderParameter("mvcPath", "/view.jsp");
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+
 }
