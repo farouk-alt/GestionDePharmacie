@@ -34,6 +34,48 @@ public interface StockPersistence extends BasePersistence<Stock> {
 	 */
 
 	/**
+	 * Returns the stock where idMedicament = &#63; or throws a <code>NoSuchStockException</code> if it could not be found.
+	 *
+	 * @param idMedicament the id medicament
+	 * @return the matching stock
+	 * @throws NoSuchStockException if a matching stock could not be found
+	 */
+	public Stock findByMed(long idMedicament) throws NoSuchStockException;
+
+	/**
+	 * Returns the stock where idMedicament = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 *
+	 * @param idMedicament the id medicament
+	 * @return the matching stock, or <code>null</code> if a matching stock could not be found
+	 */
+	public Stock fetchByMed(long idMedicament);
+
+	/**
+	 * Returns the stock where idMedicament = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 *
+	 * @param idMedicament the id medicament
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the matching stock, or <code>null</code> if a matching stock could not be found
+	 */
+	public Stock fetchByMed(long idMedicament, boolean useFinderCache);
+
+	/**
+	 * Removes the stock where idMedicament = &#63; from the database.
+	 *
+	 * @param idMedicament the id medicament
+	 * @return the stock that was removed
+	 */
+	public Stock removeByMed(long idMedicament) throws NoSuchStockException;
+
+	/**
+	 * Returns the number of stocks where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @return the number of matching stocks
+	 */
+	public int countByMed(long idMedicament);
+
+	/**
 	 * Caches the stock in the entity cache if it is enabled.
 	 *
 	 * @param stock the stock

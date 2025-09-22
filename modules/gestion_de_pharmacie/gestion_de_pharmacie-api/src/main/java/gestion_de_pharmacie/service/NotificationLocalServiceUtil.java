@@ -37,6 +37,11 @@ public class NotificationLocalServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to <code>gestion_de_pharmacie.service.impl.NotificationLocalServiceImpl</code> and rerun ServiceBuilder to regenerate this class.
 	 */
+	public static Notification addNotification(
+		long userId, String type, String message) {
+
+		return getService().addNotification(userId, type, message);
+	}
 
 	/**
 	 * Adds the notification to the database. Also notifies the appropriate model listeners.
@@ -50,6 +55,24 @@ public class NotificationLocalServiceUtil {
 	 */
 	public static Notification addNotification(Notification notification) {
 		return getService().addNotification(notification);
+	}
+
+	public static void addNotificationForRole(
+		String role, String type, String message) {
+
+		getService().addNotificationForRole(role, type, message);
+	}
+
+	public static int countUnread(long idUtilisateur) {
+		return getService().countUnread(idUtilisateur);
+	}
+
+	public static int countUnreadByUser(long userId) {
+		return getService().countUnreadByUser(userId);
+	}
+
+	public static void createLowStockAlertsForMed(long idMedicament) {
+		getService().createLowStockAlertsForMed(idMedicament);
 	}
 
 	/**
@@ -208,6 +231,13 @@ public class NotificationLocalServiceUtil {
 		return getService().getActionableDynamicQuery();
 	}
 
+	public static List<Notification> getByUserStatus(
+		long userId, String statut, int start, int end,
+		OrderByComparator<Notification> obc) {
+
+		return getService().getByUserStatus(userId, statut, start, end, obc);
+	}
+
 	public static
 		com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery
 			getIndexableActionableDynamicQuery() {
@@ -268,6 +298,14 @@ public class NotificationLocalServiceUtil {
 		throws PortalException {
 
 		return getService().getPersistedModel(primaryKeyObj);
+	}
+
+	public static int markAllAsRead(long idUtilisateur) {
+		return getService().markAllAsRead(idUtilisateur);
+	}
+
+	public static Notification markAsRead(long idNotification) {
+		return getService().markAsRead(idNotification);
 	}
 
 	/**

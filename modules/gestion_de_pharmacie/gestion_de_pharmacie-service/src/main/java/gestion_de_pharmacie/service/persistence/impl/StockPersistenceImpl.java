@@ -11,6 +11,7 @@ import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
+import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.SessionFactory;
@@ -21,6 +22,8 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import gestion_de_pharmacie.exception.NoSuchStockException;
 
@@ -35,6 +38,9 @@ import gestion_de_pharmacie.service.persistence.impl.constants.PharmaPersistence
 
 import java.io.Serializable;
 
+import java.lang.reflect.InvocationHandler;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -77,6 +83,179 @@ public class StockPersistenceImpl
 	private FinderPath _finderPathWithPaginationFindAll;
 	private FinderPath _finderPathWithoutPaginationFindAll;
 	private FinderPath _finderPathCountAll;
+	private FinderPath _finderPathFetchByMed;
+
+	/**
+	 * Returns the stock where idMedicament = &#63; or throws a <code>NoSuchStockException</code> if it could not be found.
+	 *
+	 * @param idMedicament the id medicament
+	 * @return the matching stock
+	 * @throws NoSuchStockException if a matching stock could not be found
+	 */
+	@Override
+	public Stock findByMed(long idMedicament) throws NoSuchStockException {
+		Stock stock = fetchByMed(idMedicament);
+
+		if (stock == null) {
+			StringBundler sb = new StringBundler(4);
+
+			sb.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+			sb.append("idMedicament=");
+			sb.append(idMedicament);
+
+			sb.append("}");
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(sb.toString());
+			}
+
+			throw new NoSuchStockException(sb.toString());
+		}
+
+		return stock;
+	}
+
+	/**
+	 * Returns the stock where idMedicament = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 *
+	 * @param idMedicament the id medicament
+	 * @return the matching stock, or <code>null</code> if a matching stock could not be found
+	 */
+	@Override
+	public Stock fetchByMed(long idMedicament) {
+		return fetchByMed(idMedicament, true);
+	}
+
+	/**
+	 * Returns the stock where idMedicament = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 *
+	 * @param idMedicament the id medicament
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the matching stock, or <code>null</code> if a matching stock could not be found
+	 */
+	@Override
+	public Stock fetchByMed(long idMedicament, boolean useFinderCache) {
+		Object[] finderArgs = null;
+
+		if (useFinderCache) {
+			finderArgs = new Object[] {idMedicament};
+		}
+
+		Object result = null;
+
+		if (useFinderCache) {
+			result = finderCache.getResult(
+				_finderPathFetchByMed, finderArgs, this);
+		}
+
+		if (result instanceof Stock) {
+			Stock stock = (Stock)result;
+
+			if (idMedicament != stock.getIdMedicament()) {
+				result = null;
+			}
+		}
+
+		if (result == null) {
+			StringBundler sb = new StringBundler(3);
+
+			sb.append(_SQL_SELECT_STOCK_WHERE);
+
+			sb.append(_FINDER_COLUMN_MED_IDMEDICAMENT_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(idMedicament);
+
+				List<Stock> list = query.list();
+
+				if (list.isEmpty()) {
+					if (useFinderCache) {
+						finderCache.putResult(
+							_finderPathFetchByMed, finderArgs, list);
+					}
+				}
+				else {
+					if (list.size() > 1) {
+						Collections.sort(list, Collections.reverseOrder());
+
+						if (_log.isWarnEnabled()) {
+							if (!useFinderCache) {
+								finderArgs = new Object[] {idMedicament};
+							}
+
+							_log.warn(
+								"StockPersistenceImpl.fetchByMed(long, boolean) with parameters (" +
+									StringUtil.merge(finderArgs) +
+										") yields a result set with more than 1 result. This violates the logical unique restriction. There is no order guarantee on which result is returned by this finder.");
+						}
+					}
+
+					Stock stock = list.get(0);
+
+					result = stock;
+
+					cacheResult(stock);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		if (result instanceof List<?>) {
+			return null;
+		}
+		else {
+			return (Stock)result;
+		}
+	}
+
+	/**
+	 * Removes the stock where idMedicament = &#63; from the database.
+	 *
+	 * @param idMedicament the id medicament
+	 * @return the stock that was removed
+	 */
+	@Override
+	public Stock removeByMed(long idMedicament) throws NoSuchStockException {
+		Stock stock = findByMed(idMedicament);
+
+		return remove(stock);
+	}
+
+	/**
+	 * Returns the number of stocks where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @return the number of matching stocks
+	 */
+	@Override
+	public int countByMed(long idMedicament) {
+		Stock stock = fetchByMed(idMedicament);
+
+		if (stock == null) {
+			return 0;
+		}
+
+		return 1;
+	}
+
+	private static final String _FINDER_COLUMN_MED_IDMEDICAMENT_2 =
+		"stock.idMedicament = ?";
 
 	public StockPersistenceImpl() {
 		setModelClass(Stock.class);
@@ -95,6 +274,10 @@ public class StockPersistenceImpl
 	@Override
 	public void cacheResult(Stock stock) {
 		entityCache.putResult(StockImpl.class, stock.getPrimaryKey(), stock);
+
+		finderCache.putResult(
+			_finderPathFetchByMed, new Object[] {stock.getIdMedicament()},
+			stock);
 	}
 
 	private int _valueObjectFinderCacheListThreshold;
@@ -162,6 +345,12 @@ public class StockPersistenceImpl
 		for (Serializable primaryKey : primaryKeys) {
 			entityCache.removeResult(StockImpl.class, primaryKey);
 		}
+	}
+
+	protected void cacheUniqueFindersCache(StockModelImpl stockModelImpl) {
+		Object[] args = new Object[] {stockModelImpl.getIdMedicament()};
+
+		finderCache.putResult(_finderPathFetchByMed, args, stockModelImpl);
 	}
 
 	/**
@@ -264,6 +453,24 @@ public class StockPersistenceImpl
 	public Stock updateImpl(Stock stock) {
 		boolean isNew = stock.isNew();
 
+		if (!(stock instanceof StockModelImpl)) {
+			InvocationHandler invocationHandler = null;
+
+			if (ProxyUtil.isProxyClass(stock.getClass())) {
+				invocationHandler = ProxyUtil.getInvocationHandler(stock);
+
+				throw new IllegalArgumentException(
+					"Implement ModelWrapper in stock proxy " +
+						invocationHandler.getClass());
+			}
+
+			throw new IllegalArgumentException(
+				"Implement ModelWrapper in custom Stock implementation " +
+					stock.getClass());
+		}
+
+		StockModelImpl stockModelImpl = (StockModelImpl)stock;
+
 		Session session = null;
 
 		try {
@@ -283,7 +490,9 @@ public class StockPersistenceImpl
 			closeSession(session);
 		}
 
-		entityCache.putResult(StockImpl.class, stock, false, true);
+		entityCache.putResult(StockImpl.class, stockModelImpl, false, true);
+
+		cacheUniqueFindersCache(stockModelImpl);
 
 		if (isNew) {
 			stock.setNew(false);
@@ -561,6 +770,11 @@ public class StockPersistenceImpl
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll",
 			new String[0], new String[0], false);
 
+		_finderPathFetchByMed = new FinderPath(
+			FINDER_CLASS_NAME_ENTITY, "fetchByMed",
+			new String[] {Long.class.getName()}, new String[] {"idMedicament"},
+			true);
+
 		StockUtil.setPersistence(this);
 	}
 
@@ -606,13 +820,22 @@ public class StockPersistenceImpl
 	private static final String _SQL_SELECT_STOCK =
 		"SELECT stock FROM Stock stock";
 
+	private static final String _SQL_SELECT_STOCK_WHERE =
+		"SELECT stock FROM Stock stock WHERE ";
+
 	private static final String _SQL_COUNT_STOCK =
 		"SELECT COUNT(stock) FROM Stock stock";
+
+	private static final String _SQL_COUNT_STOCK_WHERE =
+		"SELECT COUNT(stock) FROM Stock stock WHERE ";
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "stock.";
 
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY =
 		"No Stock exists with the primary key ";
+
+	private static final String _NO_SUCH_ENTITY_WITH_KEY =
+		"No Stock exists with the key {";
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		StockPersistenceImpl.class);
