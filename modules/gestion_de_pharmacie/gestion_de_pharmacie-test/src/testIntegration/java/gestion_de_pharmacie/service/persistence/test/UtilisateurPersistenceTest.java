@@ -169,6 +169,15 @@ public class UtilisateurPersistenceTest {
 	}
 
 	@Test
+	public void testCountByRole() throws Exception {
+		_persistence.countByRole("");
+
+		_persistence.countByRole("null");
+
+		_persistence.countByRole((String)null);
+	}
+
+	@Test
 	public void testFindByPrimaryKeyExisting() throws Exception {
 		Utilisateur newUtilisateur = addUtilisateur();
 

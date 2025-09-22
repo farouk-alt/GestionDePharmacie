@@ -170,6 +170,170 @@ public class UtilisateurUtil {
 	}
 
 	/**
+	 * Returns all the utilisateurs where role = &#63;.
+	 *
+	 * @param role the role
+	 * @return the matching utilisateurs
+	 */
+	public static List<Utilisateur> findByRole(String role) {
+		return getPersistence().findByRole(role);
+	}
+
+	/**
+	 * Returns a range of all the utilisateurs where role = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>UtilisateurModelImpl</code>.
+	 * </p>
+	 *
+	 * @param role the role
+	 * @param start the lower bound of the range of utilisateurs
+	 * @param end the upper bound of the range of utilisateurs (not inclusive)
+	 * @return the range of matching utilisateurs
+	 */
+	public static List<Utilisateur> findByRole(
+		String role, int start, int end) {
+
+		return getPersistence().findByRole(role, start, end);
+	}
+
+	/**
+	 * Returns an ordered range of all the utilisateurs where role = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>UtilisateurModelImpl</code>.
+	 * </p>
+	 *
+	 * @param role the role
+	 * @param start the lower bound of the range of utilisateurs
+	 * @param end the upper bound of the range of utilisateurs (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching utilisateurs
+	 */
+	public static List<Utilisateur> findByRole(
+		String role, int start, int end,
+		OrderByComparator<Utilisateur> orderByComparator) {
+
+		return getPersistence().findByRole(role, start, end, orderByComparator);
+	}
+
+	/**
+	 * Returns an ordered range of all the utilisateurs where role = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>UtilisateurModelImpl</code>.
+	 * </p>
+	 *
+	 * @param role the role
+	 * @param start the lower bound of the range of utilisateurs
+	 * @param end the upper bound of the range of utilisateurs (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching utilisateurs
+	 */
+	public static List<Utilisateur> findByRole(
+		String role, int start, int end,
+		OrderByComparator<Utilisateur> orderByComparator,
+		boolean useFinderCache) {
+
+		return getPersistence().findByRole(
+			role, start, end, orderByComparator, useFinderCache);
+	}
+
+	/**
+	 * Returns the first utilisateur in the ordered set where role = &#63;.
+	 *
+	 * @param role the role
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching utilisateur
+	 * @throws NoSuchUtilisateurException if a matching utilisateur could not be found
+	 */
+	public static Utilisateur findByRole_First(
+			String role, OrderByComparator<Utilisateur> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchUtilisateurException {
+
+		return getPersistence().findByRole_First(role, orderByComparator);
+	}
+
+	/**
+	 * Returns the first utilisateur in the ordered set where role = &#63;.
+	 *
+	 * @param role the role
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching utilisateur, or <code>null</code> if a matching utilisateur could not be found
+	 */
+	public static Utilisateur fetchByRole_First(
+		String role, OrderByComparator<Utilisateur> orderByComparator) {
+
+		return getPersistence().fetchByRole_First(role, orderByComparator);
+	}
+
+	/**
+	 * Returns the last utilisateur in the ordered set where role = &#63;.
+	 *
+	 * @param role the role
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching utilisateur
+	 * @throws NoSuchUtilisateurException if a matching utilisateur could not be found
+	 */
+	public static Utilisateur findByRole_Last(
+			String role, OrderByComparator<Utilisateur> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchUtilisateurException {
+
+		return getPersistence().findByRole_Last(role, orderByComparator);
+	}
+
+	/**
+	 * Returns the last utilisateur in the ordered set where role = &#63;.
+	 *
+	 * @param role the role
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching utilisateur, or <code>null</code> if a matching utilisateur could not be found
+	 */
+	public static Utilisateur fetchByRole_Last(
+		String role, OrderByComparator<Utilisateur> orderByComparator) {
+
+		return getPersistence().fetchByRole_Last(role, orderByComparator);
+	}
+
+	/**
+	 * Returns the utilisateurs before and after the current utilisateur in the ordered set where role = &#63;.
+	 *
+	 * @param idUtilisateur the primary key of the current utilisateur
+	 * @param role the role
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next utilisateur
+	 * @throws NoSuchUtilisateurException if a utilisateur with the primary key could not be found
+	 */
+	public static Utilisateur[] findByRole_PrevAndNext(
+			long idUtilisateur, String role,
+			OrderByComparator<Utilisateur> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchUtilisateurException {
+
+		return getPersistence().findByRole_PrevAndNext(
+			idUtilisateur, role, orderByComparator);
+	}
+
+	/**
+	 * Removes all the utilisateurs where role = &#63; from the database.
+	 *
+	 * @param role the role
+	 */
+	public static void removeByRole(String role) {
+		getPersistence().removeByRole(role);
+	}
+
+	/**
+	 * Returns the number of utilisateurs where role = &#63;.
+	 *
+	 * @param role the role
+	 * @return the number of matching utilisateurs
+	 */
+	public static int countByRole(String role) {
+		return getPersistence().countByRole(role);
+	}
+
+	/**
 	 * Caches the utilisateur in the entity cache if it is enabled.
 	 *
 	 * @param utilisateur the utilisateur

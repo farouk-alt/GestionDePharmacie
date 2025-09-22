@@ -12,6 +12,8 @@ import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.transaction.Propagation;
@@ -136,6 +138,13 @@ public class StockPersistenceTest {
 		Assert.assertEquals(
 			Time.getShortTimestamp(existingStock.getDateDerniereMaj()),
 			Time.getShortTimestamp(newStock.getDateDerniereMaj()));
+	}
+
+	@Test
+	public void testCountByMed() throws Exception {
+		_persistence.countByMed(RandomTestUtil.nextLong());
+
+		_persistence.countByMed(0L);
 	}
 
 	@Test
@@ -363,6 +372,62 @@ public class StockPersistenceTest {
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
 		Assert.assertEquals(0, result.size());
+	}
+
+	@Test
+	public void testResetOriginalValues() throws Exception {
+		Stock newStock = addStock();
+
+		_persistence.clearCache();
+
+		_assertOriginalValues(
+			_persistence.findByPrimaryKey(newStock.getPrimaryKey()));
+	}
+
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromDatabase()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(true);
+	}
+
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromSession()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(false);
+	}
+
+	private void _testResetOriginalValuesWithDynamicQuery(boolean clearSession)
+		throws Exception {
+
+		Stock newStock = addStock();
+
+		if (clearSession) {
+			Session session = _persistence.openSession();
+
+			session.flush();
+
+			session.clear();
+		}
+
+		DynamicQuery dynamicQuery = DynamicQueryFactoryUtil.forClass(
+			Stock.class, _dynamicQueryClassLoader);
+
+		dynamicQuery.add(
+			RestrictionsFactoryUtil.eq("idStock", newStock.getIdStock()));
+
+		List<Stock> result = _persistence.findWithDynamicQuery(dynamicQuery);
+
+		_assertOriginalValues(result.get(0));
+	}
+
+	private void _assertOriginalValues(Stock stock) {
+		Assert.assertEquals(
+			Long.valueOf(stock.getIdMedicament()),
+			ReflectionTestUtil.<Long>invoke(
+				stock, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"idMedicament"));
 	}
 
 	protected Stock addStock() throws Exception {
