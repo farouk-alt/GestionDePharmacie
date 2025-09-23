@@ -16,6 +16,9 @@ import gestion_de_pharmacie.service.base.UtilisateurLocalServiceBaseImpl;
 
 import org.osgi.service.component.annotations.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Implémentation custom pour la gestion des Utilisateurs métiers
  * On crée un User Liferay + un Utilisateur (métier) lié par liferayUserId
@@ -98,6 +101,10 @@ public class UtilisateurLocalServiceImpl extends UtilisateurLocalServiceBaseImpl
     // In UtilisateurLocalServiceImpl
     public Utilisateur getUtilisateurByEmail(String email) {
         return utilisateurPersistence.fetchByEmail(email);
+    }
+
+    public List<Utilisateur> getUtilisateurByRole(String role) {
+        return utilisateurPersistence.findByRole(role);
     }
 
 }

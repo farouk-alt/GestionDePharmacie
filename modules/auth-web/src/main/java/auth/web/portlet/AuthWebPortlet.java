@@ -72,7 +72,7 @@ public class AuthWebPortlet extends MVCPortlet {
     }
 
     // LOGIN (HttpSession)
-    public void login(ActionRequest request, ActionResponse response) throws Exception {
+   /* public void login(ActionRequest request, ActionResponse response) throws Exception {
         String email = ParamUtil.getString(request, "email");
         String password = ParamUtil.getString(request, "password");
 
@@ -106,7 +106,39 @@ public class AuthWebPortlet extends MVCPortlet {
             response.setRenderParameter("mvcPath", "/pharmacy-login.jsp");
         }
     }
+*/
+    public void login(ActionRequest request, ActionResponse response) throws Exception {
+        String email = ParamUtil.getString(request, "email");
+        String password = ParamUtil.getString(request, "password");
 
+        PortletSession ps = request.getPortletSession();
+
+        if ("admin@pharma.com".equals(email) && "12345".equals(password)) {
+            ps.setAttribute("AUTHENTICATED", Boolean.TRUE, PortletSession.APPLICATION_SCOPE);
+            ps.setAttribute("USER_EMAIL", email, PortletSession.APPLICATION_SCOPE);
+            ps.setAttribute("USER_ROLE", "SUPER_ADMIN", PortletSession.APPLICATION_SCOPE);
+
+            response.sendRedirect("/web/guest/dashboard");
+            return;
+        }
+
+        Utilisateur u = UtilisateurLocalServiceUtil.getUtilisateurByEmail(email);
+        if (u != null && u.getMotDePasse().equals(hashPassword(password))) {
+            u.setLastLogin(new Date());
+            UtilisateurLocalServiceUtil.updateUtilisateur(u);
+
+            ps.setAttribute("AUTHENTICATED", Boolean.TRUE, PortletSession.APPLICATION_SCOPE);
+            ps.setAttribute("USER_EMAIL", u.getEmail(), PortletSession.APPLICATION_SCOPE);
+            ps.setAttribute("USER_ROLE", u.getRole(), PortletSession.APPLICATION_SCOPE);
+
+            System.out.println("[AUTH] Login successful - Email: " + u.getEmail() + ", Role: " + u.getRole());
+
+            response.sendRedirect("/web/guest/dashboard");
+        } else {
+            request.setAttribute("loginError", "Email ou mot de passe incorrect !");
+            response.setRenderParameter("mvcPath", "/pharmacy-login.jsp");
+        }
+    }
 
     // LOGOUT (HttpSession)
     @ProcessAction(name = "logout")

@@ -145,8 +145,82 @@
     </div>
 
     <div class="card">
-        <!-- table + pager exactly as you have -->
+        <div class="controls">
+            <input id="search" type="search" placeholder="Rechercher (code, code-barres, nom, catégorie, description)…" />
+            <span class="count" id="rangeText"></span>
+        </div>
+
+        <table id="medsTable">
+            <thead>
+            <tr>
+                <th class="sortable" data-sort-key="id">ID <span class="arrow">↕</span></th>
+                <th class="sortable" data-sort-key="code">Code <span class="arrow">↕</span></th>
+                <th class="sortable" data-sort-key="codeBarre">Code-barres <span class="arrow">↕</span></th>
+                <th class="sortable" data-sort-key="nom">Nom <span class="arrow">↕</span></th>
+                <th class="sortable" data-sort-key="categorie">Catégorie <span class="arrow">↕</span></th>
+                <th class="sortable" data-sort-key="prix">Prix (DH) <span class="arrow">↕</span></th>
+                <th class="sortable" data-sort-key="seuil">Seuil min. <span class="arrow">↕</span></th>
+                <th class="sortable" data-sort-key="date">Date ajout <span class="arrow">↕</span></th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <%
+                for (Medicament m : medicaments) {
+                    long ts = (m.getDateAjout() != null) ? m.getDateAjout().getTime() : 0L;
+                    String prixAff = money.format(m.getPrixUnitaire());
+                    String dateAff = (m.getDateAjout()!=null) ? new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(m.getDateAjout()) : "-";
+            %>
+            <tr>
+                <td data-key="id" data-sort="<%= m.getIdMedicament() %>"><%= m.getIdMedicament() %></td>
+                <td data-key="code"><%= HtmlUtil.escape(String.valueOf(m.getCode())) %></td>
+                <td data-key="codeBarre"><%= HtmlUtil.escape(String.valueOf(m.getCodeBarre())) %></td>
+                <td data-key="nom"><%= HtmlUtil.escape(String.valueOf(m.getNom())) %></td>
+                <td data-key="categorie"><%= HtmlUtil.escape(m.getCategorie()!=null? m.getCategorie() : "-") %></td>
+                <td data-key="prix" data-sort="<%= m.getPrixUnitaire() %>"><%= prixAff %></td>
+                <td data-key="seuil" data-sort="<%= m.getSeuilMinimum() %>"><%= m.getSeuilMinimum() %></td>
+                <td data-key="date" data-sort="<%= ts %>"><%= dateAff %></td>
+                <td class="desc" title="<%= HtmlUtil.escape(m.getDescription()!=null? m.getDescription() : "") %>">
+                    <%= HtmlUtil.escape(m.getDescription()!=null? m.getDescription() : "-") %>
+                </td>
+                <td class="actions">
+                    <!-- Edit -->
+                    <a href="#"
+                       class="icon-btn js-med-open"
+                       data-mode="edit"
+                       data-id="<%= m.getIdMedicament() %>"
+                       data-code="<%= HtmlUtil.escapeAttribute(String.valueOf(m.getCode())) %>"
+                       data-codebarre="<%= HtmlUtil.escapeAttribute(String.valueOf(m.getCodeBarre())) %>"
+                       data-nom="<%= HtmlUtil.escapeAttribute(String.valueOf(m.getNom())) %>"
+                       data-prix="<%= m.getPrixUnitaire() %>"
+                       data-categorie="<%= HtmlUtil.escapeAttribute(String.valueOf(m.getCategorie())) %>"
+                       data-seuil="<%= m.getSeuilMinimum() %>"
+                       data-description="<%= HtmlUtil.escapeAttribute(String.valueOf(m.getDescription())) %>"
+                       aria-label="Éditer" title="Éditer">
+                        <clay:icon symbol="pencil" />
+                    </a>
+
+                    <!-- Delete -->
+                    <portlet:actionURL name="deleteMedicament" var="deleteURL">
+                        <portlet:param name="medicamentId" value="<%= String.valueOf(m.getIdMedicament()) %>" />
+                    </portlet:actionURL>
+                    <form action="${deleteURL}" method="post"
+                          onsubmit="return confirm('Voulez-vous vraiment supprimer ce médicament ?');">
+                        <button type="submit" class="icon-btn danger" aria-label="Supprimer" title="Supprimer">
+                            <clay:icon symbol="trash" />
+                        </button>
+                    </form>
+                </td>
+
+            </tr>
+            <% } %>
+            </tbody>
+        </table>
+
+        <div class="pager" id="pager"></div>
     </div>
+
 
     <!-- Flash messages -->
     <liferay-ui:success key="medicament-added-successfully"    message="Médicament ajouté avec succès !" />

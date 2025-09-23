@@ -1,7 +1,10 @@
 package commande.web.portlet;
 
 import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
+import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.ParamUtil;
 import gestion_de_pharmacie.model.Commande;
 import gestion_de_pharmacie.model.CommandeDetail;
@@ -15,6 +18,7 @@ import org.osgi.service.component.annotations.Component;
 
 import javax.portlet.*;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -34,7 +38,7 @@ import java.util.List;
 )
 public class CommandeWebPortlet extends MVCPortlet {
 
-	@Override
+/*	@Override
 	public void doView(RenderRequest renderRequest, RenderResponse renderResponse)
 			throws IOException, PortletException {
 
@@ -116,6 +120,89 @@ public class CommandeWebPortlet extends MVCPortlet {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
+private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
 
+    @Override
+    public void doView(RenderRequest req, RenderResponse res) throws PortletException, IOException {
+        try {
+            // fournisseurs: users having role "FOURNISSEUR" (adjust how you store roles)
+            List<Utilisateur> fournisseurs = UtilisateurLocalServiceUtil.getUtilisateurByRole("FOURNISSEUR");
+            List<Medicament> medicaments = MedicamentLocalServiceUtil.getMedicaments(-1, -1);
+
+            // commandes: show all for admins, or only created by this user for pharmacists (optional)
+            List<Commande> commandes = CommandeLocalServiceUtil.getCommandes(-1, -1);
+
+            req.setAttribute("fournisseurs", fournisseurs);
+            req.setAttribute("medicaments", medicaments);
+            req.setAttribute("commandes", commandes);
+        } catch (Exception e) {
+            _log.error("doView fetch error", e);
+        }
+        super.doView(req, res);
+    }
+
+    @ProcessAction(name = "createCommande")
+    public void createCommande(ActionRequest request, ActionResponse response) {
+        try {
+            long fournisseurId = ParamUtil.getLong(request, "fournisseurId");
+
+            // medicamentId[] are checkboxes — ParamUtil.getParameterValues(...) returns String[] in Liferay
+            String[] medIds = ParamUtil.getParameterValues(request, "medicamentId");
+            if (medIds == null || medIds.length == 0) {
+                SessionMessages.add(request, "commande-no-items");
+                response.setRenderParameter("mvcPath", "/view.jsp");
+                return;
+            }
+
+            // Create commande
+            Commande commande = CommandeLocalServiceUtil.createCommande(
+                    CounterLocalServiceUtil.increment(Commande.class.getName())
+            );
+            commande.setIdFournisseur(fournisseurId);
+            commande.setDateCommande(new Date());
+            commande.setStatut("CREATED");
+
+            // we'll accumulate total
+            double total = 0.0;
+            List<CommandeDetail> details = new ArrayList<>();
+
+            for (String idStr : medIds) {
+                long medId = Long.parseLong(idStr);
+                // quantity input name pattern in your JSP: quantite_<medId>
+                int q = ParamUtil.getInteger(request, "quantite_" + medId, 1);
+                Medicament m = MedicamentLocalServiceUtil.fetchMedicament(medId);
+                double pu = (m != null) ? m.getPrixUnitaire() : 0.0;
+                double subtotal = pu * q;
+                total += subtotal;
+
+                CommandeDetail d = CommandeDetailLocalServiceUtil.createCommandeDetail(
+                        CounterLocalServiceUtil.increment(CommandeDetail.class.getName())
+                );
+                d.setIdMedicament(medId);
+                d.setQuantite(q);
+                d.setPrixUnitaire(pu);
+                // link later after commande is persisted
+                details.add(d);
+            }
+
+            commande.setMontantTotal(total);
+
+            // persist
+            CommandeLocalServiceUtil.addCommande(commande);
+
+            // set details' idCommande and persist
+            for (CommandeDetail d : details) {
+                d.setIdCommande(commande.getIdCommande());
+                CommandeDetailLocalServiceUtil.addCommandeDetail(d);
+            }
+
+            SessionMessages.add(request, "commande-created-success");
+            response.setRenderParameter("mvcPath", "/view.jsp");
+        } catch (Exception e) {
+            _log.error("createCommande failed", e);
+            SessionMessages.add(request, "commande-create-error");
+            response.setRenderParameter("mvcPath", "/view.jsp");
+        }
+    }
 }
