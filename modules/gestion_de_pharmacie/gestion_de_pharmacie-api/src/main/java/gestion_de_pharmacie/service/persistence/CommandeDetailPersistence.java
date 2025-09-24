@@ -35,6 +35,292 @@ public interface CommandeDetailPersistence
 	 */
 
 	/**
+	 * Returns all the commande details where idCommande = &#63;.
+	 *
+	 * @param idCommande the id commande
+	 * @return the matching commande details
+	 */
+	public java.util.List<CommandeDetail> findByIdCommande(long idCommande);
+
+	/**
+	 * Returns a range of all the commande details where idCommande = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeDetailModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idCommande the id commande
+	 * @param start the lower bound of the range of commande details
+	 * @param end the upper bound of the range of commande details (not inclusive)
+	 * @return the range of matching commande details
+	 */
+	public java.util.List<CommandeDetail> findByIdCommande(
+		long idCommande, int start, int end);
+
+	/**
+	 * Returns an ordered range of all the commande details where idCommande = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeDetailModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idCommande the id commande
+	 * @param start the lower bound of the range of commande details
+	 * @param end the upper bound of the range of commande details (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching commande details
+	 */
+	public java.util.List<CommandeDetail> findByIdCommande(
+		long idCommande, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<CommandeDetail>
+			orderByComparator);
+
+	/**
+	 * Returns an ordered range of all the commande details where idCommande = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeDetailModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idCommande the id commande
+	 * @param start the lower bound of the range of commande details
+	 * @param end the upper bound of the range of commande details (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching commande details
+	 */
+	public java.util.List<CommandeDetail> findByIdCommande(
+		long idCommande, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<CommandeDetail>
+			orderByComparator,
+		boolean useFinderCache);
+
+	/**
+	 * Returns the first commande detail in the ordered set where idCommande = &#63;.
+	 *
+	 * @param idCommande the id commande
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching commande detail
+	 * @throws NoSuchCommandeDetailException if a matching commande detail could not be found
+	 */
+	public CommandeDetail findByIdCommande_First(
+			long idCommande,
+			com.liferay.portal.kernel.util.OrderByComparator<CommandeDetail>
+				orderByComparator)
+		throws NoSuchCommandeDetailException;
+
+	/**
+	 * Returns the first commande detail in the ordered set where idCommande = &#63;.
+	 *
+	 * @param idCommande the id commande
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching commande detail, or <code>null</code> if a matching commande detail could not be found
+	 */
+	public CommandeDetail fetchByIdCommande_First(
+		long idCommande,
+		com.liferay.portal.kernel.util.OrderByComparator<CommandeDetail>
+			orderByComparator);
+
+	/**
+	 * Returns the last commande detail in the ordered set where idCommande = &#63;.
+	 *
+	 * @param idCommande the id commande
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching commande detail
+	 * @throws NoSuchCommandeDetailException if a matching commande detail could not be found
+	 */
+	public CommandeDetail findByIdCommande_Last(
+			long idCommande,
+			com.liferay.portal.kernel.util.OrderByComparator<CommandeDetail>
+				orderByComparator)
+		throws NoSuchCommandeDetailException;
+
+	/**
+	 * Returns the last commande detail in the ordered set where idCommande = &#63;.
+	 *
+	 * @param idCommande the id commande
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching commande detail, or <code>null</code> if a matching commande detail could not be found
+	 */
+	public CommandeDetail fetchByIdCommande_Last(
+		long idCommande,
+		com.liferay.portal.kernel.util.OrderByComparator<CommandeDetail>
+			orderByComparator);
+
+	/**
+	 * Returns the commande details before and after the current commande detail in the ordered set where idCommande = &#63;.
+	 *
+	 * @param idDetail the primary key of the current commande detail
+	 * @param idCommande the id commande
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next commande detail
+	 * @throws NoSuchCommandeDetailException if a commande detail with the primary key could not be found
+	 */
+	public CommandeDetail[] findByIdCommande_PrevAndNext(
+			long idDetail, long idCommande,
+			com.liferay.portal.kernel.util.OrderByComparator<CommandeDetail>
+				orderByComparator)
+		throws NoSuchCommandeDetailException;
+
+	/**
+	 * Removes all the commande details where idCommande = &#63; from the database.
+	 *
+	 * @param idCommande the id commande
+	 */
+	public void removeByIdCommande(long idCommande);
+
+	/**
+	 * Returns the number of commande details where idCommande = &#63;.
+	 *
+	 * @param idCommande the id commande
+	 * @return the number of matching commande details
+	 */
+	public int countByIdCommande(long idCommande);
+
+	/**
+	 * Returns all the commande details where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @return the matching commande details
+	 */
+	public java.util.List<CommandeDetail> findByIdMedicament(long idMedicament);
+
+	/**
+	 * Returns a range of all the commande details where idMedicament = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeDetailModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idMedicament the id medicament
+	 * @param start the lower bound of the range of commande details
+	 * @param end the upper bound of the range of commande details (not inclusive)
+	 * @return the range of matching commande details
+	 */
+	public java.util.List<CommandeDetail> findByIdMedicament(
+		long idMedicament, int start, int end);
+
+	/**
+	 * Returns an ordered range of all the commande details where idMedicament = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeDetailModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idMedicament the id medicament
+	 * @param start the lower bound of the range of commande details
+	 * @param end the upper bound of the range of commande details (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching commande details
+	 */
+	public java.util.List<CommandeDetail> findByIdMedicament(
+		long idMedicament, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<CommandeDetail>
+			orderByComparator);
+
+	/**
+	 * Returns an ordered range of all the commande details where idMedicament = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeDetailModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idMedicament the id medicament
+	 * @param start the lower bound of the range of commande details
+	 * @param end the upper bound of the range of commande details (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching commande details
+	 */
+	public java.util.List<CommandeDetail> findByIdMedicament(
+		long idMedicament, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<CommandeDetail>
+			orderByComparator,
+		boolean useFinderCache);
+
+	/**
+	 * Returns the first commande detail in the ordered set where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching commande detail
+	 * @throws NoSuchCommandeDetailException if a matching commande detail could not be found
+	 */
+	public CommandeDetail findByIdMedicament_First(
+			long idMedicament,
+			com.liferay.portal.kernel.util.OrderByComparator<CommandeDetail>
+				orderByComparator)
+		throws NoSuchCommandeDetailException;
+
+	/**
+	 * Returns the first commande detail in the ordered set where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching commande detail, or <code>null</code> if a matching commande detail could not be found
+	 */
+	public CommandeDetail fetchByIdMedicament_First(
+		long idMedicament,
+		com.liferay.portal.kernel.util.OrderByComparator<CommandeDetail>
+			orderByComparator);
+
+	/**
+	 * Returns the last commande detail in the ordered set where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching commande detail
+	 * @throws NoSuchCommandeDetailException if a matching commande detail could not be found
+	 */
+	public CommandeDetail findByIdMedicament_Last(
+			long idMedicament,
+			com.liferay.portal.kernel.util.OrderByComparator<CommandeDetail>
+				orderByComparator)
+		throws NoSuchCommandeDetailException;
+
+	/**
+	 * Returns the last commande detail in the ordered set where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching commande detail, or <code>null</code> if a matching commande detail could not be found
+	 */
+	public CommandeDetail fetchByIdMedicament_Last(
+		long idMedicament,
+		com.liferay.portal.kernel.util.OrderByComparator<CommandeDetail>
+			orderByComparator);
+
+	/**
+	 * Returns the commande details before and after the current commande detail in the ordered set where idMedicament = &#63;.
+	 *
+	 * @param idDetail the primary key of the current commande detail
+	 * @param idMedicament the id medicament
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next commande detail
+	 * @throws NoSuchCommandeDetailException if a commande detail with the primary key could not be found
+	 */
+	public CommandeDetail[] findByIdMedicament_PrevAndNext(
+			long idDetail, long idMedicament,
+			com.liferay.portal.kernel.util.OrderByComparator<CommandeDetail>
+				orderByComparator)
+		throws NoSuchCommandeDetailException;
+
+	/**
+	 * Removes all the commande details where idMedicament = &#63; from the database.
+	 *
+	 * @param idMedicament the id medicament
+	 */
+	public void removeByIdMedicament(long idMedicament);
+
+	/**
+	 * Returns the number of commande details where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @return the number of matching commande details
+	 */
+	public int countByIdMedicament(long idMedicament);
+
+	/**
 	 * Caches the commande detail in the entity cache if it is enabled.
 	 *
 	 * @param commandeDetail the commande detail

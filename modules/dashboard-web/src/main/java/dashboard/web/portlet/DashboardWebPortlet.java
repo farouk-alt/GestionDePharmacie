@@ -233,33 +233,28 @@ public class DashboardWebPortlet extends MVCPortlet {
         String userRole = null;
 
         // Debug: List all PortletSession attributes
-        System.out.println("[DEBUG] === PortletSession Attributes ===");
         java.util.Enumeration<String> appAttrNames = ps.getAttributeNames(PortletSession.APPLICATION_SCOPE);
         while (appAttrNames.hasMoreElements()) {
             String name = appAttrNames.nextElement();
             Object value = ps.getAttribute(name, PortletSession.APPLICATION_SCOPE);
-            System.out.println("  APPLICATION_SCOPE - " + name + " = " + value);
         }
 
         java.util.Enumeration<String> portletAttrNames = ps.getAttributeNames(PortletSession.PORTLET_SCOPE);
         while (portletAttrNames.hasMoreElements()) {
             String name = portletAttrNames.nextElement();
             Object value = ps.getAttribute(name, PortletSession.PORTLET_SCOPE);
-            System.out.println("  PORTLET_SCOPE - " + name + " = " + value);
         }
 
         // Get from PortletSession (same as login portlet)
         userEmail = (String) ps.getAttribute("USER_EMAIL", PortletSession.APPLICATION_SCOPE);
         userRole = (String) ps.getAttribute("USER_ROLE", PortletSession.APPLICATION_SCOPE);
 
-        System.out.println("[DEBUG] Retrieved - Email: " + userEmail + ", Role: " + userRole);
 
         // If still null, try ThemeDisplay
         if (userEmail == null || userRole == null) {
             ThemeDisplay td = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
             if (td != null && td.isSignedIn()) {
                 userEmail = td.getUser().getEmailAddress();
-                System.out.println("[DEBUG] From ThemeDisplay: " + userEmail);
 
                 try {
                     Utilisateur u = UtilisateurLocalServiceUtil.getUtilisateurByEmail(userEmail);

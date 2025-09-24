@@ -243,6 +243,10 @@ public class CommandeLocalServiceUtil {
 		return getService().getCommandesCount();
 	}
 
+	public static String getFournisseurName(long commandeId) {
+		return getService().getFournisseurName(commandeId);
+	}
+
 	public static
 		com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery
 			getIndexableActionableDynamicQuery() {

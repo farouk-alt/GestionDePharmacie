@@ -145,6 +145,13 @@ public class CommandePersistenceTest {
 	}
 
 	@Test
+	public void testCountByIdFournisseur() throws Exception {
+		_persistence.countByIdFournisseur(RandomTestUtil.nextLong());
+
+		_persistence.countByIdFournisseur(0L);
+	}
+
+	@Test
 	public void testFindByPrimaryKeyExisting() throws Exception {
 		Commande newCommande = addCommande();
 

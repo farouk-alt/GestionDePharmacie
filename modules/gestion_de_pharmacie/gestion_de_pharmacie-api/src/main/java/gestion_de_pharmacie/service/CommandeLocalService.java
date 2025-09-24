@@ -227,6 +227,9 @@ public interface CommandeLocalService
 	public int getCommandesCount();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public String getFournisseurName(long commandeId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
 
 	/**

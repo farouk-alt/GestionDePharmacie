@@ -87,6 +87,10 @@
         <column name="dateCommande" type="Date" />
         <column name="statut" type="String" />
         <column name="montantTotal" type="double" />
+        <finder name="IdFournisseur" return-type="Collection">
+            <finder-column name="idFournisseur" />
+        </finder>
+
     </entity>
 
     <entity name="CommandeDetail" local-service="true" remote-service="true">
@@ -95,6 +99,14 @@
         <column name="idMedicament" type="long" />
         <column name="quantite" type="int" />
         <column name="prixUnitaire" type="double" />
+        <finder name="IdCommande" return-type="Collection">
+            <finder-column name="idCommande" />
+        </finder>
+        <finder name="IdMedicament" return-type="Collection">
+            <finder-column name="idMedicament" />
+        </finder>
+
+
     </entity>
 
     <entity name="Notification" local-service="true" remote-service="true">

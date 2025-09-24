@@ -1,9 +1,3 @@
-<%@ page import="javax.portlet.PortletSession" %>
-<%@ page import="com.liferay.portal.kernel.theme.ThemeDisplay" %>
-<%@ page import="com.liferay.portal.kernel.util.WebKeys" %>
-<%@ page import="dashboard.web.util.PortalSessionUtil" %>
-<%@ page import="dashboard.web.constants.PortalSessionKeys" %>
-<%@ page import="javax.portlet.ActionRequest" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -11,24 +5,14 @@
 <%@ taglib uri="http://liferay.com/tld/util" prefix="liferay-util" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
-<c:set var="userEmail" value="${sessionScope.USER_EMAIL}" />
-<c:set var="userRole" value="${sessionScope.USER_ROLE}" />
-<%@ page import="com.liferay.portal.kernel.theme.ThemeDisplay, com.liferay.portal.kernel.util.WebKeys" %>
+
+
 
 <portlet:defineObjects />
-
-<%
-    String userRole = (String) request.getAttribute("userRole");
-    String userEmail = (String) request.getAttribute("userEmail");
-
-    pageContext.setAttribute("userRole", userRole);
-    pageContext.setAttribute("userEmail", userEmail);
-%>
 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tableau de Bord - PharmaCare</title>
@@ -192,13 +176,13 @@
         .adm-grid .fld{display:flex;flex-direction:column;gap:6px}
         .adm-grid input,.adm-grid select{width:100%;box-sizing:border-box;background:#fff;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px}
         .adm-grid input:focus,.adm-grid select:focus{outline:none;border-color:var(--secondary);box-shadow:0 0 0 3px rgba(59,130,246,.15)}
-             /* header + card mimic your Médicaments section */
-         .adm-header{
-             background:linear-gradient(135deg,var(--primary),var(--secondary));
-             color:#fff;border-radius:14px;padding:18px 20px;margin-bottom:16px;
-             display:flex;align-items:center;justify-content:space-between;
-             box-shadow:0 10px 24px rgba(30,58,138,.25)
-         }
+        /* header + card mimic your Médicaments section */
+        .adm-header{
+            background:linear-gradient(135deg,var(--primary),var(--secondary));
+            color:#fff;border-radius:14px;padding:18px 20px;margin-bottom:16px;
+            display:flex;align-items:center;justify-content:space-between;
+            box-shadow:0 10px 24px rgba(30,58,138,.25)
+        }
         .adm-header h2{margin:0;font-size:20px}
         .adm-header .header-actions{display:flex;gap:8px;align-items:center}
         .adm-count{color:#E0E7FF;font-size:12px;margin-right:6px}
@@ -749,52 +733,6 @@
 </head>
 <body>
 <div class="dashboard-container">
-    <!-- Enhanced Debug Info -->
-    <%@ page import="javax.portlet.PortletSession" %>
-    <%
-        // Get PortletSession from request
-        portletSession = (PortletSession) request.getAttribute("javax.portlet.session");
-        String portletSessionEmail = null;
-        String portletSessionRole = null;
-        String portletSessionAuth = null;
-
-        if (portletSession != null) {
-            portletSessionEmail = (String) portletSession.getAttribute("USER_EMAIL", PortletSession.APPLICATION_SCOPE);
-            portletSessionRole = (String) portletSession.getAttribute("USER_ROLE", PortletSession.APPLICATION_SCOPE);
-            portletSessionAuth = String.valueOf(portletSession.getAttribute("AUTHENTICATED", PortletSession.APPLICATION_SCOPE));
-        }
-    %>
-
-    <!-- Enhanced Debug Information -->
-    <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; border-left: 4px solid #0077cc;">
-        <strong>Debug Information:</strong><br/>
-
-        <strong>Request Attributes:</strong><br/>
-        • Request Email: <%= request.getAttribute("userEmail") %><br/>
-        • Request Role: <%= request.getAttribute("userRole") %><br/>
-
-        <strong>HttpSession (JSP session object):</strong><br/>
-        • HttpSession ID: <%= session.getId() %><br/>
-        • HttpSession AUTH: <%= session.getAttribute("AUTHENTICATED") %><br/>
-        • HttpSession Email: <%= session.getAttribute("USER_EMAIL") %><br/>
-        • HttpSession Role: <%= session.getAttribute("USER_ROLE") %><br/>
-
-        <strong>PortletSession (APPLICATION_SCOPE):</strong><br/>
-        • PortletSession AUTH: <%= portletSessionAuth %><br/>
-        • PortletSession Email: <%= portletSessionEmail %><br/>
-        • PortletSession Role: <%= portletSessionRole %><br/>
-
-        <strong>Other:</strong><br/>
-        • Current Section: ${empty requestScope.section ? param.section : requestScope.section}<br/>
-        • ThemeDisplay Signed In: <%
-        Object td = request.getAttribute(com.liferay.portal.kernel.util.WebKeys.THEME_DISPLAY);
-        if (td != null) {
-            out.print(((com.liferay.portal.kernel.theme.ThemeDisplay) td).isSignedIn());
-        } else {
-            out.print("null");
-        }
-    %>
-    </div>
 
     <!-- Header -->
     <portlet:actionURL var="logoutURL" name="logout" />
@@ -822,9 +760,9 @@
     <!-- Tabs -->
     <portlet:renderURL var="tabOverview"><portlet:param name="mvcPath" value="/common/dashboard.jsp"/><portlet:param name="section" value="overview"/></portlet:renderURL>
     <portlet:renderURL var="tabAdmins"><portlet:param name="mvcPath" value="/common/dashboard.jsp"/><portlet:param name="section" value="admins"/></portlet:renderURL>
-<%--
-    <portlet:renderURL var="tabUsers"><portlet:param name="mvcPath" value="/common/dashboard.jsp"/><portlet:param name="section" value="users"/></portlet:renderURL>
---%>
+    <%--
+        <portlet:renderURL var="tabUsers"><portlet:param name="mvcPath" value="/common/dashboard.jsp"/><portlet:param name="section" value="users"/></portlet:renderURL>
+    --%>
     <portlet:renderURL var="tabLogs"><portlet:param name="mvcPath" value="/common/dashboard.jsp"/><portlet:param name="section" value="logs"/></portlet:renderURL>
     <portlet:renderURL var="tabStats"><portlet:param name="mvcPath" value="/common/dashboard.jsp"/><portlet:param name="section" value="stats"/></portlet:renderURL>
     <portlet:renderURL var="tabSecurity"><portlet:param name="mvcPath" value="/common/dashboard.jsp"/><portlet:param name="section" value="security"/></portlet:renderURL>
@@ -833,29 +771,29 @@
         <portlet:param name="mvcPath" value="/common/dashboard.jsp"/>
         <portlet:param name="section" value="medicaments"/>
     </portlet:renderURL>
-    <!-- Fournissuer -->
     <portlet:renderURL var="tabCommandes">
         <portlet:param name="mvcPath" value="/common/dashboard.jsp"/>
         <portlet:param name="section" value="commandes"/>
     </portlet:renderURL>
 
 
-
-
     <div class="tabs">
         <a class="tab ${currentSection=='overview' ? 'active' : ''}" href="${tabOverview}">Aperçu</a>
-        <a class="tab ${currentSection=='admins' ? 'active' : ''}" href="${tabAdmins}">Admins</a>
-        <a class="tab ${currentSection=='logs' ? 'active' : ''}" href="${tabLogs}">Logs</a>
-        <a class="tab ${currentSection=='stats' ? 'active' : ''}" href="${tabStats}">Statistiques</a>
+        <a class="tab ${currentSection=='admins'   ? 'active' : ''}" href="${tabAdmins}">Admins</a>
+        <%--
+                <a class="tab ${currentSection=='users'    ? 'active' : ''}" href="${tabUsers}">Employés</a>
+        --%>
+        <a class="tab ${currentSection=='logs'     ? 'active' : ''}" href="${tabLogs}">Logs</a>
+        <a class="tab ${currentSection=='stats'    ? 'active' : ''}" href="${tabStats}">Statistiques</a>
         <a class="tab ${currentSection=='security' ? 'active' : ''}" href="${tabSecurity}">Sécurité</a>
-
-        <c:if test="${userRole eq 'ADMIN'}">
+        <c:if test="${userRole == 'ADMIN'}">
             <a class="tab ${currentSection=='medicaments' ? 'active' : ''}" href="${tabMedicaments}">Médicaments</a>
         </c:if>
-
         <c:if test="${userRole == 'ADMIN' || userRole == 'PHARMACIEN'}">
             <a class="tab ${currentSection=='commandes' ? 'active' : ''}" href="${tabCommandes}">Commandes</a>
         </c:if>
+
+
 
 
     </div>
@@ -897,6 +835,157 @@
                 <div class="card"><div class="card-header"><div class="card-icon"><i class="fas fa-lock"></i></div><h3 style="margin:0;">Sécurité</h3></div><p>Gérer les paramètres de sécurité et les autorisations.</p><a href="${tabSecurity}" class="btn btn-primary">Paramètres Sécurité</a></div>
             </div>
         </c:when>
+
+        <%-- Admins management --%>
+        <%--
+                <c:when test="${currentSection == 'admins'}">
+                    <c:if test="${userRole == 'SUPER_ADMIN' || userRole == 'ADMIN'}">
+                        <div class="admin-section">
+                            <h3 style="margin-top:0;"><i class="fas fa-shield-alt"></i> Panneau d'Administration</h3>
+
+                            <div class="employee-management">
+                                <h4><i class="fas fa-user-shield"></i> Liste des Admins</h4>
+                                <c:if test="${not empty employees}">
+                                    <table class="employee-table">
+                                        <thead>
+                                        <tr>
+                                            <th>Nom</th><th>Email</th><th>Rôle</th><th>Date Création</th><th>Dernière Connexion</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <c:forEach var="employee" items="${employees}">
+                                            <c:if test="${employee.role == 'ADMIN'}">
+                                                <tr>
+                                                    <td>${employee.prenom} ${employee.nom}</td>
+                                                    <td>${employee.email}</td>
+                                                    <td>${employee.role}</td>
+                                                    <td><fmt:formatDate value="${employee.dateCreation}" pattern="dd/MM/yyyy HH:mm"/></td>
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${not empty employee.lastLogin}">
+                                                                <fmt:formatDate value="${employee.lastLogin}" pattern="dd/MM/yyyy HH:mm"/>
+                                                            </c:when>
+                                                            <c:otherwise>-</c:otherwise>
+                                                        </c:choose>
+                                                    </td>
+                                                </tr>
+                                            </c:if>
+                                        </c:forEach>
+                                        </tbody>
+                                    </table>
+                                </c:if>
+                            </div>
+
+                            <div class="employee-management">
+                                <h4><i class="fas fa-users"></i> Liste des Employés</h4>
+
+                                    &lt;%&ndash; SEARCH + CONTROLS &ndash;%&gt;
+                                <c:if test="${not empty employees}">
+                                    <div class="table-controls">
+                                        <input id="employeeSearch" type="search" placeholder="Rechercher par nom, email ou rôle…" />
+                                        <span class="pager-info" id="pagerInfo"></span>
+                                    </div>
+                                </c:if>
+
+                                <c:if test="${not empty employees}">
+                                    <table class="employee-table" id="employeesTable">
+                                        <thead>
+                                        <tr>
+                                            <th class="sortable" data-sort-key="name">Nom <span class="arrow">↕</span></th>
+                                            <th class="sortable" data-sort-key="email">Email <span class="arrow">↕</span></th>
+                                            <th class="sortable" data-sort-key="role">Rôle <span class="arrow">↕</span></th>
+                                            <th class="sortable" data-sort-key="dateCreation">Date Création <span class="arrow">↕</span></th>
+                                            <th class="sortable" data-sort-key="lastLogin">Dernière Connexion <span class="arrow">↕</span></th>
+                                            <th>Nouveau Rôle</th>
+                                            <th>Action</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <c:forEach var="employee" items="${employees}">
+                                            <c:if test="${employee.role != 'ADMIN'}">
+                                                <tr>
+                                                    <td data-key="name">${employee.prenom} ${employee.nom}</td>
+                                                    <td data-key="email">${employee.email}</td>
+                                                    <td data-key="role">${employee.role}</td>
+                                                    <td data-key="dateCreation"
+                                                        data-sort="${employee.dateCreation.time}">
+                                                        <fmt:formatDate value="${employee.dateCreation}" pattern="dd/MM/yyyy HH:mm"/>
+                                                    </td>
+                                                    <td data-key="lastLogin"
+                                                        data-sort="${empty employee.lastLogin ? 0 : employee.lastLogin.time}">
+                                                        <c:choose>
+                                                            <c:when test="${not empty employee.lastLogin}">
+                                                                <fmt:formatDate value="${employee.lastLogin}" pattern="dd/MM/yyyy HH:mm"/>
+                                                            </c:when>
+                                                            <c:otherwise>-</c:otherwise>
+                                                        </c:choose>
+                                                    </td>
+                                                    <td>
+                                                        <portlet:actionURL name="switchRole" var="switchRoleURL"/>
+                                                        <form class="inline" method="post" action="${switchRoleURL}">
+                                                            <input type="hidden" name="<portlet:namespace/>targetUserEmail" value="${employee.email}"/>
+                                                            <select name="<portlet:namespace/>newRole" class="role-select">
+                                                                <option value="PHARMACIEN" ${employee.role=='PHARMACIEN' ? 'selected' : ''}>Pharmacien</option>
+                                                                <option value="FOURNISSEUR" ${employee.role=='FOURNISSEUR' ? 'selected' : ''}>Fournisseur</option>
+                                                                <c:if test="${userRole == 'SUPER_ADMIN'}">
+                                                                    <option value="ADMIN" ${employee.role=='ADMIN' ? 'selected' : ''}>Admin</option>
+                                                                </c:if>
+                                                            </select>
+                                                            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px;">Mettre à jour</button>
+                                                        </form>
+                                                    </td>
+                                                    <td>
+                                                        <c:if test="${userRole == 'SUPER_ADMIN'}">
+                                                            <portlet:actionURL name="deleteAdmin" var="deleteAdminURL">
+                                                                <portlet:param name="email" value="${employee.email}" />
+                                                            </portlet:actionURL>
+                                                            <form method="post" action="${deleteAdminURL}" style="margin:0;">
+                                                                <button type="submit" class="btn btn-danger"
+                                                                        onclick="return confirm('Supprimer ${employee.email}?')">
+                                                                    Supprimer
+                                                                </button>
+                                                            </form>
+                                                        </c:if>
+                                                    </td>
+                                                </tr>
+                                            </c:if>
+                                        </c:forEach>
+                                        </tbody>
+                                    </table>
+
+                                    &lt;%&ndash; PAGINATION &ndash;%&gt;
+                                    <div class="pager" id="pager"></div>
+                                </c:if>
+
+                                <c:if test="${empty employees}"><p>Aucun employé à afficher.</p></c:if>
+                            </div>
+
+                            <c:if test="${userRole == 'SUPER_ADMIN'}">
+                                <div class="employee-management">
+                                    <h4><i class="fas fa-user-plus"></i> Ajouter un Admin</h4>
+                                    <portlet:actionURL name="addAdmin" var="addAdminURL"/>
+                                    <form method="post" action="${addAdminURL}" class="stack-sm">
+                                        <input type="text"  name="<portlet:namespace/>nom"         placeholder="Nom" required />
+                                        <input type="text"  name="<portlet:namespace/>prenom"      placeholder="Prénom" required />
+                                        <input type="email" name="<portlet:namespace/>email"       placeholder="Email" required />
+                                        <input type="password" name="<portlet:namespace/>motDePasse" placeholder="Mot de passe" required />
+                                        <button type="submit" class="btn btn-primary"><i class="fas fa-user-plus"></i> Ajouter Admin</button>
+                                    </form>
+                                </div>
+
+                                <div class="employee-management">
+                                    <h4><i class="fas fa-user-times"></i> Supprimer un Administrateur</h4>
+                                    <portlet:actionURL name="deleteAdmin" var="deleteAdminDirectURL"/>
+                                    <form method="post" action="${deleteAdminDirectURL}" class="stack-sm">
+                                        <input type="email" name="<portlet:namespace/>email" placeholder="Email Admin à supprimer" required />
+                                        <button type="submit" class="btn btn-danger"><i class="fas fa-user-times"></i> Supprimer Admin</button>
+                                    </form>
+                                </div>
+                            </c:if>
+                        </div>
+                    </c:if>
+                </c:when>
+        --%>
         <c:when test="${currentSection == 'admins'}">
             <c:if test="${userRole == 'SUPER_ADMIN' || userRole == 'ADMIN'}">
 
@@ -994,16 +1083,6 @@
                 <pre class="debug-info">${fn:escapeXml(incErr)}</pre>
             </c:if>
         </c:when>
-        <%-- commandes --%>
-        <c:when test="${currentSection == 'commandes'}">
-            <c:catch var="incErr">
-                <liferay-util:include page="${fragBase}/commandes.jsp" servletContext="<%= application %>" />
-            </c:catch>
-            <c:if test="${not empty incErr}">
-                <div class="message error">Impossible d’inclure ${fragBase}/commandes.jsp. Vérifiez le chemin et les erreurs de compilation.</div>
-                <pre class="debug-info">${fn:escapeXml(incErr)}</pre>
-            </c:if>
-        </c:when>
 
         <%-- Stats --%>
         <c:when test="${currentSection == 'stats'}">
@@ -1047,9 +1126,7 @@
                 <c:when test="${userRole == 'ADMIN' || userRole == 'PHARMACIEN'}">
                     <div class="commands-section">
                         <h3>Méthode de commande</h3>
-                        <liferay-portlet:runtime
-                                portletName="commande_web_CommandeWebPortlet"
-                                instanceId="CMDS" />
+                        <liferay-portlet:runtime portletName="commande_web" instanceId="CMDS" />
                     </div>
                 </c:when>
                 <c:otherwise>
@@ -1057,6 +1134,7 @@
                 </c:otherwise>
             </c:choose>
         </c:when>
+
 
 
 

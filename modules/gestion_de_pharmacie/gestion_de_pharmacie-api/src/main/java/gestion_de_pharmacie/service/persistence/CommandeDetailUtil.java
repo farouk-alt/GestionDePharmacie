@@ -112,6 +112,350 @@ public class CommandeDetailUtil {
 	}
 
 	/**
+	 * Returns all the commande details where idCommande = &#63;.
+	 *
+	 * @param idCommande the id commande
+	 * @return the matching commande details
+	 */
+	public static List<CommandeDetail> findByIdCommande(long idCommande) {
+		return getPersistence().findByIdCommande(idCommande);
+	}
+
+	/**
+	 * Returns a range of all the commande details where idCommande = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeDetailModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idCommande the id commande
+	 * @param start the lower bound of the range of commande details
+	 * @param end the upper bound of the range of commande details (not inclusive)
+	 * @return the range of matching commande details
+	 */
+	public static List<CommandeDetail> findByIdCommande(
+		long idCommande, int start, int end) {
+
+		return getPersistence().findByIdCommande(idCommande, start, end);
+	}
+
+	/**
+	 * Returns an ordered range of all the commande details where idCommande = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeDetailModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idCommande the id commande
+	 * @param start the lower bound of the range of commande details
+	 * @param end the upper bound of the range of commande details (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching commande details
+	 */
+	public static List<CommandeDetail> findByIdCommande(
+		long idCommande, int start, int end,
+		OrderByComparator<CommandeDetail> orderByComparator) {
+
+		return getPersistence().findByIdCommande(
+			idCommande, start, end, orderByComparator);
+	}
+
+	/**
+	 * Returns an ordered range of all the commande details where idCommande = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeDetailModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idCommande the id commande
+	 * @param start the lower bound of the range of commande details
+	 * @param end the upper bound of the range of commande details (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching commande details
+	 */
+	public static List<CommandeDetail> findByIdCommande(
+		long idCommande, int start, int end,
+		OrderByComparator<CommandeDetail> orderByComparator,
+		boolean useFinderCache) {
+
+		return getPersistence().findByIdCommande(
+			idCommande, start, end, orderByComparator, useFinderCache);
+	}
+
+	/**
+	 * Returns the first commande detail in the ordered set where idCommande = &#63;.
+	 *
+	 * @param idCommande the id commande
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching commande detail
+	 * @throws NoSuchCommandeDetailException if a matching commande detail could not be found
+	 */
+	public static CommandeDetail findByIdCommande_First(
+			long idCommande,
+			OrderByComparator<CommandeDetail> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchCommandeDetailException {
+
+		return getPersistence().findByIdCommande_First(
+			idCommande, orderByComparator);
+	}
+
+	/**
+	 * Returns the first commande detail in the ordered set where idCommande = &#63;.
+	 *
+	 * @param idCommande the id commande
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching commande detail, or <code>null</code> if a matching commande detail could not be found
+	 */
+	public static CommandeDetail fetchByIdCommande_First(
+		long idCommande, OrderByComparator<CommandeDetail> orderByComparator) {
+
+		return getPersistence().fetchByIdCommande_First(
+			idCommande, orderByComparator);
+	}
+
+	/**
+	 * Returns the last commande detail in the ordered set where idCommande = &#63;.
+	 *
+	 * @param idCommande the id commande
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching commande detail
+	 * @throws NoSuchCommandeDetailException if a matching commande detail could not be found
+	 */
+	public static CommandeDetail findByIdCommande_Last(
+			long idCommande,
+			OrderByComparator<CommandeDetail> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchCommandeDetailException {
+
+		return getPersistence().findByIdCommande_Last(
+			idCommande, orderByComparator);
+	}
+
+	/**
+	 * Returns the last commande detail in the ordered set where idCommande = &#63;.
+	 *
+	 * @param idCommande the id commande
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching commande detail, or <code>null</code> if a matching commande detail could not be found
+	 */
+	public static CommandeDetail fetchByIdCommande_Last(
+		long idCommande, OrderByComparator<CommandeDetail> orderByComparator) {
+
+		return getPersistence().fetchByIdCommande_Last(
+			idCommande, orderByComparator);
+	}
+
+	/**
+	 * Returns the commande details before and after the current commande detail in the ordered set where idCommande = &#63;.
+	 *
+	 * @param idDetail the primary key of the current commande detail
+	 * @param idCommande the id commande
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next commande detail
+	 * @throws NoSuchCommandeDetailException if a commande detail with the primary key could not be found
+	 */
+	public static CommandeDetail[] findByIdCommande_PrevAndNext(
+			long idDetail, long idCommande,
+			OrderByComparator<CommandeDetail> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchCommandeDetailException {
+
+		return getPersistence().findByIdCommande_PrevAndNext(
+			idDetail, idCommande, orderByComparator);
+	}
+
+	/**
+	 * Removes all the commande details where idCommande = &#63; from the database.
+	 *
+	 * @param idCommande the id commande
+	 */
+	public static void removeByIdCommande(long idCommande) {
+		getPersistence().removeByIdCommande(idCommande);
+	}
+
+	/**
+	 * Returns the number of commande details where idCommande = &#63;.
+	 *
+	 * @param idCommande the id commande
+	 * @return the number of matching commande details
+	 */
+	public static int countByIdCommande(long idCommande) {
+		return getPersistence().countByIdCommande(idCommande);
+	}
+
+	/**
+	 * Returns all the commande details where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @return the matching commande details
+	 */
+	public static List<CommandeDetail> findByIdMedicament(long idMedicament) {
+		return getPersistence().findByIdMedicament(idMedicament);
+	}
+
+	/**
+	 * Returns a range of all the commande details where idMedicament = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeDetailModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idMedicament the id medicament
+	 * @param start the lower bound of the range of commande details
+	 * @param end the upper bound of the range of commande details (not inclusive)
+	 * @return the range of matching commande details
+	 */
+	public static List<CommandeDetail> findByIdMedicament(
+		long idMedicament, int start, int end) {
+
+		return getPersistence().findByIdMedicament(idMedicament, start, end);
+	}
+
+	/**
+	 * Returns an ordered range of all the commande details where idMedicament = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeDetailModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idMedicament the id medicament
+	 * @param start the lower bound of the range of commande details
+	 * @param end the upper bound of the range of commande details (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching commande details
+	 */
+	public static List<CommandeDetail> findByIdMedicament(
+		long idMedicament, int start, int end,
+		OrderByComparator<CommandeDetail> orderByComparator) {
+
+		return getPersistence().findByIdMedicament(
+			idMedicament, start, end, orderByComparator);
+	}
+
+	/**
+	 * Returns an ordered range of all the commande details where idMedicament = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeDetailModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idMedicament the id medicament
+	 * @param start the lower bound of the range of commande details
+	 * @param end the upper bound of the range of commande details (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching commande details
+	 */
+	public static List<CommandeDetail> findByIdMedicament(
+		long idMedicament, int start, int end,
+		OrderByComparator<CommandeDetail> orderByComparator,
+		boolean useFinderCache) {
+
+		return getPersistence().findByIdMedicament(
+			idMedicament, start, end, orderByComparator, useFinderCache);
+	}
+
+	/**
+	 * Returns the first commande detail in the ordered set where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching commande detail
+	 * @throws NoSuchCommandeDetailException if a matching commande detail could not be found
+	 */
+	public static CommandeDetail findByIdMedicament_First(
+			long idMedicament,
+			OrderByComparator<CommandeDetail> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchCommandeDetailException {
+
+		return getPersistence().findByIdMedicament_First(
+			idMedicament, orderByComparator);
+	}
+
+	/**
+	 * Returns the first commande detail in the ordered set where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching commande detail, or <code>null</code> if a matching commande detail could not be found
+	 */
+	public static CommandeDetail fetchByIdMedicament_First(
+		long idMedicament,
+		OrderByComparator<CommandeDetail> orderByComparator) {
+
+		return getPersistence().fetchByIdMedicament_First(
+			idMedicament, orderByComparator);
+	}
+
+	/**
+	 * Returns the last commande detail in the ordered set where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching commande detail
+	 * @throws NoSuchCommandeDetailException if a matching commande detail could not be found
+	 */
+	public static CommandeDetail findByIdMedicament_Last(
+			long idMedicament,
+			OrderByComparator<CommandeDetail> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchCommandeDetailException {
+
+		return getPersistence().findByIdMedicament_Last(
+			idMedicament, orderByComparator);
+	}
+
+	/**
+	 * Returns the last commande detail in the ordered set where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching commande detail, or <code>null</code> if a matching commande detail could not be found
+	 */
+	public static CommandeDetail fetchByIdMedicament_Last(
+		long idMedicament,
+		OrderByComparator<CommandeDetail> orderByComparator) {
+
+		return getPersistence().fetchByIdMedicament_Last(
+			idMedicament, orderByComparator);
+	}
+
+	/**
+	 * Returns the commande details before and after the current commande detail in the ordered set where idMedicament = &#63;.
+	 *
+	 * @param idDetail the primary key of the current commande detail
+	 * @param idMedicament the id medicament
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next commande detail
+	 * @throws NoSuchCommandeDetailException if a commande detail with the primary key could not be found
+	 */
+	public static CommandeDetail[] findByIdMedicament_PrevAndNext(
+			long idDetail, long idMedicament,
+			OrderByComparator<CommandeDetail> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchCommandeDetailException {
+
+		return getPersistence().findByIdMedicament_PrevAndNext(
+			idDetail, idMedicament, orderByComparator);
+	}
+
+	/**
+	 * Removes all the commande details where idMedicament = &#63; from the database.
+	 *
+	 * @param idMedicament the id medicament
+	 */
+	public static void removeByIdMedicament(long idMedicament) {
+		getPersistence().removeByIdMedicament(idMedicament);
+	}
+
+	/**
+	 * Returns the number of commande details where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @return the number of matching commande details
+	 */
+	public static int countByIdMedicament(long idMedicament) {
+		return getPersistence().countByIdMedicament(idMedicament);
+	}
+
+	/**
 	 * Caches the commande detail in the entity cache if it is enabled.
 	 *
 	 * @param commandeDetail the commande detail
