@@ -29,6 +29,13 @@ public class NotificationLocalServiceWrapper
 		_notificationLocalService = notificationLocalService;
 	}
 
+	@Override
+	public gestion_de_pharmacie.model.Notification addNotification(
+		long userId, String type, String message) {
+
+		return _notificationLocalService.addNotification(userId, type, message);
+	}
+
 	/**
 	 * Adds the notification to the database. Also notifies the appropriate model listeners.
 	 *
@@ -44,6 +51,28 @@ public class NotificationLocalServiceWrapper
 		gestion_de_pharmacie.model.Notification notification) {
 
 		return _notificationLocalService.addNotification(notification);
+	}
+
+	@Override
+	public void addNotificationForRole(
+		String role, String type, String message) {
+
+		_notificationLocalService.addNotificationForRole(role, type, message);
+	}
+
+	@Override
+	public int countUnread(long idUtilisateur) {
+		return _notificationLocalService.countUnread(idUtilisateur);
+	}
+
+	@Override
+	public int countUnreadByUser(long userId) {
+		return _notificationLocalService.countUnreadByUser(userId);
+	}
+
+	@Override
+	public void createLowStockAlertsForMed(long idMedicament) {
+		_notificationLocalService.createLowStockAlertsForMed(idMedicament);
 	}
 
 	/**
@@ -234,6 +263,17 @@ public class NotificationLocalServiceWrapper
 	}
 
 	@Override
+	public java.util.List<gestion_de_pharmacie.model.Notification>
+		getByUserStatus(
+			long userId, String statut, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<gestion_de_pharmacie.model.Notification> obc) {
+
+		return _notificationLocalService.getByUserStatus(
+			userId, statut, start, end, obc);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery
 		getIndexableActionableDynamicQuery() {
 
@@ -302,6 +342,18 @@ public class NotificationLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _notificationLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	@Override
+	public int markAllAsRead(long idUtilisateur) {
+		return _notificationLocalService.markAllAsRead(idUtilisateur);
+	}
+
+	@Override
+	public gestion_de_pharmacie.model.Notification markAsRead(
+		long idNotification) {
+
+		return _notificationLocalService.markAsRead(idNotification);
 	}
 
 	/**

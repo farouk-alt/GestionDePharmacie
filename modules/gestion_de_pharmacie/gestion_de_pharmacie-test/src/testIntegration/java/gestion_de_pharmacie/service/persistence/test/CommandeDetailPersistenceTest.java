@@ -147,6 +147,20 @@ public class CommandeDetailPersistenceTest {
 	}
 
 	@Test
+	public void testCountByIdCommande() throws Exception {
+		_persistence.countByIdCommande(RandomTestUtil.nextLong());
+
+		_persistence.countByIdCommande(0L);
+	}
+
+	@Test
+	public void testCountByIdMedicament() throws Exception {
+		_persistence.countByIdMedicament(RandomTestUtil.nextLong());
+
+		_persistence.countByIdMedicament(0L);
+	}
+
+	@Test
 	public void testFindByPrimaryKeyExisting() throws Exception {
 		CommandeDetail newCommandeDetail = addCommandeDetail();
 

@@ -149,6 +149,22 @@ public class NotificationPersistenceTest {
 	}
 
 	@Test
+	public void testCountByUser() throws Exception {
+		_persistence.countByUser(RandomTestUtil.nextLong());
+
+		_persistence.countByUser(0L);
+	}
+
+	@Test
+	public void testCountByUser_Status() throws Exception {
+		_persistence.countByUser_Status(RandomTestUtil.nextLong(), "");
+
+		_persistence.countByUser_Status(0L, "null");
+
+		_persistence.countByUser_Status(0L, (String)null);
+	}
+
+	@Test
 	public void testFindByPrimaryKeyExisting() throws Exception {
 		Notification newNotification = addNotification();
 

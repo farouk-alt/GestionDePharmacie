@@ -233,6 +233,9 @@ public interface UtilisateurLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public Utilisateur getUtilisateurByEmail(String email);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Utilisateur> getUtilisateurByRole(String role);
+
 	/**
 	 * Returns a range of all the utilisateurs.
 	 *

@@ -228,6 +228,13 @@ public class CommandeDetailLocalServiceWrapper
 	}
 
 	@Override
+	public java.util.List<gestion_de_pharmacie.model.CommandeDetail>
+		findByCommandeId(long commandeId) {
+
+		return _commandeDetailLocalService.findByCommandeId(commandeId);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 
@@ -282,6 +289,13 @@ public class CommandeDetailLocalServiceWrapper
 		getIndexableActionableDynamicQuery() {
 
 		return _commandeDetailLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	@Override
+	public gestion_de_pharmacie.model.Medicament getMedicament(
+		gestion_de_pharmacie.model.CommandeDetail commandeDetail) {
+
+		return _commandeDetailLocalService.getMedicament(commandeDetail);
 	}
 
 	/**

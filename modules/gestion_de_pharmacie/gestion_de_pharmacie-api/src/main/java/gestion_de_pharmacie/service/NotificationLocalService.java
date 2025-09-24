@@ -53,6 +53,8 @@ public interface NotificationLocalService
 	 *
 	 * Never modify this interface directly. Add custom service methods to <code>gestion_de_pharmacie.service.impl.NotificationLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the notification local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link NotificationLocalServiceUtil} if injection and service tracking are not available.
 	 */
+	public Notification addNotification(
+		long userId, String type, String message);
 
 	/**
 	 * Adds the notification to the database. Also notifies the appropriate model listeners.
@@ -66,6 +68,15 @@ public interface NotificationLocalService
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	public Notification addNotification(Notification notification);
+
+	public void addNotificationForRole(
+		String role, String type, String message);
+
+	public int countUnread(long idUtilisateur);
+
+	public int countUnreadByUser(long userId);
+
+	public void createLowStockAlertsForMed(long idMedicament);
 
 	/**
 	 * Creates a new notification with the primary key. Does not add the notification to the database.
@@ -196,6 +207,11 @@ public interface NotificationLocalService
 	public ActionableDynamicQuery getActionableDynamicQuery();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Notification> getByUserStatus(
+		long userId, String statut, int start, int end,
+		OrderByComparator<Notification> obc);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
 
 	/**
@@ -245,6 +261,10 @@ public interface NotificationLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
 		throws PortalException;
+
+	public int markAllAsRead(long idUtilisateur);
+
+	public Notification markAsRead(long idNotification);
 
 	/**
 	 * Updates the notification in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.

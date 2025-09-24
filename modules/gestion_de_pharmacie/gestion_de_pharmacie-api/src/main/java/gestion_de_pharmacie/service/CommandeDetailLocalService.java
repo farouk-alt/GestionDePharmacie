@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 
 import gestion_de_pharmacie.model.CommandeDetail;
+import gestion_de_pharmacie.model.Medicament;
 
 import java.io.Serializable;
 
@@ -192,6 +193,8 @@ public interface CommandeDetailLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public CommandeDetail fetchCommandeDetail(long idDetail);
 
+	public List<CommandeDetail> findByCommandeId(long commandeId);
+
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ActionableDynamicQuery getActionableDynamicQuery();
 
@@ -230,6 +233,9 @@ public interface CommandeDetailLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public Medicament getMedicament(CommandeDetail commandeDetail);
 
 	/**
 	 * Returns the OSGi service identifier.

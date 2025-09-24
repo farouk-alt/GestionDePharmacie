@@ -295,6 +295,13 @@ public class UtilisateurLocalServiceWrapper
 		return _utilisateurLocalService.getUtilisateurByEmail(email);
 	}
 
+	@Override
+	public java.util.List<gestion_de_pharmacie.model.Utilisateur>
+		getUtilisateurByRole(String role) {
+
+		return _utilisateurLocalService.getUtilisateurByRole(role);
+	}
+
 	/**
 	 * Returns a range of all the utilisateurs.
 	 *

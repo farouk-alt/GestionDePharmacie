@@ -7,9 +7,13 @@ package gestion_de_pharmacie.service.impl;
 
 import com.liferay.portal.aop.AopService;
 
+import gestion_de_pharmacie.model.CommandeDetail;
+import gestion_de_pharmacie.model.Medicament;
 import gestion_de_pharmacie.service.base.CommandeDetailLocalServiceBaseImpl;
 
 import org.osgi.service.component.annotations.Component;
+
+import java.util.List;
 
 /**
  * @author Farouk
@@ -20,4 +24,13 @@ import org.osgi.service.component.annotations.Component;
 )
 public class CommandeDetailLocalServiceImpl
 	extends CommandeDetailLocalServiceBaseImpl {
+    @Override
+    public List<CommandeDetail> findByCommandeId(long commandeId) {
+        return List.of();
+    }
+
+    @Override
+    public Medicament getMedicament(CommandeDetail commandeDetail) {
+        return null;
+    }
 }

@@ -11,6 +11,7 @@ import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
+import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.SessionFactory;
@@ -21,6 +22,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.ProxyUtil;
 
 import gestion_de_pharmacie.exception.NoSuchCommandeDetailException;
 
@@ -34,6 +36,8 @@ import gestion_de_pharmacie.service.persistence.CommandeDetailUtil;
 import gestion_de_pharmacie.service.persistence.impl.constants.PharmaPersistenceConstants;
 
 import java.io.Serializable;
+
+import java.lang.reflect.InvocationHandler;
 
 import java.util.List;
 import java.util.Map;
@@ -78,6 +82,1008 @@ public class CommandeDetailPersistenceImpl
 	private FinderPath _finderPathWithPaginationFindAll;
 	private FinderPath _finderPathWithoutPaginationFindAll;
 	private FinderPath _finderPathCountAll;
+	private FinderPath _finderPathWithPaginationFindByIdCommande;
+	private FinderPath _finderPathWithoutPaginationFindByIdCommande;
+	private FinderPath _finderPathCountByIdCommande;
+
+	/**
+	 * Returns all the commande details where idCommande = &#63;.
+	 *
+	 * @param idCommande the id commande
+	 * @return the matching commande details
+	 */
+	@Override
+	public List<CommandeDetail> findByIdCommande(long idCommande) {
+		return findByIdCommande(
+			idCommande, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+	}
+
+	/**
+	 * Returns a range of all the commande details where idCommande = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeDetailModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idCommande the id commande
+	 * @param start the lower bound of the range of commande details
+	 * @param end the upper bound of the range of commande details (not inclusive)
+	 * @return the range of matching commande details
+	 */
+	@Override
+	public List<CommandeDetail> findByIdCommande(
+		long idCommande, int start, int end) {
+
+		return findByIdCommande(idCommande, start, end, null);
+	}
+
+	/**
+	 * Returns an ordered range of all the commande details where idCommande = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeDetailModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idCommande the id commande
+	 * @param start the lower bound of the range of commande details
+	 * @param end the upper bound of the range of commande details (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching commande details
+	 */
+	@Override
+	public List<CommandeDetail> findByIdCommande(
+		long idCommande, int start, int end,
+		OrderByComparator<CommandeDetail> orderByComparator) {
+
+		return findByIdCommande(
+			idCommande, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the commande details where idCommande = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeDetailModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idCommande the id commande
+	 * @param start the lower bound of the range of commande details
+	 * @param end the upper bound of the range of commande details (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching commande details
+	 */
+	@Override
+	public List<CommandeDetail> findByIdCommande(
+		long idCommande, int start, int end,
+		OrderByComparator<CommandeDetail> orderByComparator,
+		boolean useFinderCache) {
+
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByIdCommande;
+				finderArgs = new Object[] {idCommande};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByIdCommande;
+			finderArgs = new Object[] {
+				idCommande, start, end, orderByComparator
+			};
+		}
+
+		List<CommandeDetail> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommandeDetail>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommandeDetail commandeDetail : list) {
+					if (idCommande != commandeDetail.getIdCommande()) {
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					3 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(3);
+			}
+
+			sb.append(_SQL_SELECT_COMMANDEDETAIL_WHERE);
+
+			sb.append(_FINDER_COLUMN_IDCOMMANDE_IDCOMMANDE_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommandeDetailModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(idCommande);
+
+				list = (List<CommandeDetail>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
+	}
+
+	/**
+	 * Returns the first commande detail in the ordered set where idCommande = &#63;.
+	 *
+	 * @param idCommande the id commande
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching commande detail
+	 * @throws NoSuchCommandeDetailException if a matching commande detail could not be found
+	 */
+	@Override
+	public CommandeDetail findByIdCommande_First(
+			long idCommande,
+			OrderByComparator<CommandeDetail> orderByComparator)
+		throws NoSuchCommandeDetailException {
+
+		CommandeDetail commandeDetail = fetchByIdCommande_First(
+			idCommande, orderByComparator);
+
+		if (commandeDetail != null) {
+			return commandeDetail;
+		}
+
+		StringBundler sb = new StringBundler(4);
+
+		sb.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		sb.append("idCommande=");
+		sb.append(idCommande);
+
+		sb.append("}");
+
+		throw new NoSuchCommandeDetailException(sb.toString());
+	}
+
+	/**
+	 * Returns the first commande detail in the ordered set where idCommande = &#63;.
+	 *
+	 * @param idCommande the id commande
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching commande detail, or <code>null</code> if a matching commande detail could not be found
+	 */
+	@Override
+	public CommandeDetail fetchByIdCommande_First(
+		long idCommande, OrderByComparator<CommandeDetail> orderByComparator) {
+
+		List<CommandeDetail> list = findByIdCommande(
+			idCommande, 0, 1, orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the last commande detail in the ordered set where idCommande = &#63;.
+	 *
+	 * @param idCommande the id commande
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching commande detail
+	 * @throws NoSuchCommandeDetailException if a matching commande detail could not be found
+	 */
+	@Override
+	public CommandeDetail findByIdCommande_Last(
+			long idCommande,
+			OrderByComparator<CommandeDetail> orderByComparator)
+		throws NoSuchCommandeDetailException {
+
+		CommandeDetail commandeDetail = fetchByIdCommande_Last(
+			idCommande, orderByComparator);
+
+		if (commandeDetail != null) {
+			return commandeDetail;
+		}
+
+		StringBundler sb = new StringBundler(4);
+
+		sb.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		sb.append("idCommande=");
+		sb.append(idCommande);
+
+		sb.append("}");
+
+		throw new NoSuchCommandeDetailException(sb.toString());
+	}
+
+	/**
+	 * Returns the last commande detail in the ordered set where idCommande = &#63;.
+	 *
+	 * @param idCommande the id commande
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching commande detail, or <code>null</code> if a matching commande detail could not be found
+	 */
+	@Override
+	public CommandeDetail fetchByIdCommande_Last(
+		long idCommande, OrderByComparator<CommandeDetail> orderByComparator) {
+
+		int count = countByIdCommande(idCommande);
+
+		if (count == 0) {
+			return null;
+		}
+
+		List<CommandeDetail> list = findByIdCommande(
+			idCommande, count - 1, count, orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the commande details before and after the current commande detail in the ordered set where idCommande = &#63;.
+	 *
+	 * @param idDetail the primary key of the current commande detail
+	 * @param idCommande the id commande
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next commande detail
+	 * @throws NoSuchCommandeDetailException if a commande detail with the primary key could not be found
+	 */
+	@Override
+	public CommandeDetail[] findByIdCommande_PrevAndNext(
+			long idDetail, long idCommande,
+			OrderByComparator<CommandeDetail> orderByComparator)
+		throws NoSuchCommandeDetailException {
+
+		CommandeDetail commandeDetail = findByPrimaryKey(idDetail);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			CommandeDetail[] array = new CommandeDetailImpl[3];
+
+			array[0] = getByIdCommande_PrevAndNext(
+				session, commandeDetail, idCommande, orderByComparator, true);
+
+			array[1] = commandeDetail;
+
+			array[2] = getByIdCommande_PrevAndNext(
+				session, commandeDetail, idCommande, orderByComparator, false);
+
+			return array;
+		}
+		catch (Exception exception) {
+			throw processException(exception);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	protected CommandeDetail getByIdCommande_PrevAndNext(
+		Session session, CommandeDetail commandeDetail, long idCommande,
+		OrderByComparator<CommandeDetail> orderByComparator, boolean previous) {
+
+		StringBundler sb = null;
+
+		if (orderByComparator != null) {
+			sb = new StringBundler(
+				4 + (orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
+		}
+		else {
+			sb = new StringBundler(3);
+		}
+
+		sb.append(_SQL_SELECT_COMMANDEDETAIL_WHERE);
+
+		sb.append(_FINDER_COLUMN_IDCOMMANDE_IDCOMMANDE_2);
+
+		if (orderByComparator != null) {
+			String[] orderByConditionFields =
+				orderByComparator.getOrderByConditionFields();
+
+			if (orderByConditionFields.length > 0) {
+				sb.append(WHERE_AND);
+			}
+
+			for (int i = 0; i < orderByConditionFields.length; i++) {
+				sb.append(_ORDER_BY_ENTITY_ALIAS);
+				sb.append(orderByConditionFields[i]);
+
+				if ((i + 1) < orderByConditionFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(WHERE_GREATER_THAN_HAS_NEXT);
+					}
+					else {
+						sb.append(WHERE_LESSER_THAN_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(WHERE_GREATER_THAN);
+					}
+					else {
+						sb.append(WHERE_LESSER_THAN);
+					}
+				}
+			}
+
+			sb.append(ORDER_BY_CLAUSE);
+
+			String[] orderByFields = orderByComparator.getOrderByFields();
+
+			for (int i = 0; i < orderByFields.length; i++) {
+				sb.append(_ORDER_BY_ENTITY_ALIAS);
+				sb.append(orderByFields[i]);
+
+				if ((i + 1) < orderByFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(ORDER_BY_ASC_HAS_NEXT);
+					}
+					else {
+						sb.append(ORDER_BY_DESC_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(ORDER_BY_ASC);
+					}
+					else {
+						sb.append(ORDER_BY_DESC);
+					}
+				}
+			}
+		}
+		else {
+			sb.append(CommandeDetailModelImpl.ORDER_BY_JPQL);
+		}
+
+		String sql = sb.toString();
+
+		Query query = session.createQuery(sql);
+
+		query.setFirstResult(0);
+		query.setMaxResults(2);
+
+		QueryPos queryPos = QueryPos.getInstance(query);
+
+		queryPos.add(idCommande);
+
+		if (orderByComparator != null) {
+			for (Object orderByConditionValue :
+					orderByComparator.getOrderByConditionValues(
+						commandeDetail)) {
+
+				queryPos.add(orderByConditionValue);
+			}
+		}
+
+		List<CommandeDetail> list = query.list();
+
+		if (list.size() == 2) {
+			return list.get(1);
+		}
+		else {
+			return null;
+		}
+	}
+
+	/**
+	 * Removes all the commande details where idCommande = &#63; from the database.
+	 *
+	 * @param idCommande the id commande
+	 */
+	@Override
+	public void removeByIdCommande(long idCommande) {
+		for (CommandeDetail commandeDetail :
+				findByIdCommande(
+					idCommande, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
+
+			remove(commandeDetail);
+		}
+	}
+
+	/**
+	 * Returns the number of commande details where idCommande = &#63;.
+	 *
+	 * @param idCommande the id commande
+	 * @return the number of matching commande details
+	 */
+	@Override
+	public int countByIdCommande(long idCommande) {
+		FinderPath finderPath = _finderPathCountByIdCommande;
+
+		Object[] finderArgs = new Object[] {idCommande};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(2);
+
+			sb.append(_SQL_COUNT_COMMANDEDETAIL_WHERE);
+
+			sb.append(_FINDER_COLUMN_IDCOMMANDE_IDCOMMANDE_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(idCommande);
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_IDCOMMANDE_IDCOMMANDE_2 =
+		"commandeDetail.idCommande = ?";
+
+	private FinderPath _finderPathWithPaginationFindByIdMedicament;
+	private FinderPath _finderPathWithoutPaginationFindByIdMedicament;
+	private FinderPath _finderPathCountByIdMedicament;
+
+	/**
+	 * Returns all the commande details where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @return the matching commande details
+	 */
+	@Override
+	public List<CommandeDetail> findByIdMedicament(long idMedicament) {
+		return findByIdMedicament(
+			idMedicament, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+	}
+
+	/**
+	 * Returns a range of all the commande details where idMedicament = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeDetailModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idMedicament the id medicament
+	 * @param start the lower bound of the range of commande details
+	 * @param end the upper bound of the range of commande details (not inclusive)
+	 * @return the range of matching commande details
+	 */
+	@Override
+	public List<CommandeDetail> findByIdMedicament(
+		long idMedicament, int start, int end) {
+
+		return findByIdMedicament(idMedicament, start, end, null);
+	}
+
+	/**
+	 * Returns an ordered range of all the commande details where idMedicament = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeDetailModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idMedicament the id medicament
+	 * @param start the lower bound of the range of commande details
+	 * @param end the upper bound of the range of commande details (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching commande details
+	 */
+	@Override
+	public List<CommandeDetail> findByIdMedicament(
+		long idMedicament, int start, int end,
+		OrderByComparator<CommandeDetail> orderByComparator) {
+
+		return findByIdMedicament(
+			idMedicament, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the commande details where idMedicament = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeDetailModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idMedicament the id medicament
+	 * @param start the lower bound of the range of commande details
+	 * @param end the upper bound of the range of commande details (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching commande details
+	 */
+	@Override
+	public List<CommandeDetail> findByIdMedicament(
+		long idMedicament, int start, int end,
+		OrderByComparator<CommandeDetail> orderByComparator,
+		boolean useFinderCache) {
+
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByIdMedicament;
+				finderArgs = new Object[] {idMedicament};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByIdMedicament;
+			finderArgs = new Object[] {
+				idMedicament, start, end, orderByComparator
+			};
+		}
+
+		List<CommandeDetail> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommandeDetail>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommandeDetail commandeDetail : list) {
+					if (idMedicament != commandeDetail.getIdMedicament()) {
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					3 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(3);
+			}
+
+			sb.append(_SQL_SELECT_COMMANDEDETAIL_WHERE);
+
+			sb.append(_FINDER_COLUMN_IDMEDICAMENT_IDMEDICAMENT_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommandeDetailModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(idMedicament);
+
+				list = (List<CommandeDetail>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
+	}
+
+	/**
+	 * Returns the first commande detail in the ordered set where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching commande detail
+	 * @throws NoSuchCommandeDetailException if a matching commande detail could not be found
+	 */
+	@Override
+	public CommandeDetail findByIdMedicament_First(
+			long idMedicament,
+			OrderByComparator<CommandeDetail> orderByComparator)
+		throws NoSuchCommandeDetailException {
+
+		CommandeDetail commandeDetail = fetchByIdMedicament_First(
+			idMedicament, orderByComparator);
+
+		if (commandeDetail != null) {
+			return commandeDetail;
+		}
+
+		StringBundler sb = new StringBundler(4);
+
+		sb.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		sb.append("idMedicament=");
+		sb.append(idMedicament);
+
+		sb.append("}");
+
+		throw new NoSuchCommandeDetailException(sb.toString());
+	}
+
+	/**
+	 * Returns the first commande detail in the ordered set where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching commande detail, or <code>null</code> if a matching commande detail could not be found
+	 */
+	@Override
+	public CommandeDetail fetchByIdMedicament_First(
+		long idMedicament,
+		OrderByComparator<CommandeDetail> orderByComparator) {
+
+		List<CommandeDetail> list = findByIdMedicament(
+			idMedicament, 0, 1, orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the last commande detail in the ordered set where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching commande detail
+	 * @throws NoSuchCommandeDetailException if a matching commande detail could not be found
+	 */
+	@Override
+	public CommandeDetail findByIdMedicament_Last(
+			long idMedicament,
+			OrderByComparator<CommandeDetail> orderByComparator)
+		throws NoSuchCommandeDetailException {
+
+		CommandeDetail commandeDetail = fetchByIdMedicament_Last(
+			idMedicament, orderByComparator);
+
+		if (commandeDetail != null) {
+			return commandeDetail;
+		}
+
+		StringBundler sb = new StringBundler(4);
+
+		sb.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		sb.append("idMedicament=");
+		sb.append(idMedicament);
+
+		sb.append("}");
+
+		throw new NoSuchCommandeDetailException(sb.toString());
+	}
+
+	/**
+	 * Returns the last commande detail in the ordered set where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching commande detail, or <code>null</code> if a matching commande detail could not be found
+	 */
+	@Override
+	public CommandeDetail fetchByIdMedicament_Last(
+		long idMedicament,
+		OrderByComparator<CommandeDetail> orderByComparator) {
+
+		int count = countByIdMedicament(idMedicament);
+
+		if (count == 0) {
+			return null;
+		}
+
+		List<CommandeDetail> list = findByIdMedicament(
+			idMedicament, count - 1, count, orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the commande details before and after the current commande detail in the ordered set where idMedicament = &#63;.
+	 *
+	 * @param idDetail the primary key of the current commande detail
+	 * @param idMedicament the id medicament
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next commande detail
+	 * @throws NoSuchCommandeDetailException if a commande detail with the primary key could not be found
+	 */
+	@Override
+	public CommandeDetail[] findByIdMedicament_PrevAndNext(
+			long idDetail, long idMedicament,
+			OrderByComparator<CommandeDetail> orderByComparator)
+		throws NoSuchCommandeDetailException {
+
+		CommandeDetail commandeDetail = findByPrimaryKey(idDetail);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			CommandeDetail[] array = new CommandeDetailImpl[3];
+
+			array[0] = getByIdMedicament_PrevAndNext(
+				session, commandeDetail, idMedicament, orderByComparator, true);
+
+			array[1] = commandeDetail;
+
+			array[2] = getByIdMedicament_PrevAndNext(
+				session, commandeDetail, idMedicament, orderByComparator,
+				false);
+
+			return array;
+		}
+		catch (Exception exception) {
+			throw processException(exception);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	protected CommandeDetail getByIdMedicament_PrevAndNext(
+		Session session, CommandeDetail commandeDetail, long idMedicament,
+		OrderByComparator<CommandeDetail> orderByComparator, boolean previous) {
+
+		StringBundler sb = null;
+
+		if (orderByComparator != null) {
+			sb = new StringBundler(
+				4 + (orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
+		}
+		else {
+			sb = new StringBundler(3);
+		}
+
+		sb.append(_SQL_SELECT_COMMANDEDETAIL_WHERE);
+
+		sb.append(_FINDER_COLUMN_IDMEDICAMENT_IDMEDICAMENT_2);
+
+		if (orderByComparator != null) {
+			String[] orderByConditionFields =
+				orderByComparator.getOrderByConditionFields();
+
+			if (orderByConditionFields.length > 0) {
+				sb.append(WHERE_AND);
+			}
+
+			for (int i = 0; i < orderByConditionFields.length; i++) {
+				sb.append(_ORDER_BY_ENTITY_ALIAS);
+				sb.append(orderByConditionFields[i]);
+
+				if ((i + 1) < orderByConditionFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(WHERE_GREATER_THAN_HAS_NEXT);
+					}
+					else {
+						sb.append(WHERE_LESSER_THAN_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(WHERE_GREATER_THAN);
+					}
+					else {
+						sb.append(WHERE_LESSER_THAN);
+					}
+				}
+			}
+
+			sb.append(ORDER_BY_CLAUSE);
+
+			String[] orderByFields = orderByComparator.getOrderByFields();
+
+			for (int i = 0; i < orderByFields.length; i++) {
+				sb.append(_ORDER_BY_ENTITY_ALIAS);
+				sb.append(orderByFields[i]);
+
+				if ((i + 1) < orderByFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(ORDER_BY_ASC_HAS_NEXT);
+					}
+					else {
+						sb.append(ORDER_BY_DESC_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(ORDER_BY_ASC);
+					}
+					else {
+						sb.append(ORDER_BY_DESC);
+					}
+				}
+			}
+		}
+		else {
+			sb.append(CommandeDetailModelImpl.ORDER_BY_JPQL);
+		}
+
+		String sql = sb.toString();
+
+		Query query = session.createQuery(sql);
+
+		query.setFirstResult(0);
+		query.setMaxResults(2);
+
+		QueryPos queryPos = QueryPos.getInstance(query);
+
+		queryPos.add(idMedicament);
+
+		if (orderByComparator != null) {
+			for (Object orderByConditionValue :
+					orderByComparator.getOrderByConditionValues(
+						commandeDetail)) {
+
+				queryPos.add(orderByConditionValue);
+			}
+		}
+
+		List<CommandeDetail> list = query.list();
+
+		if (list.size() == 2) {
+			return list.get(1);
+		}
+		else {
+			return null;
+		}
+	}
+
+	/**
+	 * Removes all the commande details where idMedicament = &#63; from the database.
+	 *
+	 * @param idMedicament the id medicament
+	 */
+	@Override
+	public void removeByIdMedicament(long idMedicament) {
+		for (CommandeDetail commandeDetail :
+				findByIdMedicament(
+					idMedicament, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
+
+			remove(commandeDetail);
+		}
+	}
+
+	/**
+	 * Returns the number of commande details where idMedicament = &#63;.
+	 *
+	 * @param idMedicament the id medicament
+	 * @return the number of matching commande details
+	 */
+	@Override
+	public int countByIdMedicament(long idMedicament) {
+		FinderPath finderPath = _finderPathCountByIdMedicament;
+
+		Object[] finderArgs = new Object[] {idMedicament};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(2);
+
+			sb.append(_SQL_COUNT_COMMANDEDETAIL_WHERE);
+
+			sb.append(_FINDER_COLUMN_IDMEDICAMENT_IDMEDICAMENT_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(idMedicament);
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_IDMEDICAMENT_IDMEDICAMENT_2 =
+		"commandeDetail.idMedicament = ?";
 
 	public CommandeDetailPersistenceImpl() {
 		setModelClass(CommandeDetail.class);
@@ -274,6 +1280,26 @@ public class CommandeDetailPersistenceImpl
 	public CommandeDetail updateImpl(CommandeDetail commandeDetail) {
 		boolean isNew = commandeDetail.isNew();
 
+		if (!(commandeDetail instanceof CommandeDetailModelImpl)) {
+			InvocationHandler invocationHandler = null;
+
+			if (ProxyUtil.isProxyClass(commandeDetail.getClass())) {
+				invocationHandler = ProxyUtil.getInvocationHandler(
+					commandeDetail);
+
+				throw new IllegalArgumentException(
+					"Implement ModelWrapper in commandeDetail proxy " +
+						invocationHandler.getClass());
+			}
+
+			throw new IllegalArgumentException(
+				"Implement ModelWrapper in custom CommandeDetail implementation " +
+					commandeDetail.getClass());
+		}
+
+		CommandeDetailModelImpl commandeDetailModelImpl =
+			(CommandeDetailModelImpl)commandeDetail;
+
 		Session session = null;
 
 		try {
@@ -294,7 +1320,7 @@ public class CommandeDetailPersistenceImpl
 		}
 
 		entityCache.putResult(
-			CommandeDetailImpl.class, commandeDetail, false, true);
+			CommandeDetailImpl.class, commandeDetailModelImpl, false, true);
 
 		if (isNew) {
 			commandeDetail.setNew(false);
@@ -575,6 +1601,42 @@ public class CommandeDetailPersistenceImpl
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll",
 			new String[0], new String[0], false);
 
+		_finderPathWithPaginationFindByIdCommande = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByIdCommande",
+			new String[] {
+				Long.class.getName(), Integer.class.getName(),
+				Integer.class.getName(), OrderByComparator.class.getName()
+			},
+			new String[] {"idCommande"}, true);
+
+		_finderPathWithoutPaginationFindByIdCommande = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByIdCommande",
+			new String[] {Long.class.getName()}, new String[] {"idCommande"},
+			true);
+
+		_finderPathCountByIdCommande = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByIdCommande",
+			new String[] {Long.class.getName()}, new String[] {"idCommande"},
+			false);
+
+		_finderPathWithPaginationFindByIdMedicament = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByIdMedicament",
+			new String[] {
+				Long.class.getName(), Integer.class.getName(),
+				Integer.class.getName(), OrderByComparator.class.getName()
+			},
+			new String[] {"idMedicament"}, true);
+
+		_finderPathWithoutPaginationFindByIdMedicament = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByIdMedicament",
+			new String[] {Long.class.getName()}, new String[] {"idMedicament"},
+			true);
+
+		_finderPathCountByIdMedicament = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByIdMedicament",
+			new String[] {Long.class.getName()}, new String[] {"idMedicament"},
+			false);
+
 		CommandeDetailUtil.setPersistence(this);
 	}
 
@@ -620,13 +1682,22 @@ public class CommandeDetailPersistenceImpl
 	private static final String _SQL_SELECT_COMMANDEDETAIL =
 		"SELECT commandeDetail FROM CommandeDetail commandeDetail";
 
+	private static final String _SQL_SELECT_COMMANDEDETAIL_WHERE =
+		"SELECT commandeDetail FROM CommandeDetail commandeDetail WHERE ";
+
 	private static final String _SQL_COUNT_COMMANDEDETAIL =
 		"SELECT COUNT(commandeDetail) FROM CommandeDetail commandeDetail";
+
+	private static final String _SQL_COUNT_COMMANDEDETAIL_WHERE =
+		"SELECT COUNT(commandeDetail) FROM CommandeDetail commandeDetail WHERE ";
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "commandeDetail.";
 
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY =
 		"No CommandeDetail exists with the primary key ";
+
+	private static final String _NO_SUCH_ENTITY_WITH_KEY =
+		"No CommandeDetail exists with the key {";
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		CommandeDetailPersistenceImpl.class);

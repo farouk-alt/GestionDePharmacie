@@ -72,35 +72,66 @@ public class AuthWebPortlet extends MVCPortlet {
     }
 
     // LOGIN (HttpSession)
-    public void login(ActionRequest request, ActionResponse response) throws Exception {
+   /* public void login(ActionRequest request, ActionResponse response) throws Exception {
         String email = ParamUtil.getString(request, "email");
         String password = ParamUtil.getString(request, "password");
 
-        // Demo SUPER_ADMIN
+        PortletSession ps = request.getPortletSession(); // PortletSession
+
         if ("admin@pharma.com".equals(email) && "12345".equals(password)) {
-            HttpSession hs = PortalSessionUtil.httpSession(request);
-            hs.setAttribute(PortalSessionKeys.AUTHENTICATED, Boolean.TRUE);
-            hs.setAttribute(PortalSessionKeys.USER_EMAIL, email);
-            hs.setAttribute(PortalSessionKeys.USER_ROLE, "SUPER_ADMIN");
-            response.sendRedirect("/web/guest/dashboard"); // page hosting dashboard-web
+            ps.setAttribute("AUTHENTICATED", Boolean.TRUE, PortletSession.APPLICATION_SCOPE);
+            ps.setAttribute("USER_EMAIL", email, PortletSession.APPLICATION_SCOPE);
+            ps.setAttribute("USER_ROLE", "SUPER_ADMIN", PortletSession.APPLICATION_SCOPE);
+
+            response.sendRedirect("/web/guest/dashboard");
             return;
         }
 
-        // Normal users
         Utilisateur u = UtilisateurLocalServiceUtil.getUtilisateurByEmail(email);
         if (u != null && u.getMotDePasse().equals(hashPassword(password))) {
             u.setLastLogin(new Date());
             UtilisateurLocalServiceUtil.updateUtilisateur(u);
 
-            HttpSession hs = PortalSessionUtil.httpSession(request);
-            hs.setAttribute(PortalSessionKeys.AUTHENTICATED, Boolean.TRUE);
-            hs.setAttribute(PortalSessionKeys.USER_EMAIL, u.getEmail());
-            hs.setAttribute(PortalSessionKeys.USER_ROLE, u.getRole());
+            ps.setAttribute("AUTHENTICATED", Boolean.TRUE, PortletSession.APPLICATION_SCOPE);
+            ps.setAttribute("USER_EMAIL", u.getEmail(), PortletSession.APPLICATION_SCOPE);
+            ps.setAttribute("USER_ROLE", u.getRole(), PortletSession.APPLICATION_SCOPE);
 
-            // DEBUG: prove it's written
-            System.out.println("[AUTH] set HS id=" + hs.getId()
-                    + " email=" + hs.getAttribute(PortalSessionKeys.USER_EMAIL)
-                    + " role="  + hs.getAttribute(PortalSessionKeys.USER_ROLE));
+            System.out.println("[AUTH] set PS id=" + ps.getId()
+                    + " email=" + ps.getAttribute("USER_EMAIL", PortletSession.APPLICATION_SCOPE)
+                    + " role="  + ps.getAttribute("USER_ROLE", PortletSession.APPLICATION_SCOPE));
+
+            response.sendRedirect("/web/guest/dashboard");
+        } else {
+            request.setAttribute("loginError", "Email ou mot de passe incorrect !");
+            response.setRenderParameter("mvcPath", "/pharmacy-login.jsp");
+        }
+    }
+*/
+    public void login(ActionRequest request, ActionResponse response) throws Exception {
+        String email = ParamUtil.getString(request, "email");
+        String password = ParamUtil.getString(request, "password");
+
+        PortletSession ps = request.getPortletSession();
+
+        if ("admin@pharma.com".equals(email) && "12345".equals(password)) {
+            ps.setAttribute("AUTHENTICATED", Boolean.TRUE, PortletSession.APPLICATION_SCOPE);
+            ps.setAttribute("USER_EMAIL", email, PortletSession.APPLICATION_SCOPE);
+            ps.setAttribute("USER_ROLE", "SUPER_ADMIN", PortletSession.APPLICATION_SCOPE);
+
+            response.sendRedirect("/web/guest/dashboard");
+            return;
+        }
+
+        Utilisateur u = UtilisateurLocalServiceUtil.getUtilisateurByEmail(email);
+        if (u != null && u.getMotDePasse().equals(hashPassword(password))) {
+            u.setLastLogin(new Date());
+            UtilisateurLocalServiceUtil.updateUtilisateur(u);
+
+            ps.setAttribute("AUTHENTICATED", Boolean.TRUE, PortletSession.APPLICATION_SCOPE);
+            ps.setAttribute("USER_EMAIL", u.getEmail(), PortletSession.APPLICATION_SCOPE);
+            ps.setAttribute("USER_ROLE", u.getRole(), PortletSession.APPLICATION_SCOPE);
+
+            System.out.println("[AUTH] Login successful - Email: " + u.getEmail() + ", Role: " + u.getRole());
 
             response.sendRedirect("/web/guest/dashboard");
         } else {

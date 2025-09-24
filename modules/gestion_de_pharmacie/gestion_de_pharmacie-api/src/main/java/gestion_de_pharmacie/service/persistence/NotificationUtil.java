@@ -112,6 +112,365 @@ public class NotificationUtil {
 	}
 
 	/**
+	 * Returns all the notifications where idUtilisateur = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @return the matching notifications
+	 */
+	public static List<Notification> findByUser(long idUtilisateur) {
+		return getPersistence().findByUser(idUtilisateur);
+	}
+
+	/**
+	 * Returns a range of all the notifications where idUtilisateur = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>NotificationModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param start the lower bound of the range of notifications
+	 * @param end the upper bound of the range of notifications (not inclusive)
+	 * @return the range of matching notifications
+	 */
+	public static List<Notification> findByUser(
+		long idUtilisateur, int start, int end) {
+
+		return getPersistence().findByUser(idUtilisateur, start, end);
+	}
+
+	/**
+	 * Returns an ordered range of all the notifications where idUtilisateur = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>NotificationModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param start the lower bound of the range of notifications
+	 * @param end the upper bound of the range of notifications (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching notifications
+	 */
+	public static List<Notification> findByUser(
+		long idUtilisateur, int start, int end,
+		OrderByComparator<Notification> orderByComparator) {
+
+		return getPersistence().findByUser(
+			idUtilisateur, start, end, orderByComparator);
+	}
+
+	/**
+	 * Returns an ordered range of all the notifications where idUtilisateur = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>NotificationModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param start the lower bound of the range of notifications
+	 * @param end the upper bound of the range of notifications (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching notifications
+	 */
+	public static List<Notification> findByUser(
+		long idUtilisateur, int start, int end,
+		OrderByComparator<Notification> orderByComparator,
+		boolean useFinderCache) {
+
+		return getPersistence().findByUser(
+			idUtilisateur, start, end, orderByComparator, useFinderCache);
+	}
+
+	/**
+	 * Returns the first notification in the ordered set where idUtilisateur = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching notification
+	 * @throws NoSuchNotificationException if a matching notification could not be found
+	 */
+	public static Notification findByUser_First(
+			long idUtilisateur,
+			OrderByComparator<Notification> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchNotificationException {
+
+		return getPersistence().findByUser_First(
+			idUtilisateur, orderByComparator);
+	}
+
+	/**
+	 * Returns the first notification in the ordered set where idUtilisateur = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching notification, or <code>null</code> if a matching notification could not be found
+	 */
+	public static Notification fetchByUser_First(
+		long idUtilisateur, OrderByComparator<Notification> orderByComparator) {
+
+		return getPersistence().fetchByUser_First(
+			idUtilisateur, orderByComparator);
+	}
+
+	/**
+	 * Returns the last notification in the ordered set where idUtilisateur = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching notification
+	 * @throws NoSuchNotificationException if a matching notification could not be found
+	 */
+	public static Notification findByUser_Last(
+			long idUtilisateur,
+			OrderByComparator<Notification> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchNotificationException {
+
+		return getPersistence().findByUser_Last(
+			idUtilisateur, orderByComparator);
+	}
+
+	/**
+	 * Returns the last notification in the ordered set where idUtilisateur = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching notification, or <code>null</code> if a matching notification could not be found
+	 */
+	public static Notification fetchByUser_Last(
+		long idUtilisateur, OrderByComparator<Notification> orderByComparator) {
+
+		return getPersistence().fetchByUser_Last(
+			idUtilisateur, orderByComparator);
+	}
+
+	/**
+	 * Returns the notifications before and after the current notification in the ordered set where idUtilisateur = &#63;.
+	 *
+	 * @param idNotification the primary key of the current notification
+	 * @param idUtilisateur the id utilisateur
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next notification
+	 * @throws NoSuchNotificationException if a notification with the primary key could not be found
+	 */
+	public static Notification[] findByUser_PrevAndNext(
+			long idNotification, long idUtilisateur,
+			OrderByComparator<Notification> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchNotificationException {
+
+		return getPersistence().findByUser_PrevAndNext(
+			idNotification, idUtilisateur, orderByComparator);
+	}
+
+	/**
+	 * Removes all the notifications where idUtilisateur = &#63; from the database.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 */
+	public static void removeByUser(long idUtilisateur) {
+		getPersistence().removeByUser(idUtilisateur);
+	}
+
+	/**
+	 * Returns the number of notifications where idUtilisateur = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @return the number of matching notifications
+	 */
+	public static int countByUser(long idUtilisateur) {
+		return getPersistence().countByUser(idUtilisateur);
+	}
+
+	/**
+	 * Returns all the notifications where idUtilisateur = &#63; and statut = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param statut the statut
+	 * @return the matching notifications
+	 */
+	public static List<Notification> findByUser_Status(
+		long idUtilisateur, String statut) {
+
+		return getPersistence().findByUser_Status(idUtilisateur, statut);
+	}
+
+	/**
+	 * Returns a range of all the notifications where idUtilisateur = &#63; and statut = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>NotificationModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param statut the statut
+	 * @param start the lower bound of the range of notifications
+	 * @param end the upper bound of the range of notifications (not inclusive)
+	 * @return the range of matching notifications
+	 */
+	public static List<Notification> findByUser_Status(
+		long idUtilisateur, String statut, int start, int end) {
+
+		return getPersistence().findByUser_Status(
+			idUtilisateur, statut, start, end);
+	}
+
+	/**
+	 * Returns an ordered range of all the notifications where idUtilisateur = &#63; and statut = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>NotificationModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param statut the statut
+	 * @param start the lower bound of the range of notifications
+	 * @param end the upper bound of the range of notifications (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching notifications
+	 */
+	public static List<Notification> findByUser_Status(
+		long idUtilisateur, String statut, int start, int end,
+		OrderByComparator<Notification> orderByComparator) {
+
+		return getPersistence().findByUser_Status(
+			idUtilisateur, statut, start, end, orderByComparator);
+	}
+
+	/**
+	 * Returns an ordered range of all the notifications where idUtilisateur = &#63; and statut = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>NotificationModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param statut the statut
+	 * @param start the lower bound of the range of notifications
+	 * @param end the upper bound of the range of notifications (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching notifications
+	 */
+	public static List<Notification> findByUser_Status(
+		long idUtilisateur, String statut, int start, int end,
+		OrderByComparator<Notification> orderByComparator,
+		boolean useFinderCache) {
+
+		return getPersistence().findByUser_Status(
+			idUtilisateur, statut, start, end, orderByComparator,
+			useFinderCache);
+	}
+
+	/**
+	 * Returns the first notification in the ordered set where idUtilisateur = &#63; and statut = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param statut the statut
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching notification
+	 * @throws NoSuchNotificationException if a matching notification could not be found
+	 */
+	public static Notification findByUser_Status_First(
+			long idUtilisateur, String statut,
+			OrderByComparator<Notification> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchNotificationException {
+
+		return getPersistence().findByUser_Status_First(
+			idUtilisateur, statut, orderByComparator);
+	}
+
+	/**
+	 * Returns the first notification in the ordered set where idUtilisateur = &#63; and statut = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param statut the statut
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching notification, or <code>null</code> if a matching notification could not be found
+	 */
+	public static Notification fetchByUser_Status_First(
+		long idUtilisateur, String statut,
+		OrderByComparator<Notification> orderByComparator) {
+
+		return getPersistence().fetchByUser_Status_First(
+			idUtilisateur, statut, orderByComparator);
+	}
+
+	/**
+	 * Returns the last notification in the ordered set where idUtilisateur = &#63; and statut = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param statut the statut
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching notification
+	 * @throws NoSuchNotificationException if a matching notification could not be found
+	 */
+	public static Notification findByUser_Status_Last(
+			long idUtilisateur, String statut,
+			OrderByComparator<Notification> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchNotificationException {
+
+		return getPersistence().findByUser_Status_Last(
+			idUtilisateur, statut, orderByComparator);
+	}
+
+	/**
+	 * Returns the last notification in the ordered set where idUtilisateur = &#63; and statut = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param statut the statut
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching notification, or <code>null</code> if a matching notification could not be found
+	 */
+	public static Notification fetchByUser_Status_Last(
+		long idUtilisateur, String statut,
+		OrderByComparator<Notification> orderByComparator) {
+
+		return getPersistence().fetchByUser_Status_Last(
+			idUtilisateur, statut, orderByComparator);
+	}
+
+	/**
+	 * Returns the notifications before and after the current notification in the ordered set where idUtilisateur = &#63; and statut = &#63;.
+	 *
+	 * @param idNotification the primary key of the current notification
+	 * @param idUtilisateur the id utilisateur
+	 * @param statut the statut
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next notification
+	 * @throws NoSuchNotificationException if a notification with the primary key could not be found
+	 */
+	public static Notification[] findByUser_Status_PrevAndNext(
+			long idNotification, long idUtilisateur, String statut,
+			OrderByComparator<Notification> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchNotificationException {
+
+		return getPersistence().findByUser_Status_PrevAndNext(
+			idNotification, idUtilisateur, statut, orderByComparator);
+	}
+
+	/**
+	 * Removes all the notifications where idUtilisateur = &#63; and statut = &#63; from the database.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param statut the statut
+	 */
+	public static void removeByUser_Status(long idUtilisateur, String statut) {
+		getPersistence().removeByUser_Status(idUtilisateur, statut);
+	}
+
+	/**
+	 * Returns the number of notifications where idUtilisateur = &#63; and statut = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param statut the statut
+	 * @return the number of matching notifications
+	 */
+	public static int countByUser_Status(long idUtilisateur, String statut) {
+		return getPersistence().countByUser_Status(idUtilisateur, statut);
+	}
+
+	/**
 	 * Caches the notification in the entity cache if it is enabled.
 	 *
 	 * @param notification the notification

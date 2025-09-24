@@ -16,6 +16,9 @@
         <finder name="Email" return-type="Entity" unique="true">
             <finder-column name="email" />
         </finder>
+        <finder name="Role" return-type="Collection">
+            <finder-column name="role" />
+        </finder>
     </entity>
 
     <entity name="Medicament" local-service="true" remote-service="true">
@@ -49,6 +52,9 @@
         <column name="idMedicament" type="long" />
         <column name="quantiteDisponible" type="int" />
         <column name="dateDerniereMaj" type="Date" />
+        <finder name="Med" return-type="Entity">
+            <finder-column name="idMedicament"/>
+        </finder>
     </entity>
 
     <entity name="Vente" local-service="true" remote-service="true">
@@ -81,6 +87,10 @@
         <column name="dateCommande" type="Date" />
         <column name="statut" type="String" />
         <column name="montantTotal" type="double" />
+        <finder name="IdFournisseur" return-type="Collection">
+            <finder-column name="idFournisseur" />
+        </finder>
+
     </entity>
 
     <entity name="CommandeDetail" local-service="true" remote-service="true">
@@ -89,6 +99,14 @@
         <column name="idMedicament" type="long" />
         <column name="quantite" type="int" />
         <column name="prixUnitaire" type="double" />
+        <finder name="IdCommande" return-type="Collection">
+            <finder-column name="idCommande" />
+        </finder>
+        <finder name="IdMedicament" return-type="Collection">
+            <finder-column name="idMedicament" />
+        </finder>
+
+
     </entity>
 
     <entity name="Notification" local-service="true" remote-service="true">
@@ -98,6 +116,13 @@
         <column name="message" type="String" />
         <column name="statut" type="String" />
         <column name="dateCreation" type="Date" />
+        <finder name="User" return-type="Collection">
+            <finder-column name="idUtilisateur" />
+        </finder>
+        <finder name="User_Status" return-type="Collection">
+            <finder-column name="idUtilisateur" />
+            <finder-column name="statut" />
+        </finder>
     </entity>
 
     <entity name="MouvementStock" local-service="true" remote-service="true">

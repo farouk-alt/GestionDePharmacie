@@ -11,6 +11,13 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page import="com.liferay.portal.kernel.portlet.LiferayWindowState" %>
 <%@ taglib uri="http://liferay.com/tld/clay" prefix="clay" %>
+<%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
+
+<%
+    int unreadCount = 0;
+    Object cObj = request.getAttribute("unreadCount");
+    if (cObj instanceof Integer) unreadCount = (Integer)cObj;
+%>
 
 <portlet:actionURL name="ajouterMedicament" var="addMedURL" />
 <portlet:actionURL name="updateMedicament"  var="updateMedURL" />
@@ -106,13 +113,32 @@
         .icon-btn.danger{ color:#b91c1c; }
         .icon-btn.danger:hover{ background:rgba(220,38,38,.08); color:#991b1b; }
         .icon-btn .lexicon-icon{ width:18px; height:18px; }
+        .bell-btn{
+            position:relative; display:inline-flex; align-items:center; gap:8px;
+            background:#fff; color:var(--primary); border:1px solid var(--border);
+            padding:8px 12px; border-radius:10px; font-weight:600; cursor:pointer;
+        }
+        .bell-dot{
+            min-width:22px; height:22px; padding:0 6px;
+            display:inline-flex; align-items:center; justify-content:center;
+            font-size:12px; font-weight:800; color:#fff; background:#ef4444; border-radius:999px;
+        }
+
     </style>
 </head>
 <body>
 <div class="wrap">
+    <liferay-portlet:renderURL portletName="notification_web_NotificationWebPortlet" var="notifURL" />
+
     <div class="header">
         <h2>💊 Liste des Médicaments</h2>
         <div class="header-actions">
+            <a class="bell-btn" href="${notifURL}" title="Notifications">
+                🔔
+                <% if (unreadCount > 0) { %>
+                <span class="bell-dot"><%= unreadCount %></span>
+                <% } %>
+            </a>
             <div class="count" id="topCount"></div>
             <button type="button" class="btn btn-primary js-med-open" data-mode="add">+ Ajouter</button>
         </div>
@@ -195,6 +221,7 @@
         <div class="pager" id="pager"></div>
     </div>
 
+
     <!-- Flash messages -->
     <liferay-ui:success key="medicament-added-successfully"    message="Médicament ajouté avec succès !" />
     <liferay-ui:success key="medicament-updated-successfully"  message="Médicament mis à jour avec succès !" />
@@ -204,9 +231,7 @@
     <liferay-ui:error   key="medicament-code-exists"            message="Ce code interne existe déjà." />
     <liferay-ui:error   key="medicament-barcode-invalid"        message="Le code-barres doit être un EAN-13 valide." />
     <liferay-ui:error   key="medicament-barcode-exists"         message="Ce code-barres existe déjà." />
-</div>
-
-<!-- Modal form template -->
+</div> <!-- close .wrap once -->
 <template id="medFormTPL">
     <form id="<portlet:namespace/>medForm" class="med-form" method="post">
         <input type="hidden" id="<portlet:namespace/>medicamentId" name="<portlet:namespace/>medicamentId"/>

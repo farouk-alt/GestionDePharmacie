@@ -206,6 +206,10 @@ public class CommandeDetailLocalServiceUtil {
 		return getService().fetchCommandeDetail(idDetail);
 	}
 
+	public static List<CommandeDetail> findByCommandeId(long commandeId) {
+		return getService().findByCommandeId(commandeId);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 
@@ -254,6 +258,12 @@ public class CommandeDetailLocalServiceUtil {
 			getIndexableActionableDynamicQuery() {
 
 		return getService().getIndexableActionableDynamicQuery();
+	}
+
+	public static gestion_de_pharmacie.model.Medicament getMedicament(
+		CommandeDetail commandeDetail) {
+
+		return getService().getMedicament(commandeDetail);
 	}
 
 	/**

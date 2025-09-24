@@ -270,6 +270,11 @@ public class CommandeLocalServiceWrapper
 	}
 
 	@Override
+	public String getFournisseurName(long commandeId) {
+		return _commandeLocalService.getFournisseurName(commandeId);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery
 		getIndexableActionableDynamicQuery() {
 

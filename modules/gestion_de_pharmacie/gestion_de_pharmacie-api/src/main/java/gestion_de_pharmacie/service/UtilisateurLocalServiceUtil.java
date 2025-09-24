@@ -260,6 +260,10 @@ public class UtilisateurLocalServiceUtil {
 		return getService().getUtilisateurByEmail(email);
 	}
 
+	public static List<Utilisateur> getUtilisateurByRole(String role) {
+		return getService().getUtilisateurByRole(role);
+	}
+
 	/**
 	 * Returns a range of all the utilisateurs.
 	 *
