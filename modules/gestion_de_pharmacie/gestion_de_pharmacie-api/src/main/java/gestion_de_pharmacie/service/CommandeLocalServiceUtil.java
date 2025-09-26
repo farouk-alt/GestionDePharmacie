@@ -234,6 +234,12 @@ public class CommandeLocalServiceUtil {
 		return getService().getCommandes(start, end);
 	}
 
+	public static List<Commande> getCommandesByUtilisateurId(
+		long idUtilisateur) {
+
+		return getService().getCommandesByUtilisateurId(idUtilisateur);
+	}
+
 	/**
 	 * Returns the number of commandes.
 	 *

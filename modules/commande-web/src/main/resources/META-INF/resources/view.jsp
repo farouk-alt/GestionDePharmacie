@@ -457,7 +457,7 @@
             <% for (Commande c : commandes) {
                 String fournisseurName = "-";
                 try {
-                    Utilisateur f = gestion_de_pharmacie.service.UtilisateurLocalServiceUtil.getUtilisateur(c.getIdFournisseur());
+                    Utilisateur f = gestion_de_pharmacie.service.UtilisateurLocalServiceUtil.getUtilisateur(c.getIdUtilisateur());
                     fournisseurName = f.getNom() + " " + f.getPrenom();
                 } catch (Exception ignore) {}
                 long ts = (c.getDateCommande() != null) ? c.getDateCommande().getTime() : 0L;

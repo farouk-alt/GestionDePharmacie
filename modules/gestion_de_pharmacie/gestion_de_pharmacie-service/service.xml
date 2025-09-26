@@ -73,22 +73,15 @@
         <column name="sousTotal" type="double" />
     </entity>
 
-    <entity name="Fournisseur" local-service="true" remote-service="true">
-        <column name="idFournisseur" type="long" primary="true" />
-        <column name="nom" type="String" />
-        <column name="adresse" type="String" />
-        <column name="telephone" type="String" />
-        <column name="email" type="String" />
-    </entity>
 
     <entity name="Commande" local-service="true" remote-service="true">
         <column name="idCommande" type="long" primary="true" />
-        <column name="idFournisseur" type="long" />
+        <column name="idUtilisateur" type="long" />
         <column name="dateCommande" type="Date" />
         <column name="statut" type="String" />
         <column name="montantTotal" type="double" />
         <finder name="IdFournisseur" return-type="Collection">
-            <finder-column name="idFournisseur" />
+            <finder-column name="idUtilisateur" />
         </finder>
 
     </entity>

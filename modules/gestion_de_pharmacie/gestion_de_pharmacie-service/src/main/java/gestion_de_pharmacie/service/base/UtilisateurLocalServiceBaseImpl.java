@@ -35,7 +35,6 @@ import gestion_de_pharmacie.model.Utilisateur;
 import gestion_de_pharmacie.service.UtilisateurLocalService;
 import gestion_de_pharmacie.service.persistence.CommandeDetailPersistence;
 import gestion_de_pharmacie.service.persistence.CommandePersistence;
-import gestion_de_pharmacie.service.persistence.FournisseurPersistence;
 import gestion_de_pharmacie.service.persistence.MedicamentPersistence;
 import gestion_de_pharmacie.service.persistence.MouvementStockPersistence;
 import gestion_de_pharmacie.service.persistence.NotificationPersistence;
@@ -453,9 +452,6 @@ public abstract class UtilisateurLocalServiceBaseImpl
 
 	@Reference
 	protected CommandeDetailPersistence commandeDetailPersistence;
-
-	@Reference
-	protected FournisseurPersistence fournisseurPersistence;
 
 	@Reference
 	protected MedicamentPersistence medicamentPersistence;

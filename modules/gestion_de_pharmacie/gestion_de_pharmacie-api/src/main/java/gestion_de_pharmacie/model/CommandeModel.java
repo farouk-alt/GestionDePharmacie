@@ -61,18 +61,18 @@ public interface CommandeModel extends BaseModel<Commande> {
 	public void setIdCommande(long idCommande);
 
 	/**
-	 * Returns the id fournisseur of this commande.
+	 * Returns the id utilisateur of this commande.
 	 *
-	 * @return the id fournisseur of this commande
+	 * @return the id utilisateur of this commande
 	 */
-	public long getIdFournisseur();
+	public long getIdUtilisateur();
 
 	/**
-	 * Sets the id fournisseur of this commande.
+	 * Sets the id utilisateur of this commande.
 	 *
-	 * @param idFournisseur the id fournisseur of this commande
+	 * @param idUtilisateur the id utilisateur of this commande
 	 */
-	public void setIdFournisseur(long idFournisseur);
+	public void setIdUtilisateur(long idUtilisateur);
 
 	/**
 	 * Returns the date commande of this commande.

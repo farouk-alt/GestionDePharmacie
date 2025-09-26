@@ -3,7 +3,7 @@
 <model-hints>
 	<model name="gestion_de_pharmacie.model.Commande">
 		<field name="idCommande" type="long" />
-		<field name="idFournisseur" type="long" />
+		<field name="idUtilisateur" type="long" />
 		<field name="dateCommande" type="Date" />
 		<field name="statut" type="String" />
 		<field name="montantTotal" type="double" />
@@ -14,13 +14,6 @@
 		<field name="idMedicament" type="long" />
 		<field name="quantite" type="int" />
 		<field name="prixUnitaire" type="double" />
-	</model>
-	<model name="gestion_de_pharmacie.model.Fournisseur">
-		<field name="idFournisseur" type="long" />
-		<field name="nom" type="String" />
-		<field name="adresse" type="String" />
-		<field name="telephone" type="String" />
-		<field name="email" type="String" />
 	</model>
 	<model name="gestion_de_pharmacie.model.Medicament">
 		<field name="idMedicament" type="long" />

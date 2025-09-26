@@ -36,113 +36,52 @@ import com.liferay.portal.kernel.util.PortalUtil;
 )
 public class CommandeWebPortlet extends MVCPortlet {
 
-/*	@Override
-	public void doView(RenderRequest renderRequest, RenderResponse renderResponse)
-			throws IOException, PortletException {
-
-		try {
-			// List all fournisseurs (role = FOURNISSEUR)
-			List<Utilisateur> fournisseurs =
-					UtilisateurLocalServiceUtil.getUtilisateurs(-1, -1)
-							.stream()
-							.filter(u -> "FOURNISSEUR".equalsIgnoreCase(u.getRole()))
-							.toList();
-
-			// List all medicaments
-			List<Medicament> medicaments =
-					MedicamentLocalServiceUtil.getMedicaments(-1, -1);
-
-			// List all commandes
-			List<Commande> commandes =
-					CommandeLocalServiceUtil.getCommandes(-1, -1);
-
-			renderRequest.setAttribute("fournisseurs", fournisseurs);
-			renderRequest.setAttribute("medicaments", medicaments);
-			renderRequest.setAttribute("commandes", commandes);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		super.doView(renderRequest, renderResponse);
-	}
-
-
-	@ProcessAction(name = "createCommande")
-	public void createCommande(ActionRequest request, ActionResponse response) {
-		try {
-			long fournisseurId = ParamUtil.getLong(request, "fournisseurId");
-
-			// Create Commande
-			long cmdId = CounterLocalServiceUtil.increment();
-			Commande cmd = CommandeLocalServiceUtil.createCommande(cmdId);
-			cmd.setIdFournisseur(fournisseurId);
-			cmd.setDateCommande(new Date());
-			cmd.setStatut("EN_ATTENTE");
-			cmd.setMontantTotal(0.0);
-			CommandeLocalServiceUtil.addCommande(cmd);
-
-			double montantTotal = 0.0;
-
-			// Get selected medicaments
-			String[] medicamentIds = request.getParameterValues("medicamentId");
-			if (medicamentIds != null) {
-				for (String medIdStr : medicamentIds) {
-					long medId = Long.parseLong(medIdStr);
-
-					// fetch quantity by dynamic name
-					int qte = ParamUtil.getInteger(request, "quantite_" + medId, 1);
-
-					Medicament m = MedicamentLocalServiceUtil.getMedicament(medId);
-
-					long detailId = CounterLocalServiceUtil.increment();
-					CommandeDetail detail = CommandeDetailLocalServiceUtil.createCommandeDetail(detailId);
-					detail.setIdCommande(cmdId);
-					detail.setIdMedicament(medId);
-					detail.setQuantite(qte);
-					detail.setPrixUnitaire(m.getPrixUnitaire());
-
-					double sousTotal = qte * m.getPrixUnitaire();
-					montantTotal += sousTotal;
-
-					CommandeDetailLocalServiceUtil.addCommandeDetail(detail);
-				}
-			}
-
-			// Update total
-			cmd.setMontantTotal(montantTotal);
-			CommandeLocalServiceUtil.updateCommande(cmd);
-
-			response.setRenderParameter("mvcPath", "/view.jsp");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}*/
 private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
 
     @Override
     public void doView(RenderRequest req, RenderResponse res) throws PortletException, IOException {
         try {
             System.out.println("---- doView called ----");
-            // fournisseurs: users having role "FOURNISSEUR" (adjust how you store roles)
+
+            // 1. Get session info (from login)
+            PortletSession ps = req.getPortletSession();
+            String userEmail = (String) ps.getAttribute("USER_EMAIL", PortletSession.APPLICATION_SCOPE);
+            String userRole  = (String) ps.getAttribute("USER_ROLE", PortletSession.APPLICATION_SCOPE);
+
+            // 2. Common data
             List<Utilisateur> fournisseurs = UtilisateurLocalServiceUtil.getUtilisateurByRole("FOURNISSEUR");
             List<Medicament> medicaments = MedicamentLocalServiceUtil.getMedicaments(-1, -1);
+            List<Commande> commandes = new ArrayList<>();
 
-            // commandes: show all for admins, or only created by this user for pharmacists (optional)
-            List<Commande> commandes = CommandeLocalServiceUtil.getCommandes(-1, -1);
-            System.out.println("Fournisseurs fetched: " + (fournisseurs != null ? fournisseurs.size() : 0));
-            System.out.println("Medicaments fetched: " + (medicaments != null ? medicaments.size() : 0));
+            // 3. Filter commandes
+            if ("FOURNISSEUR".equals(userRole) && userEmail != null) {
+                Utilisateur fournisseur = UtilisateurLocalServiceUtil.getUtilisateurByEmail(userEmail);
+                if (fournisseur != null) {
+                    commandes = CommandeLocalServiceUtil.getCommandesByUtilisateurId(fournisseur.getIdUtilisateur());
+                    System.out.println("✅ Fournisseur commandes fetched for: " + userEmail);
+                } else {
+                    System.out.println("⚠ No fournisseur found for email: " + userEmail);
+                }
+            } else if ("SUPER_ADMIN".equals(userRole) || "PHARMACIEN".equals(userRole)) {
+                commandes = CommandeLocalServiceUtil.getCommandes(-1, -1);
+                System.out.println("✅ Admin/Pharmacien sees all commandes");
+            } else {
+                System.out.println("⛔ Role not authorized: " + userRole);
+            }
 
-
+            // 4. Set attributes for JSP
             req.setAttribute("fournisseurs", fournisseurs);
             req.setAttribute("medicaments", medicaments);
             req.setAttribute("commandes", commandes);
+            req.setAttribute("userRole", userRole);
+
         } catch (Exception e) {
-            System.out.println("doView failed: " + e.getMessage());
+            System.out.println("💥 doView failed: " + e.getMessage());
+            e.printStackTrace();
         }
         super.doView(req, res);
     }
+
 
     @ProcessAction(name = "createCommande")
     public void createCommande(ActionRequest request, ActionResponse response) {
@@ -180,7 +119,7 @@ private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
             // Create Commande
             long commandeId = CounterLocalServiceUtil.increment(Commande.class.getName());
             Commande commande = CommandeLocalServiceUtil.createCommande(commandeId);
-            commande.setIdFournisseur(fournisseurId);
+            commande.setIdUtilisateur(fournisseurId);
             commande.setDateCommande(new Date());
             commande.setStatut("CREATED");
             commande.setMontantTotal(0.0);

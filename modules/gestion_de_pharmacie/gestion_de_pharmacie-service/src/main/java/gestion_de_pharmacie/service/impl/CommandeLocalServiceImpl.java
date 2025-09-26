@@ -7,11 +7,14 @@ package gestion_de_pharmacie.service.impl;
 
 import com.liferay.portal.aop.AopService;
 
+import gestion_de_pharmacie.model.Commande;
 import gestion_de_pharmacie.service.FournisseurLocalService;
 import gestion_de_pharmacie.service.base.CommandeLocalServiceBaseImpl;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import java.util.List;
 
 /**
  * @author Brian Wing Shun Chan
@@ -25,9 +28,14 @@ public class CommandeLocalServiceImpl extends CommandeLocalServiceBaseImpl {
     @Reference
     private FournisseurLocalService fournisseurLocalService;
 
+    @Override
+    public List<Commande> getCommandesByUtilisateurId(long idUtilisateur) {
+        return commandePersistence.findByIdFournisseur(idUtilisateur);
+    }
+
     public String getFournisseurName(long commandeId) {
         try {
-            long fournisseurId = commandePersistence.findByPrimaryKey(commandeId).getIdFournisseur();
+            long fournisseurId = commandePersistence.findByPrimaryKey(commandeId).getIdUtilisateur();
             return fournisseurLocalService.fetchFournisseur(fournisseurId).getNom();
         } catch (Exception e) {
             return "Unknown";

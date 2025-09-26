@@ -60,7 +60,7 @@ public class CommandeModelImpl
 	public static final String TABLE_NAME = "Pharma_Commande";
 
 	public static final Object[][] TABLE_COLUMNS = {
-		{"idCommande", Types.BIGINT}, {"idFournisseur", Types.BIGINT},
+		{"idCommande", Types.BIGINT}, {"idUtilisateur", Types.BIGINT},
 		{"dateCommande", Types.TIMESTAMP}, {"statut", Types.VARCHAR},
 		{"montantTotal", Types.DOUBLE}
 	};
@@ -70,14 +70,14 @@ public class CommandeModelImpl
 
 	static {
 		TABLE_COLUMNS_MAP.put("idCommande", Types.BIGINT);
-		TABLE_COLUMNS_MAP.put("idFournisseur", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("idUtilisateur", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("dateCommande", Types.TIMESTAMP);
 		TABLE_COLUMNS_MAP.put("statut", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("montantTotal", Types.DOUBLE);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table Pharma_Commande (idCommande LONG not null primary key,idFournisseur LONG,dateCommande DATE null,statut VARCHAR(75) null,montantTotal DOUBLE)";
+		"create table Pharma_Commande (idCommande LONG not null primary key,idUtilisateur LONG,dateCommande DATE null,statut VARCHAR(75) null,montantTotal DOUBLE)";
 
 	public static final String TABLE_SQL_DROP = "drop table Pharma_Commande";
 
@@ -97,7 +97,7 @@ public class CommandeModelImpl
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)}
 	 */
 	@Deprecated
-	public static final long IDFOURNISSEUR_COLUMN_BITMASK = 1L;
+	public static final long IDUTILISATEUR_COLUMN_BITMASK = 1L;
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
@@ -215,7 +215,7 @@ public class CommandeModelImpl
 
 			attributeGetterFunctions.put("idCommande", Commande::getIdCommande);
 			attributeGetterFunctions.put(
-				"idFournisseur", Commande::getIdFournisseur);
+				"idUtilisateur", Commande::getIdUtilisateur);
 			attributeGetterFunctions.put(
 				"dateCommande", Commande::getDateCommande);
 			attributeGetterFunctions.put("statut", Commande::getStatut);
@@ -241,8 +241,8 @@ public class CommandeModelImpl
 				"idCommande",
 				(BiConsumer<Commande, Long>)Commande::setIdCommande);
 			attributeSetterBiConsumers.put(
-				"idFournisseur",
-				(BiConsumer<Commande, Long>)Commande::setIdFournisseur);
+				"idUtilisateur",
+				(BiConsumer<Commande, Long>)Commande::setIdUtilisateur);
 			attributeSetterBiConsumers.put(
 				"dateCommande",
 				(BiConsumer<Commande, Date>)Commande::setDateCommande);
@@ -275,17 +275,17 @@ public class CommandeModelImpl
 
 	@JSON
 	@Override
-	public long getIdFournisseur() {
-		return _idFournisseur;
+	public long getIdUtilisateur() {
+		return _idUtilisateur;
 	}
 
 	@Override
-	public void setIdFournisseur(long idFournisseur) {
+	public void setIdUtilisateur(long idUtilisateur) {
 		if (_columnOriginalValues == Collections.EMPTY_MAP) {
 			_setColumnOriginalValues();
 		}
 
-		_idFournisseur = idFournisseur;
+		_idUtilisateur = idUtilisateur;
 	}
 
 	/**
@@ -293,9 +293,9 @@ public class CommandeModelImpl
 	 *             #getColumnOriginalValue(String)}
 	 */
 	@Deprecated
-	public long getOriginalIdFournisseur() {
+	public long getOriginalIdUtilisateur() {
 		return GetterUtil.getLong(
-			this.<Long>getColumnOriginalValue("idFournisseur"));
+			this.<Long>getColumnOriginalValue("idUtilisateur"));
 	}
 
 	@JSON
@@ -405,7 +405,7 @@ public class CommandeModelImpl
 		CommandeImpl commandeImpl = new CommandeImpl();
 
 		commandeImpl.setIdCommande(getIdCommande());
-		commandeImpl.setIdFournisseur(getIdFournisseur());
+		commandeImpl.setIdUtilisateur(getIdUtilisateur());
 		commandeImpl.setDateCommande(getDateCommande());
 		commandeImpl.setStatut(getStatut());
 		commandeImpl.setMontantTotal(getMontantTotal());
@@ -421,8 +421,8 @@ public class CommandeModelImpl
 
 		commandeImpl.setIdCommande(
 			this.<Long>getColumnOriginalValue("idCommande"));
-		commandeImpl.setIdFournisseur(
-			this.<Long>getColumnOriginalValue("idFournisseur"));
+		commandeImpl.setIdUtilisateur(
+			this.<Long>getColumnOriginalValue("idUtilisateur"));
 		commandeImpl.setDateCommande(
 			this.<Date>getColumnOriginalValue("dateCommande"));
 		commandeImpl.setStatut(this.<String>getColumnOriginalValue("statut"));
@@ -505,7 +505,7 @@ public class CommandeModelImpl
 
 		commandeCacheModel.idCommande = getIdCommande();
 
-		commandeCacheModel.idFournisseur = getIdFournisseur();
+		commandeCacheModel.idUtilisateur = getIdUtilisateur();
 
 		Date dateCommande = getDateCommande();
 
@@ -588,7 +588,7 @@ public class CommandeModelImpl
 	}
 
 	private long _idCommande;
-	private long _idFournisseur;
+	private long _idUtilisateur;
 	private Date _dateCommande;
 	private String _statut;
 	private double _montantTotal;
@@ -622,7 +622,7 @@ public class CommandeModelImpl
 		_columnOriginalValues = new HashMap<String, Object>();
 
 		_columnOriginalValues.put("idCommande", _idCommande);
-		_columnOriginalValues.put("idFournisseur", _idFournisseur);
+		_columnOriginalValues.put("idUtilisateur", _idUtilisateur);
 		_columnOriginalValues.put("dateCommande", _dateCommande);
 		_columnOriginalValues.put("statut", _statut);
 		_columnOriginalValues.put("montantTotal", _montantTotal);
@@ -641,7 +641,7 @@ public class CommandeModelImpl
 
 		columnBitmasks.put("idCommande", 1L);
 
-		columnBitmasks.put("idFournisseur", 2L);
+		columnBitmasks.put("idUtilisateur", 2L);
 
 		columnBitmasks.put("dateCommande", 4L);
 

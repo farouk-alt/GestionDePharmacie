@@ -259,6 +259,13 @@ public class CommandeLocalServiceWrapper
 		return _commandeLocalService.getCommandes(start, end);
 	}
 
+	@Override
+	public java.util.List<gestion_de_pharmacie.model.Commande>
+		getCommandesByUtilisateurId(long idUtilisateur) {
+
+		return _commandeLocalService.getCommandesByUtilisateurId(idUtilisateur);
+	}
+
 	/**
 	 * Returns the number of commandes.
 	 *

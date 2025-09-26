@@ -35,7 +35,6 @@ import gestion_de_pharmacie.model.Medicament;
 import gestion_de_pharmacie.service.MedicamentLocalService;
 import gestion_de_pharmacie.service.persistence.CommandeDetailPersistence;
 import gestion_de_pharmacie.service.persistence.CommandePersistence;
-import gestion_de_pharmacie.service.persistence.FournisseurPersistence;
 import gestion_de_pharmacie.service.persistence.MedicamentPersistence;
 import gestion_de_pharmacie.service.persistence.MouvementStockPersistence;
 import gestion_de_pharmacie.service.persistence.NotificationPersistence;
@@ -451,9 +450,6 @@ public abstract class MedicamentLocalServiceBaseImpl
 
 	@Reference
 	protected CommandeDetailPersistence commandeDetailPersistence;
-
-	@Reference
-	protected FournisseurPersistence fournisseurPersistence;
 
 	protected MedicamentLocalService medicamentLocalService;
 

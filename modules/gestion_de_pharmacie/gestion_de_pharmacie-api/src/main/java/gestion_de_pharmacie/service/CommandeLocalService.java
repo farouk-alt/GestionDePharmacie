@@ -218,6 +218,9 @@ public interface CommandeLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<Commande> getCommandes(int start, int end);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Commande> getCommandesByUtilisateurId(long idUtilisateur);
+
 	/**
 	 * Returns the number of commandes.
 	 *

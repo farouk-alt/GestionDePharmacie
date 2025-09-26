@@ -1,4 +1,4 @@
-create index IX_3CEE43B4 on Pharma_Commande (idFournisseur);
+create index IX_1B9D1C16 on Pharma_Commande (idUtilisateur);
 
 create index IX_D1857A5C on Pharma_CommandeDetail (idCommande);
 create index IX_49F8453B on Pharma_CommandeDetail (idMedicament);
