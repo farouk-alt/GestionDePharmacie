@@ -54,7 +54,8 @@ private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
             List<Commande> commandes = new ArrayList<>();
 
             // 3. Filter commandes
-            if ("FOURNISSEUR".equals(userRole) && userEmail != null) {
+            // 3. Filter commandes
+            if ("FOURNISSEUR".equalsIgnoreCase(userRole) && userEmail != null) {
                 Utilisateur fournisseur = UtilisateurLocalServiceUtil.getUtilisateurByEmail(userEmail);
                 if (fournisseur != null) {
                     commandes = CommandeLocalServiceUtil.getCommandesByUtilisateurId(fournisseur.getIdUtilisateur());
@@ -62,12 +63,14 @@ private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
                 } else {
                     System.out.println("⚠ No fournisseur found for email: " + userEmail);
                 }
-            } else if ("SUPER_ADMIN".equals(userRole) || "PHARMACIEN".equals(userRole)) {
+            } else if ("PHARMACIEN".equalsIgnoreCase(userRole)
+                    || "ADMIN".equalsIgnoreCase(userRole)) {             // <-- add this line
                 commandes = CommandeLocalServiceUtil.getCommandes(-1, -1);
-                System.out.println("✅ Admin/Pharmacien sees all commandes");
+                System.out.println("✅ Admin-like role sees all commandes: " + userRole);
             } else {
-                System.out.println("⛔ Role not authorized: " + userRole);
+                System.out.println("⛔ Role not authorized (will default to none): " + userRole);
             }
+
 
             // 4. Set attributes for JSP
             req.setAttribute("fournisseurs", fournisseurs);
@@ -174,13 +177,15 @@ private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
                 CommandeDetailLocalServiceUtil.addCommandeDetail(detail);
                 System.out.println("✅ Detail saved for medicament ID: " + detail.getIdMedicament());
             }
+// AFTER (align with your service.xml)
             List<Commande> commandes = CommandeLocalServiceUtil.getCommandes(-1, -1);
             List<Medicament> medicaments = MedicamentLocalServiceUtil.getMedicaments(-1, -1);
-            List<Fournisseur> fournisseurs = FournisseurLocalServiceUtil.getFournisseurs(-1, -1);
+            List<Utilisateur> fournisseurs = UtilisateurLocalServiceUtil.getUtilisateurByRole("FOURNISSEUR");
 
             request.setAttribute("commandes", commandes);
             request.setAttribute("medicaments", medicaments);
             request.setAttribute("fournisseurs", fournisseurs);
+
 
 
             System.out.println("📦 TOTAL ITEMS: " + details.size());

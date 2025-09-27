@@ -789,7 +789,7 @@
         <c:if test="${userRole == 'ADMIN'}">
             <a class="tab ${currentSection=='medicaments' ? 'active' : ''}" href="${tabMedicaments}">Médicaments</a>
         </c:if>
-        <c:if test="${userRole == 'ADMIN' || userRole == 'PHARMACIEN'}">
+        <c:if test="${userRole == 'ADMIN' || userRole == 'PHARMACIEN' || userRole == 'FOURNISSEUR'}">
             <a class="tab ${currentSection=='commandes' ? 'active' : ''}" href="${tabCommandes}">Commandes</a>
         </c:if>
 
@@ -1123,7 +1123,7 @@
         </c:when>
         <c:when test="${currentSection == 'commandes'}">
             <c:choose>
-                <c:when test="${userRole == 'ADMIN' || userRole == 'PHARMACIEN'}">
+                <c:when test="${userRole == 'ADMIN' || userRole == 'PHARMACIEN' || userRole == 'FOURNISSEUR'}">
                     <div class="commands-section">
                         <h3>Méthode de commande</h3>
                         <liferay-portlet:runtime portletName="commande_web" instanceId="CMDS" />
