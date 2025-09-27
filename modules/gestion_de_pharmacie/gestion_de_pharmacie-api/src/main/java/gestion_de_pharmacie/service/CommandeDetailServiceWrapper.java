@@ -27,6 +27,13 @@ public class CommandeDetailServiceWrapper
 		_commandeDetailService = commandeDetailService;
 	}
 
+	@Override
+	public void deleteCommandeWithDetails(long commandeId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_commandeDetailService.deleteCommandeWithDetails(commandeId);
+	}
+
 	/**
 	 * Returns the OSGi service identifier.
 	 *

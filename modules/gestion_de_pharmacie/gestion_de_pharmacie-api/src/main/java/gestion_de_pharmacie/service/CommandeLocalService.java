@@ -5,6 +5,8 @@
 
 package gestion_de_pharmacie.service;
 
+import static gestion_de_pharmacie.service.CommandeLocalServiceUtil.deleteCommande;
+
 import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
@@ -108,6 +110,10 @@ public interface CommandeLocalService
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	public Commande deleteCommande(long idCommande) throws PortalException;
+
+	@Transactional(rollbackFor = Exception.class)
+	public void deleteCommandeWithDetails(long commandeId)
+		throws PortalException;
 
 	/**
 	 * @throws PortalException

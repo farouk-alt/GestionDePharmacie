@@ -7,9 +7,16 @@ package gestion_de_pharmacie.service.impl;
 
 import com.liferay.portal.aop.AopService;
 
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.transaction.Transactional;
+import gestion_de_pharmacie.model.CommandeDetail;
 import gestion_de_pharmacie.service.base.CommandeDetailServiceBaseImpl;
 
 import org.osgi.service.component.annotations.Component;
+
+import java.util.List;
+
+import static gestion_de_pharmacie.service.CommandeLocalServiceUtil.deleteCommande;
 
 /**
  * @author Farouk
@@ -22,4 +29,9 @@ import org.osgi.service.component.annotations.Component;
 	service = AopService.class
 )
 public class CommandeDetailServiceImpl extends CommandeDetailServiceBaseImpl {
+
+    @Override
+    public void deleteCommandeWithDetails(long commandeId) throws PortalException {
+
+    }
 }

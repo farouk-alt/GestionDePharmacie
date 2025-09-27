@@ -7,11 +7,14 @@ package gestion_de_pharmacie.service.impl;
 
 import com.liferay.portal.aop.AopService;
 
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import gestion_de_pharmacie.model.CommandeDetail;
 import gestion_de_pharmacie.model.Medicament;
+import gestion_de_pharmacie.service.MedicamentLocalService;
 import gestion_de_pharmacie.service.base.CommandeDetailLocalServiceBaseImpl;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import java.util.List;
 
@@ -24,13 +27,27 @@ import java.util.List;
 )
 public class CommandeDetailLocalServiceImpl
 	extends CommandeDetailLocalServiceBaseImpl {
-    @Override
+
+    @Reference
+    private MedicamentLocalService medicamentLocalService;
+
+    /** No pagination wrapper */
     public List<CommandeDetail> findByCommandeId(long commandeId) {
-        return List.of();
+        return commandeDetailPersistence.findByIdCommande(
+                commandeId, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
     }
 
-    @Override
+    /** With pagination */
+    public List<CommandeDetail> findByCommandeId(long commandeId, int start, int end) {
+        return commandeDetailPersistence.findByIdCommande(commandeId, start, end);
+    }
+
+    public int countByCommandeId(long commandeId) {
+        return (int) commandeDetailPersistence.countByIdCommande(commandeId);
+    }
+
+    /** Helper to fetch the linked Medicament */
     public Medicament getMedicament(CommandeDetail commandeDetail) {
-        return null;
+        return medicamentLocalService.fetchMedicament(commandeDetail.getIdMedicament());
     }
 }

@@ -5,6 +5,7 @@
 
 package gestion_de_pharmacie.service;
 
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.module.service.Snapshot;
 
 /**
@@ -26,6 +27,11 @@ public class CommandeDetailServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to <code>gestion_de_pharmacie.service.impl.CommandeDetailServiceImpl</code> and rerun ServiceBuilder to regenerate this class.
 	 */
+	public static void deleteCommandeWithDetails(long commandeId)
+		throws PortalException {
+
+		getService().deleteCommandeWithDetails(commandeId);
+	}
 
 	/**
 	 * Returns the OSGi service identifier.

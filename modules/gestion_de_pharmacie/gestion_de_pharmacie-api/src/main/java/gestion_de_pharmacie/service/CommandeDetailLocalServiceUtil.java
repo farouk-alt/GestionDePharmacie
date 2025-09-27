@@ -54,6 +54,10 @@ public class CommandeDetailLocalServiceUtil {
 		return getService().addCommandeDetail(commandeDetail);
 	}
 
+	public static int countByCommandeId(long commandeId) {
+		return getService().countByCommandeId(commandeId);
+	}
+
 	/**
 	 * Creates a new commande detail with the primary key. Does not add the commande detail to the database.
 	 *
@@ -206,8 +210,20 @@ public class CommandeDetailLocalServiceUtil {
 		return getService().fetchCommandeDetail(idDetail);
 	}
 
+	/**
+	 * No pagination wrapper
+	 */
 	public static List<CommandeDetail> findByCommandeId(long commandeId) {
 		return getService().findByCommandeId(commandeId);
+	}
+
+	/**
+	 * With pagination
+	 */
+	public static List<CommandeDetail> findByCommandeId(
+		long commandeId, int start, int end) {
+
+		return getService().findByCommandeId(commandeId, start, end);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
@@ -260,6 +276,9 @@ public class CommandeDetailLocalServiceUtil {
 		return getService().getIndexableActionableDynamicQuery();
 	}
 
+	/**
+	 * Helper to fetch the linked Medicament
+	 */
 	public static gestion_de_pharmacie.model.Medicament getMedicament(
 		CommandeDetail commandeDetail) {
 

@@ -46,6 +46,11 @@ public class CommandeDetailLocalServiceWrapper
 		return _commandeDetailLocalService.addCommandeDetail(commandeDetail);
 	}
 
+	@Override
+	public int countByCommandeId(long commandeId) {
+		return _commandeDetailLocalService.countByCommandeId(commandeId);
+	}
+
 	/**
 	 * Creates a new commande detail with the primary key. Does not add the commande detail to the database.
 	 *
@@ -227,11 +232,25 @@ public class CommandeDetailLocalServiceWrapper
 		return _commandeDetailLocalService.fetchCommandeDetail(idDetail);
 	}
 
+	/**
+	 * No pagination wrapper
+	 */
 	@Override
 	public java.util.List<gestion_de_pharmacie.model.CommandeDetail>
 		findByCommandeId(long commandeId) {
 
 		return _commandeDetailLocalService.findByCommandeId(commandeId);
+	}
+
+	/**
+	 * With pagination
+	 */
+	@Override
+	public java.util.List<gestion_de_pharmacie.model.CommandeDetail>
+		findByCommandeId(long commandeId, int start, int end) {
+
+		return _commandeDetailLocalService.findByCommandeId(
+			commandeId, start, end);
 	}
 
 	@Override
@@ -291,6 +310,9 @@ public class CommandeDetailLocalServiceWrapper
 		return _commandeDetailLocalService.getIndexableActionableDynamicQuery();
 	}
 
+	/**
+	 * Helper to fetch the linked Medicament
+	 */
 	@Override
 	public gestion_de_pharmacie.model.Medicament getMedicament(
 		gestion_de_pharmacie.model.CommandeDetail commandeDetail) {

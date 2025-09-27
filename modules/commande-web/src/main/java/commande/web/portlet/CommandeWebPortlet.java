@@ -12,10 +12,8 @@ import org.osgi.service.component.annotations.Component;
 
 import javax.portlet.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
+
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.PortalUtil;
 
@@ -38,6 +36,7 @@ public class CommandeWebPortlet extends MVCPortlet {
 
 private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
 
+/*
     @Override
     public void doView(RenderRequest req, RenderResponse res) throws PortletException, IOException {
         try {
@@ -84,6 +83,71 @@ private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
         }
         super.doView(req, res);
     }
+*/
+@Override
+public void doView(RenderRequest req, RenderResponse res) throws PortletException, IOException {
+    try {
+        // 1) Try normal render params
+        String mode = com.liferay.portal.kernel.util.ParamUtil.getString(req, "mode", null);
+        long commandeId = com.liferay.portal.kernel.util.ParamUtil.getLong(req, "commandeId");
+
+        // 2) If missing, read from ORIGINAL servlet request using the *instance* namespace
+        if ((mode == null || mode.isEmpty()) || commandeId == 0) {
+            javax.servlet.http.HttpServletRequest httpReq =
+                    com.liferay.portal.kernel.util.PortalUtil.getHttpServletRequest(req);
+            javax.servlet.http.HttpServletRequest origReq =
+                    com.liferay.portal.kernel.util.PortalUtil.getOriginalServletRequest(httpReq);
+
+            // ✅ Use the REAL portletId for this instance (e.g. "commande_web_INSTANCE_CMDS")
+            String portletId = com.liferay.portal.kernel.util.PortalUtil.getPortletId(req);
+            String ns = com.liferay.portal.kernel.util.PortalUtil.getPortletNamespace(portletId);
+            // ns looks like "_commande_web_INSTANCE_CMDS_"
+
+            if (mode == null || mode.isEmpty()) {
+                mode = com.liferay.portal.kernel.util.ParamUtil.getString(origReq, ns + "mode", "list");
+            }
+            if (commandeId == 0) {
+                commandeId = com.liferay.portal.kernel.util.ParamUtil.getLong(origReq, ns + "commandeId");
+            }
+
+            // Optional: debug what keys actually exist
+            // java.util.Map<String,String[]> pm = origReq.getParameterMap();
+            // for (String k : pm.keySet()) if (k.contains("mode") || k.contains("commande")) System.out.println("PARAM " + k + " = " + java.util.Arrays.toString(pm.get(k)));
+        }
+
+        System.out.println("DEBUG doView (AFTER ns read): mode=" + mode + ", commandeId=" + commandeId);
+
+        // --- keep the rest as you had ---
+        req.setAttribute("mode", (mode == null || mode.isEmpty()) ? "list" : mode);
+        req.setAttribute("fournisseurs", UtilisateurLocalServiceUtil.getUtilisateurByRole("FOURNISSEUR"));
+        req.setAttribute("medicaments", MedicamentLocalServiceUtil.getMedicaments(-1, -1));
+
+        if ("detail".equalsIgnoreCase(mode) && commandeId > 0) {
+            Commande cmd = CommandeLocalServiceUtil.fetchCommande(commandeId);
+            req.setAttribute("commande", cmd);
+
+            Utilisateur fournisseur = (cmd != null)
+                    ? UtilisateurLocalServiceUtil.fetchUtilisateur(cmd.getIdUtilisateur())
+                    : null;
+            req.setAttribute("fournisseur", fournisseur);
+
+            java.util.List<CommandeDetail> details;
+            try {
+                details = CommandeDetailLocalServiceUtil.findByCommandeId(commandeId);
+            } catch (Throwable t) {
+                details = CommandeDetailLocalServiceUtil.findByCommandeId(commandeId, -1, -1);
+            }
+            req.setAttribute("details", details);
+        } else {
+            java.util.List<Commande> commandes = CommandeLocalServiceUtil.getCommandes(-1, -1);
+            req.setAttribute("commandes", commandes);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    super.doView(req, res);
+}
+
 
 
     @ProcessAction(name = "createCommande")
@@ -203,5 +267,197 @@ private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
             response.setRenderParameter("mvcPath", "/view.jsp");
         }
     }
+
+
+    @Override
+    public void serveResource(ResourceRequest request, ResourceResponse response)
+            throws IOException, PortletException {
+
+        String rid = request.getResourceID();
+        if (!"downloadCommandePdf".equals(rid)) {
+            super.serveResource(request, response);
+            return;
+        }
+
+        long commandeId = ParamUtil.getLong(request, "commandeId");
+        Commande cmd = CommandeLocalServiceUtil.fetchCommande(commandeId);
+        if (cmd == null) {
+            response.getWriter().write("Commande introuvable");
+            return;
+        }
+
+        Utilisateur fournisseur = UtilisateurLocalServiceUtil.fetchUtilisateur(cmd.getIdUtilisateur());
+        String fournisseurName = (fournisseur != null)
+                ? (fournisseur.getNom() + " " + fournisseur.getPrenom())
+                : "-";
+
+        // details
+        java.util.List<CommandeDetail> details;
+        try {
+            details = CommandeDetailLocalServiceUtil.findByCommandeId(commandeId);
+        } catch (Throwable t) {
+            details = CommandeDetailLocalServiceUtil.findByCommandeId(commandeId, -1, -1);
+        }
+
+        response.setContentType("application/pdf");
+        response.addProperty("Content-Disposition",
+                "attachment; filename=\"commande_" + commandeId + ".pdf\"");
+
+        com.lowagie.text.Document doc = new com.lowagie.text.Document();
+        try {
+            com.lowagie.text.pdf.PdfWriter.getInstance(doc, response.getPortletOutputStream());
+            doc.open();
+
+            com.lowagie.text.Font h1 =
+                    new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 16, com.lowagie.text.Font.BOLD);
+            com.lowagie.text.Font normal =
+                    new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 11);
+
+            doc.add(new com.lowagie.text.Paragraph("Bon de commande #" + commandeId, h1));
+            doc.add(new com.lowagie.text.Paragraph("Fournisseur : " + fournisseurName, normal));
+            doc.add(new com.lowagie.text.Paragraph(
+                    "Date : " + (cmd.getDateCommande() != null ? cmd.getDateCommande().toString() : "-"), normal));
+            doc.add(new com.lowagie.text.Paragraph("Statut : " + cmd.getStatut(), normal));
+            doc.add(new com.lowagie.text.Paragraph(" "));
+
+            // Table
+            com.lowagie.text.pdf.PdfPTable table = new com.lowagie.text.pdf.PdfPTable(5);
+            table.setWidths(new int[]{8, 40, 16, 12, 16});
+            table.setWidthPercentage(100);
+
+            // Header styling
+            java.awt.Color headerBg = new java.awt.Color(248, 250, 252);
+            com.lowagie.text.Font headerFont =
+                    new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 11, com.lowagie.text.Font.BOLD);
+
+            for (String h : new String[]{"N°", "Médicament", "Prix unitaire", "Qté", "Sous-total"}) {
+                com.lowagie.text.pdf.PdfPCell hc =
+                        new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Phrase(h, headerFont));
+                hc.setBackgroundColor(headerBg);
+                hc.setPadding(6f);
+                if (!"Médicament".equals(h)) {
+                    hc.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_RIGHT);
+                }
+                table.addCell(hc);
+            }
+
+            java.text.NumberFormat moneyFr = java.text.NumberFormat.getNumberInstance(java.util.Locale.FRANCE);
+            moneyFr.setMinimumFractionDigits(2);
+            moneyFr.setMaximumFractionDigits(2);
+
+            int i = 1;
+            double total = 0.0;
+
+            for (CommandeDetail d : details) {
+                Medicament m = MedicamentLocalServiceUtil.fetchMedicament(d.getIdMedicament());
+                String medName = (m != null) ? m.getNom() : ("ID=" + d.getIdMedicament());
+                double subtotal = d.getPrixUnitaire() * d.getQuantite();
+                total += subtotal;
+
+                // # (right)
+                com.lowagie.text.pdf.PdfPCell c0 =
+                        new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Phrase(String.valueOf(i++)));
+                c0.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_RIGHT);
+                table.addCell(c0);
+
+                // Médicament (left)
+                table.addCell(new com.lowagie.text.Phrase(medName));
+
+                // Prix (right)
+                com.lowagie.text.pdf.PdfPCell cPrix =
+                        new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Phrase(moneyFr.format(d.getPrixUnitaire()) + " DH"));
+                cPrix.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_RIGHT);
+                table.addCell(cPrix);
+
+                // Qté (right)
+                com.lowagie.text.pdf.PdfPCell cQt =
+                        new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Phrase(String.valueOf(d.getQuantite())));
+                cQt.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_RIGHT);
+                table.addCell(cQt);
+
+                // Sous-total (right)
+                com.lowagie.text.pdf.PdfPCell cSt =
+                        new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Phrase(moneyFr.format(subtotal) + " DH"));
+                cSt.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_RIGHT);
+                table.addCell(cSt);
+            }
+
+            // TOTAL row (bold, right, soft background)
+            com.lowagie.text.Font totalFont =
+                    new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 11, com.lowagie.text.Font.BOLD);
+
+            com.lowagie.text.pdf.PdfPCell totalLabel =
+                    new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Phrase("TOTAL", totalFont));
+            totalLabel.setColspan(4);
+            totalLabel.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_RIGHT);
+            totalLabel.setBackgroundColor(headerBg);
+            totalLabel.setPadding(6f);
+
+            com.lowagie.text.pdf.PdfPCell totalValue =
+                    new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Phrase(moneyFr.format(total) + " DH", totalFont));
+            totalValue.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_RIGHT);
+            totalValue.setBackgroundColor(headerBg);
+            totalValue.setPadding(6f);
+
+            table.addCell(totalLabel);
+            table.addCell(totalValue);
+
+            doc.add(table);
+            doc.close();
+        } catch (Exception e) {
+            doc.close();
+            throw new PortletException(e);
+        }
+    }
+    @ProcessAction(name = "deleteCommande")
+    public void deleteCommande(ActionRequest request, ActionResponse response) {
+        long commandeId = ParamUtil.getLong(request, "commandeId");
+
+        try {
+            // 1) Cascade delete (your custom service impl)
+            CommandeLocalServiceUtil.getService().deleteCommandeWithDetails(commandeId);
+            SessionMessages.add(request, "commande-deleted-success");
+        } catch (Exception e) {
+            SessionMessages.add(request, "commande-delete-error");
+        }
+
+        // 2) Make sure the next render lands on the list view
+        response.setRenderParameter("mvcPath", "/view.jsp");
+        response.setRenderParameter("mode", "list");
+
+        // 3) (Optional but robust) Preload data so even if doView changes later,
+        //    the list still shows up after this action.
+        try {
+            request.setAttribute("fournisseurs",
+                    gestion_de_pharmacie.service.UtilisateurLocalServiceUtil.getUtilisateurByRole("FOURNISSEUR"));
+            request.setAttribute("medicaments",
+                    gestion_de_pharmacie.service.MedicamentLocalServiceUtil.getMedicaments(-1, -1));
+
+            // same logic you use in doView for list mode
+            PortletSession ps = request.getPortletSession();
+            String userEmail = (String) ps.getAttribute("USER_EMAIL", PortletSession.APPLICATION_SCOPE);
+            String userRole  = (String) ps.getAttribute("USER_ROLE", PortletSession.APPLICATION_SCOPE);
+
+            java.util.List<gestion_de_pharmacie.model.Commande> commandes;
+            if ("FOURNISSEUR".equalsIgnoreCase(userRole) && userEmail != null) {
+                gestion_de_pharmacie.model.Utilisateur f =
+                        gestion_de_pharmacie.service.UtilisateurLocalServiceUtil.getUtilisateurByEmail(userEmail);
+                commandes = (f != null)
+                        ? gestion_de_pharmacie.service.CommandeLocalServiceUtil.getCommandesByUtilisateurId(f.getIdUtilisateur())
+                        : new java.util.ArrayList<>();
+            } else if ("PHARMACIEN".equalsIgnoreCase(userRole) || "ADMIN".equalsIgnoreCase(userRole)) {
+                commandes = gestion_de_pharmacie.service.CommandeLocalServiceUtil.getCommandes(-1, -1);
+            } else {
+                commandes = new java.util.ArrayList<>();
+            }
+            request.setAttribute("commandes", commandes);
+        } catch (Exception ignore) {
+            // doView will still repopulate
+        }
+    }
+
+
+
+
 
 }

@@ -102,6 +102,13 @@ public class CommandeLocalServiceWrapper
 		return _commandeLocalService.deleteCommande(idCommande);
 	}
 
+	@Override
+	public void deleteCommandeWithDetails(long commandeId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_commandeLocalService.deleteCommandeWithDetails(commandeId);
+	}
+
 	/**
 	 * @throws PortalException
 	 */

@@ -68,6 +68,8 @@ public interface CommandeDetailLocalService
 	@Indexable(type = IndexableType.REINDEX)
 	public CommandeDetail addCommandeDetail(CommandeDetail commandeDetail);
 
+	public int countByCommandeId(long commandeId);
+
 	/**
 	 * Creates a new commande detail with the primary key. Does not add the commande detail to the database.
 	 *
@@ -193,7 +195,16 @@ public interface CommandeDetailLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public CommandeDetail fetchCommandeDetail(long idDetail);
 
+	/**
+	 * No pagination wrapper
+	 */
 	public List<CommandeDetail> findByCommandeId(long commandeId);
+
+	/**
+	 * With pagination
+	 */
+	public List<CommandeDetail> findByCommandeId(
+		long commandeId, int start, int end);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ActionableDynamicQuery getActionableDynamicQuery();
@@ -234,6 +245,9 @@ public interface CommandeDetailLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
 
+	/**
+	 * Helper to fetch the linked Medicament
+	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public Medicament getMedicament(CommandeDetail commandeDetail);
 

@@ -103,6 +103,12 @@ public class CommandeLocalServiceUtil {
 		return getService().deleteCommande(idCommande);
 	}
 
+	public static void deleteCommandeWithDetails(long commandeId)
+		throws PortalException {
+
+		getService().deleteCommandeWithDetails(commandeId);
+	}
+
 	/**
 	 * @throws PortalException
 	 */
