@@ -74,6 +74,8 @@
         .controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
         .controls input[type="search"]{flex:1;min-width:240px;padding:10px;border:1px solid var(--border);border-radius:10px;background:#fff}
         table{width:100%;border-collapse:collapse; margin-top: 10px;}
+        #medTable thead th { position: sticky; top: 0; background: #F8FAFC; z-index: 1; }
+
         thead th{text-align:left;background:#F8FAFC;color:var(--primary);padding:10px 12px;border-bottom:1px solid var(--border);font-weight:700}
         tbody td{padding:10px 12px; border-bottom: 1px solid var(--border);}
         tr:hover td{background:#F9FAFB}
@@ -81,7 +83,17 @@
         .order-grid .full{ grid-column:1/-1 }
         .small{ font-size:0.95rem; color:var(--muted) }
         .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; }
-        .modal-content { background:#fff; border-radius:10px; max-width:900px; width:90%; padding:16px; max-height:80vh; overflow:auto; }
+        /*.modal-content { background:#fff; border-radius:10px; max-width:900px; width:90%; padding:16px; max-height:80vh; overflow:auto; }*/
+        /* replace your existing .modal-content block with this */
+        .modal-content{
+            background:#fff; border-radius:12px;
+            max-width:1200px;  /* was 900px */
+            width:95%;         /* was 90%  */
+            padding:16px;
+            max-height:90vh;   /* was 80vh */
+            overflow:auto;
+        }
+
         td.num, th.num { text-align: right; }
         tfoot td { background:#F8FAFC; font-weight:700; }
         tfoot td:first-child { text-align:right; }
@@ -317,19 +329,12 @@
             <h3 style="margin:0;"><%= editMode ? ("Modifier la commande #" + (cmdEdit!=null?cmdEdit.getIdCommande():"-")) : "Nouvelle commande" %></h3>
             <button type="button" onclick="closeModal()" style="font-size:20px;border:none;background:none;cursor:pointer;">×</button>
         </div>
-
-<%--        <form id="orderForm"
-              method="post"
-              action="${editMode ? updateCommandeURL : createCommandeURL}"
-              enctype="multipart/form-data"
-              class="card">--%>
         <form id="orderForm"
               method="post"
               action="${editMode ? updateCommandeURL : createCommandeURL}"
               enctype="multipart/form-data"
               class="card"
               data-senna-off="true">   <%-- <-- add this --%>
-
 
 
             <c:if test="${editMode}">
@@ -363,6 +368,7 @@
 
                 <div class="full">
                     <label style="font-weight:600">Médicaments</label>
+<%--
                     <div style="border:1px solid var(--border); padding:12px; border-radius:8px; max-height:320px; overflow:auto;">
                         <table style="width:100%;border-collapse:collapse;">
                             <thead><tr><th>Sel</th><th>Médicament</th><th>Prix</th><th>Quantité</th></tr></thead>
@@ -381,6 +387,56 @@
                             <% } %>
                             </tbody>
                         </table>
+                    </div>
+--%>
+                    <!-- REPLACEMENT STARTS HERE -->
+                    <div style="border:1px solid var(--border); padding:12px; border-radius:8px; max-height:420px; overflow:auto;">
+                        <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
+                            <input id="medSearch" type="search" placeholder="Rechercher un médicament..."
+                                   style="flex:1; padding:8px; border:1px solid var(--border); border-radius:8px;" />
+                            <label style="display:flex; align-items:center; gap:6px; font-size:.95rem; color:var(--muted);">
+                                <input id="medOnlySelected" type="checkbox" /> Sélectionnés uniquement
+                            </label>
+                            <label style="display:flex; align-items:center; gap:6px; font-size:.95rem; color:var(--muted);">
+                                <input id="medToggleAllVisible" type="checkbox" /> Tout (visible)
+                            </label>
+                        </div>
+
+                        <table id="medTable" style="width:100%;border-collapse:collapse;">
+                            <thead>
+                            <tr>
+                                <th style="width:60px;">Sel</th>
+                                <th>Médicament</th>
+                                <th style="width:120px;">Prix</th>
+                                <th style="width:120px;">Quantité</th>
+                            </tr>
+                            </thead>
+                            <tbody id="medTableBody">
+                            <% for (Medicament m : medicaments) {
+                                Integer q = qtyMap.get(m.getIdMedicament());
+                                boolean checked = (q != null && q > 0);
+                                int value = checked ? q : 1;
+                            %>
+                            <tr data-name="<%= HtmlUtil.escape(m.getNom()) %>">
+                                <td>
+                                    <input type="checkbox" class="med-check" name="medicamentId"
+                                           value="<%= m.getIdMedicament() %>" <%= checked ? "checked" : "" %> />
+                                </td>
+                                <td class="med-name"><%= HtmlUtil.escape(m.getNom()) %></td>
+                                <td class="med-price" data-price="<%= m.getPrixUnitaire() %>"><%= money.format(m.getPrixUnitaire()) %></td>
+                                <td>
+                                    <input type="number" class="med-qty" name="quantite_<%= m.getIdMedicament() %>"
+                                           value="<%= value %>" min="1" style="width:84px;" />
+                                </td>
+                            </tr>
+                            <% } %>
+                            </tbody>
+                        </table>
+
+                        <div id="medFooterBar" style="margin-top:10px; display:flex; justify-content:space-between; align-items:center; color:var(--muted);">
+                            <div><span id="medCountVisible">0</span> éléments visibles • <span id="medCountSelected">0</span> sélectionnés</div>
+                            <div>Total estimé: <strong id="medTotalEstime">0,00 DH</strong></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -415,5 +471,100 @@
     const hasCmd = ${requestScope.commande != null ? "true" : "false"};
     if (isEdit && hasCmd) openModal();
 </script>
+<script>
+    (function(){
+        const $ = (s,root=document)=>root.querySelector(s);
+        const $$ = (s,root=document)=>Array.from(root.querySelectorAll(s));
+        const medSearch = $('#medSearch');
+        const onlySel   = $('#medOnlySelected');
+        const toggleAll = $('#medToggleAllVisible');
+        const tbody     = $('#medTableBody');
+        const elCountV  = $('#medCountVisible');
+        const elCountS  = $('#medCountSelected');
+        const elTotal   = $('#medTotalEstime');
+
+        function normalize(str){ return (str||'').toString().toLowerCase().trim(); }
+
+        function applyFilter(){
+            const q = normalize(medSearch.value);
+            const rows = $$('#medTableBody tr');
+            let visible = 0;
+            rows.forEach(tr => {
+                const name = normalize(tr.dataset.name);
+                const isChecked = $('.med-check', tr).checked;
+                const matches = name.includes(q);
+                const keep = matches && (!onlySel.checked || isChecked);
+                tr.style.display = keep ? '' : 'none';
+                if (keep) visible++;
+            });
+            elCountV.textContent = visible;
+            updateSelectedAndTotal();
+            syncToggleAllCheckbox();
+        }
+
+        function updateSelectedAndTotal(){
+            const rows = $$('#medTableBody tr');
+            let selected = 0, total = 0;
+            rows.forEach(tr => {
+                const visible = tr.style.display !== 'none';
+                const chk = $('.med-check', tr);
+                const qty = parseInt($('.med-qty', tr).value || '0', 10);
+                const price = parseFloat($('.med-price', tr).dataset.price || '0');
+                if (chk.checked) selected++;
+                if (visible && chk.checked && qty>0) total += price * qty;
+            });
+            elCountS.textContent = selected;
+            try{
+                // French format without importing Intl for brevity
+                elTotal.textContent = total.toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' DH';
+            }catch(e){
+                elTotal.textContent = (Math.round(total*100)/100) + ' DH';
+            }
+        }
+
+        function syncToggleAllCheckbox(){
+            const visibleRows = $$('#medTableBody tr').filter(tr => tr.style.display !== 'none');
+            if (visibleRows.length === 0) { toggleAll.checked = false; toggleAll.indeterminate = false; return; }
+            const checkedCount = visibleRows.filter(tr => $('.med-check', tr).checked).length;
+            toggleAll.checked = checkedCount === visibleRows.length;
+            toggleAll.indeterminate = checkedCount > 0 && checkedCount < visibleRows.length;
+        }
+
+        // Events
+        if (medSearch) medSearch.addEventListener('input', debounce(applyFilter, 200));
+        if (onlySel)   onlySel.addEventListener('change', applyFilter);
+        if (toggleAll) toggleAll.addEventListener('change', () => {
+            const visibleRows = $$('#medTableBody tr').filter(tr => tr.style.display !== 'none');
+            visibleRows.forEach(tr => { $('.med-check', tr).checked = toggleAll.checked; });
+            updateSelectedAndTotal();
+            syncToggleAllCheckbox();
+        });
+
+        tbody?.addEventListener('change', e => {
+            if (e.target.classList.contains('med-check') || e.target.classList.contains('med-qty')) {
+                updateSelectedAndTotal();
+                syncToggleAllCheckbox();
+            }
+        });
+
+        // Small debounce helper
+        function debounce(fn, wait){
+            let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn.apply(this,args), wait); };
+        }
+
+        // Initial counts on modal open
+        document.addEventListener('DOMContentLoaded', () => {
+            applyFilter();
+        });
+    })();
+    function openModal(){
+        const m=document.getElementById('orderModal');
+        m.style.display='flex'; m.setAttribute('aria-hidden','false');
+        setTimeout(()=>{ const s=document.getElementById('medSearch'); if(s) s.focus(); }, 50);
+    }
+
+</script>
+
+
 </body>
 </html>
