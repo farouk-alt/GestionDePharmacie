@@ -36,6 +36,11 @@
     boolean editMode = "edit".equals(mode);
     request.setAttribute("editMode", editMode);   // <-- make it visible to EL
 
+    Boolean isFournisseur = (Boolean) request.getAttribute("isFournisseur");
+    if (isFournisseur == null) isFournisseur = false;
+    Long currentFournisseurId = (Long) request.getAttribute("currentFournisseurId");
+    if (currentFournisseurId == null) currentFournisseurId = 0L;
+
     // Prefill map for edit
     gestion_de_pharmacie.model.Commande cmdEdit =
             (gestion_de_pharmacie.model.Commande) request.getAttribute("commande");
@@ -107,7 +112,10 @@
         <h2>🧾 Commandes</h2>
         <div class="header-actions">
             <div class="small">Créer une commande auprès d'un fournisseur</div>
-            <button type="button" class="btn btn-primary js-order-open">+ Nouvelle commande</button>
+            <c:if test="${!isFournisseur}">
+                <button type="button" class="btn btn-primary js-order-open">+ Nouvelle commande</button>
+            </c:if>
+
         </div>
     </div>
 
@@ -242,8 +250,8 @@
                 </td>
                 <td data-key="statut"><%= HtmlUtil.escape(c.getStatut()) %></td>
                 <td data-key="montant" data-sort="<%= c.getMontantTotal() %>"><%= money.format(c.getMontantTotal()) %></td>
-                <td>
-                    <%-- View --%>
+<%--                <td>
+                    &lt;%&ndash; View &ndash;%&gt;
                     <portlet:renderURL var="viewURL" copyCurrentRenderParameters="false">
                         <portlet:param name="mvcPath" value="/view.jsp" />
                         <portlet:param name="mode" value="detail" />
@@ -251,7 +259,7 @@
                     </portlet:renderURL>
                     <a class="btn icon-btn" href="${viewURL}" data-senna-off="true" title="Voir">👁️</a>
 
-                    <%-- PDF --%>
+                    &lt;%&ndash; PDF &ndash;%&gt;
                     <liferay-portlet:resourceURL id="downloadCommandePdf" var="pdfUrlRow">
                         <portlet:param name="commandeId" value="<%= String.valueOf(c.getIdCommande()) %>" />
                     </liferay-portlet:resourceURL>
@@ -264,7 +272,7 @@
                         boolean deletable  = "CREATED".equals(statutUpper); // or widen to CREATED||PENDING if you want
                     %>
 
-                    <%-- Edit (CREATED) --%>
+                    &lt;%&ndash; Edit (CREATED) &ndash;%&gt;
                     <c:if test="<%= editable %>">
                         <portlet:renderURL var="editURL" copyCurrentRenderParameters="false">
                             <portlet:param name="mvcPath" value="/view.jsp" />
@@ -274,7 +282,7 @@
                         <a class="btn icon-btn" href="${editURL}" data-senna-off="true" title="Modifier" style="margin-left:6px;">✏️</a>
                     </c:if>
 
-                    <%-- Send (CREATED) --%>
+                    &lt;%&ndash; Send (CREATED) &ndash;%&gt;
                     <c:if test="<%= "CREATED".equals(statutUpper) %>">
                         <portlet:actionURL name="sendCommande" var="sendURL">
                             <portlet:param name="commandeId" value="<%= String.valueOf(c.getIdCommande()) %>" />
@@ -284,7 +292,7 @@
                         </form>
                     </c:if>
 
-                    <%-- Cancel (CREATED or PENDING) --%>
+                    &lt;%&ndash; Cancel (CREATED or PENDING) &ndash;%&gt;
                     <c:if test="<%= cancelable %>">
                         <portlet:actionURL name="cancelCommande" var="cancelURL">
                             <portlet:param name="commandeId" value="<%= String.valueOf(c.getIdCommande()) %>" />
@@ -295,7 +303,7 @@
                         </form>
                     </c:if>
 
-                    <%-- Delete (CREATED only, or broaden if you want) --%>
+                    &lt;%&ndash; Delete (CREATED only, or broaden if you want) &ndash;%&gt;
                     <c:if test="<%= deletable %>">
                         <portlet:actionURL name="deleteCommande" var="deleteCommandeURL">
                             <portlet:param name="commandeId" value="<%= String.valueOf(c.getIdCommande()) %>" />
@@ -306,8 +314,116 @@
                             <button type="submit" class="btn icon-btn" title="Supprimer" style="margin-left:6px;">🗑️</button>
                         </form>
                     </c:if>
-                </td>
+                </td>--%>
+                <td>
+                <%
+                    String statutUpper = (c.getStatut() != null) ? c.getStatut().trim().toUpperCase() : "";
+                    boolean editable   = commande.web.constants.CommandeStatus.isEditable(statutUpper);     // CREATED
+                    boolean cancelable = commande.web.constants.CommandeStatus.isCancelable(statutUpper);   // CREATED,PENDING
+                    boolean deletable  = "CREATED".equals(statutUpper);
+                    boolean isMine     = (currentFournisseurId != null && currentFournisseurId > 0 && c.getIdUtilisateur() == currentFournisseurId);
+                    boolean canRespond = "PENDING".equals(statutUpper) && isMine; // fournisseur can accept/refuse only if PENDING and for him
+                %>
 
+                <%-- Common: View + PDF for everyone --%>
+                <portlet:renderURL var="viewURL" copyCurrentRenderParameters="false">
+                    <portlet:param name="mvcPath" value="/view.jsp" />
+                    <portlet:param name="mode" value="detail" />
+                    <portlet:param name="commandeId" value="<%= String.valueOf(c.getIdCommande()) %>" />
+                </portlet:renderURL>
+                <a class="btn icon-btn" href="${viewURL}" data-senna-off="true" title="Voir">👁️</a>
+
+                <liferay-portlet:resourceURL id="downloadCommandePdf" var="pdfUrlRow">
+                    <portlet:param name="commandeId" value="<%= String.valueOf(c.getIdCommande()) %>" />
+                </liferay-portlet:resourceURL>
+                <a class="btn icon-btn" href="${pdfUrlRow}" title="Télécharger PDF" style="margin-left:6px;">📄</a>
+
+                <c:choose>
+                    <c:when test="${isFournisseur}">
+                        <%-- Fournisseur view: only Accept / Refuse if it's his order and PENDING --%>
+                        <c:if test="<%= canRespond %>">
+                            <portlet:actionURL name="acceptCommande" var="acceptURL">
+                                <portlet:param name="commandeId" value="<%= String.valueOf(c.getIdCommande()) %>" />
+                            </portlet:actionURL>
+                            <form action="${acceptURL}" method="post" style="display:inline;" data-senna-off="true"
+                                  onsubmit="return confirm('Accepter la commande #<%= c.getIdCommande() %> ?');">
+                                <button type="submit" class="btn icon-btn" title="Accepter" style="margin-left:6px;">✅</button>
+                            </form>
+
+                            <portlet:actionURL name="rejectCommande" var="rejectURL">
+                                <portlet:param name="commandeId" value="<%= String.valueOf(c.getIdCommande()) %>" />
+                            </portlet:actionURL>
+                            <form action="${rejectURL}" method="post" style="display:inline;" data-senna-off="true"
+                                  onsubmit="return confirm('Refuser la commande #<%= c.getIdCommande() %> ?');">
+                                <button type="submit" class="btn icon-btn" title="Refuser" style="margin-left:6px;">❌</button>
+                            </form>
+                        </c:if>
+                    </c:when>
+
+                    <c:otherwise>
+                        <%-- Pharmacien/Admin view: keep full Actions --%>
+                        <c:if test="<%= editable %>">
+                            <portlet:renderURL var="editURL" copyCurrentRenderParameters="false">
+                                <portlet:param name="mvcPath" value="/view.jsp" />
+                                <portlet:param name="mode" value="edit" />
+                                <portlet:param name="commandeId" value="<%= String.valueOf(c.getIdCommande()) %>" />
+                            </portlet:renderURL>
+                            <a class="btn icon-btn" href="${editURL}" data-senna-off="true" title="Modifier" style="margin-left:6px;">✏️</a>
+                        </c:if>
+
+                        <c:if test="<%= "CREATED".equals(statutUpper) %>">
+                            <portlet:actionURL name="sendCommande" var="sendURL">
+                                <portlet:param name="commandeId" value="<%= String.valueOf(c.getIdCommande()) %>" />
+                            </portlet:actionURL>
+                            <form action="${sendURL}" method="post" style="display:inline;" data-senna-off="true">
+                                <button type="submit" class="btn icon-btn" title="Envoyer" style="margin-left:6px;">📤</button>
+                            </form>
+                        </c:if>
+
+                        <c:if test="<%= cancelable %>">
+                            <portlet:actionURL name="cancelCommande" var="cancelURL">
+                                <portlet:param name="commandeId" value="<%= String.valueOf(c.getIdCommande()) %>" />
+                            </portlet:actionURL>
+                            <form action="${cancelURL}" method="post" style="display:inline;" data-senna-off="true"
+                                  onsubmit="return confirm('Annuler la commande #<%= c.getIdCommande() %> ?');">
+                                <button type="submit" class="btn icon-btn" title="Annuler" style="margin-left:6px;">🚫</button>
+                            </form>
+                        </c:if>
+
+                        <c:if test="<%= deletable %>">
+                            <portlet:actionURL name="deleteCommande" var="deleteCommandeURL">
+                                <portlet:param name="commandeId" value="<%= String.valueOf(c.getIdCommande()) %>" />
+                            </portlet:actionURL>
+                            <form action="${deleteCommandeURL}" method="post" style="display:inline;"
+                                  data-senna-off="true"
+                                  onsubmit="return confirm('Supprimer la commande #<%= c.getIdCommande() %> ?');">
+                                <button type="submit" class="btn icon-btn" title="Supprimer" style="margin-left:6px;">🗑️</button>
+                            </form>
+                        </c:if>
+                        <c:if test="<%= \"REFUSED\".equals(statutUpper) %>">
+                            <portlet:actionURL name="reassignCommande" var="reassignURL" />
+                            <form action="${reassignURL}" method="post" style="display:inline; margin-left:6px;" data-senna-off="true"
+                                  onsubmit="return confirm('Réaffecter la commande #<%= c.getIdCommande() %> ?');">
+                                <input type="hidden" name="commandeId" value="<%= c.getIdCommande() %>" />
+                                <select name="newFournisseurId" required style="padding:4px 6px; border:1px solid var(--border); border-radius:8px;">
+                                    <option value="">-- Vers fournisseur --</option>
+                                    <% for (Utilisateur f : fournisseurs) {
+                                        if (f.getIdUtilisateur() == c.getIdUtilisateur()) continue; %>
+                                    <option value="<%= f.getIdUtilisateur() %>">
+                                        <%= HtmlUtil.escape(f.getNom() + " " + f.getPrenom()) %>
+                                    </option>
+                                    <% } %>
+                                </select>
+                                <label style="margin-left:6px; font-size:.9rem; color:var(--muted);">
+                                    <input type="checkbox" name="sendNow" /> Envoyer maintenant
+                                </label>
+                                <button type="submit" class="btn icon-btn" title="Réaffecter" style="margin-left:6px;">🔁</button>
+                            </form>
+                        </c:if>
+
+                    </c:otherwise>
+                </c:choose>
+                </td>
             </tr>
             <% } %>
             </tbody>
@@ -319,137 +435,138 @@
 
 <!-- Modal (create & edit) -->
 <%-- compute once at top of JSP, or just inline EL as below --%>
-<div id="orderModal"
-     class="modal-overlay"
-     aria-hidden="${editMode ? 'false' : 'true'}"
-     style="${editMode ? 'display:flex' : 'display:none'}">
+<c:if test="${!isFournisseur}">
+    <div id="orderModal"
+         class="modal-overlay"
+         aria-hidden="${editMode ? 'false' : 'true'}"
+         style="${editMode ? 'display:flex' : 'display:none'}">
 
-    <div class="modal-content" role="dialog" aria-modal="true">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <h3 style="margin:0;"><%= editMode ? ("Modifier la commande #" + (cmdEdit!=null?cmdEdit.getIdCommande():"-")) : "Nouvelle commande" %></h3>
-            <button type="button" onclick="closeModal()" style="font-size:20px;border:none;background:none;cursor:pointer;">×</button>
-        </div>
-        <form id="orderForm"
-              method="post"
-              action="${editMode ? updateCommandeURL : createCommandeURL}"
-              enctype="multipart/form-data"
-              class="card"
-              data-senna-off="true">   <%-- <-- add this --%>
-
-
-            <c:if test="${editMode}">
-                <input type="hidden" name="commandeId"
-                       value="${commande != null ? commande.idCommande : 0}" />
-            </c:if>
-
-            <liferay-portlet:renderURL var="afterSaveURL"
-                                       portletName="dashboard_web_DashboardWebPortlet_INSTANCE_oddl">
-                <portlet:param name="mvcPath" value="/common/dashboard.jsp" />
-                <portlet:param name="section" value="commandes" />
-            </liferay-portlet:renderURL>
-
-            <input type="hidden" name="redirect" value="${afterSaveURL}" />
-
-
-
-                <div class="order-grid">
-                <div class="full">
-                    <label for="fournisseurId" style="font-weight:600">Fournisseur</label>
-                    <select id="fournisseurId" name="fournisseurId" class="form-control" required>
-                        <option value="">-- Choisir un fournisseur --</option>
-                        <% for (Utilisateur f : fournisseurs) { %>
-                        <option value="<%= f.getIdUtilisateur() %>"
-                                <%= (editMode && f.getIdUtilisateur()==selectedFournisseurId) ? "selected" : "" %>>
-                            <%= HtmlUtil.escape(f.getNom() + " " + f.getPrenom()) %>
-                        </option>
-                        <% } %>
-                    </select>
-                </div>
-
-                <div class="full">
-                    <label style="font-weight:600">Médicaments</label>
-<%--
-                    <div style="border:1px solid var(--border); padding:12px; border-radius:8px; max-height:320px; overflow:auto;">
-                        <table style="width:100%;border-collapse:collapse;">
-                            <thead><tr><th>Sel</th><th>Médicament</th><th>Prix</th><th>Quantité</th></tr></thead>
-                            <tbody>
-                            <% for (Medicament m : medicaments) {
-                                Integer q = qtyMap.get(m.getIdMedicament());
-                                boolean checked = (q != null && q > 0);
-                                int value = checked ? q : 1;
-                            %>
-                            <tr>
-                                <td><input type="checkbox" name="medicamentId" value="<%= m.getIdMedicament() %>" <%= checked ? "checked" : "" %> /></td>
-                                <td><%= HtmlUtil.escape(m.getNom()) %></td>
-                                <td><%= money.format(m.getPrixUnitaire()) %></td>
-                                <td><input type="number" name="quantite_<%= m.getIdMedicament() %>" value="<%= value %>" min="1" class="form-control" style="width:84px;" /></td>
-                            </tr>
-                            <% } %>
-                            </tbody>
-                        </table>
-                    </div>
---%>
-                    <!-- REPLACEMENT STARTS HERE -->
-                    <div style="border:1px solid var(--border); padding:12px; border-radius:8px; max-height:420px; overflow:auto;">
-                        <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
-                            <input id="medSearch" type="search" placeholder="Rechercher un médicament..."
-                                   style="flex:1; padding:8px; border:1px solid var(--border); border-radius:8px;" />
-                            <label style="display:flex; align-items:center; gap:6px; font-size:.95rem; color:var(--muted);">
-                                <input id="medOnlySelected" type="checkbox" /> Sélectionnés uniquement
-                            </label>
-                            <label style="display:flex; align-items:center; gap:6px; font-size:.95rem; color:var(--muted);">
-                                <input id="medToggleAllVisible" type="checkbox" /> Tout (visible)
-                            </label>
-                        </div>
-
-                        <table id="medTable" style="width:100%;border-collapse:collapse;">
-                            <thead>
-                            <tr>
-                                <th style="width:60px;">Sel</th>
-                                <th>Médicament</th>
-                                <th style="width:120px;">Prix</th>
-                                <th style="width:120px;">Quantité</th>
-                            </tr>
-                            </thead>
-                            <tbody id="medTableBody">
-                            <% for (Medicament m : medicaments) {
-                                Integer q = qtyMap.get(m.getIdMedicament());
-                                boolean checked = (q != null && q > 0);
-                                int value = checked ? q : 1;
-                            %>
-                            <tr data-name="<%= HtmlUtil.escape(m.getNom()) %>">
-                                <td>
-                                    <input type="checkbox" class="med-check" name="medicamentId"
-                                           value="<%= m.getIdMedicament() %>" <%= checked ? "checked" : "" %> />
-                                </td>
-                                <td class="med-name"><%= HtmlUtil.escape(m.getNom()) %></td>
-                                <td class="med-price" data-price="<%= m.getPrixUnitaire() %>"><%= money.format(m.getPrixUnitaire()) %></td>
-                                <td>
-                                    <input type="number" class="med-qty" name="quantite_<%= m.getIdMedicament() %>"
-                                           value="<%= value %>" min="1" style="width:84px;" />
-                                </td>
-                            </tr>
-                            <% } %>
-                            </tbody>
-                        </table>
-
-                        <div id="medFooterBar" style="margin-top:10px; display:flex; justify-content:space-between; align-items:center; color:var(--muted);">
-                            <div><span id="medCountVisible">0</span> éléments visibles • <span id="medCountSelected">0</span> sélectionnés</div>
-                            <div>Total estimé: <strong id="medTotalEstime">0,00 DH</strong></div>
-                        </div>
-                    </div>
-                </div>
+        <div class="modal-content" role="dialog" aria-modal="true">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <h3 style="margin:0;"><%= editMode ? ("Modifier la commande #" + (cmdEdit!=null?cmdEdit.getIdCommande():"-")) : "Nouvelle commande" %></h3>
+                <button type="button" onclick="closeModal()" style="font-size:20px;border:none;background:none;cursor:pointer;">×</button>
             </div>
-            <button type="submit" id="orderFormSubmit" style="display:none;"></button>
-        </form>
+            <form id="orderForm"
+                  method="post"
+                  action="${editMode ? updateCommandeURL : createCommandeURL}"
+                  enctype="multipart/form-data"
+                  class="card"
+                  data-senna-off="true">   <%-- <-- add this --%>
 
-        <div style="margin-top:14px;text-align:right;">
-            <button type="button" class="btn" onclick="closeModal()" style="margin-right:8px;">Annuler</button>
-            <button type="button" class="btn btn-primary" onclick="submitOrderForm()"><%= editMode ? "Enregistrer" : "Créer" %></button>
+
+                <c:if test="${editMode}">
+                    <input type="hidden" name="commandeId"
+                           value="${commande != null ? commande.idCommande : 0}" />
+                </c:if>
+
+                <liferay-portlet:renderURL var="afterSaveURL"
+                                           portletName="dashboard_web_DashboardWebPortlet_INSTANCE_oddl">
+                    <portlet:param name="mvcPath" value="/common/dashboard.jsp" />
+                    <portlet:param name="section" value="commandes" />
+                </liferay-portlet:renderURL>
+
+                <input type="hidden" name="redirect" value="${afterSaveURL}" />
+
+
+
+                    <div class="order-grid">
+                    <div class="full">
+                        <label for="fournisseurId" style="font-weight:600">Fournisseur</label>
+                        <select id="fournisseurId" name="fournisseurId" class="form-control" required>
+                            <option value="">-- Choisir un fournisseur --</option>
+                            <% for (Utilisateur f : fournisseurs) { %>
+                            <option value="<%= f.getIdUtilisateur() %>"
+                                    <%= (editMode && f.getIdUtilisateur()==selectedFournisseurId) ? "selected" : "" %>>
+                                <%= HtmlUtil.escape(f.getNom() + " " + f.getPrenom()) %>
+                            </option>
+                            <% } %>
+                        </select>
+                    </div>
+
+                    <div class="full">
+                        <label style="font-weight:600">Médicaments</label>
+    <%--
+                        <div style="border:1px solid var(--border); padding:12px; border-radius:8px; max-height:320px; overflow:auto;">
+                            <table style="width:100%;border-collapse:collapse;">
+                                <thead><tr><th>Sel</th><th>Médicament</th><th>Prix</th><th>Quantité</th></tr></thead>
+                                <tbody>
+                                <% for (Medicament m : medicaments) {
+                                    Integer q = qtyMap.get(m.getIdMedicament());
+                                    boolean checked = (q != null && q > 0);
+                                    int value = checked ? q : 1;
+                                %>
+                                <tr>
+                                    <td><input type="checkbox" name="medicamentId" value="<%= m.getIdMedicament() %>" <%= checked ? "checked" : "" %> /></td>
+                                    <td><%= HtmlUtil.escape(m.getNom()) %></td>
+                                    <td><%= money.format(m.getPrixUnitaire()) %></td>
+                                    <td><input type="number" name="quantite_<%= m.getIdMedicament() %>" value="<%= value %>" min="1" class="form-control" style="width:84px;" /></td>
+                                </tr>
+                                <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+    --%>
+                        <!-- REPLACEMENT STARTS HERE -->
+                        <div style="border:1px solid var(--border); padding:12px; border-radius:8px; max-height:420px; overflow:auto;">
+                            <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
+                                <input id="medSearch" type="search" placeholder="Rechercher un médicament..."
+                                       style="flex:1; padding:8px; border:1px solid var(--border); border-radius:8px;" />
+                                <label style="display:flex; align-items:center; gap:6px; font-size:.95rem; color:var(--muted);">
+                                    <input id="medOnlySelected" type="checkbox" /> Sélectionnés uniquement
+                                </label>
+                                <label style="display:flex; align-items:center; gap:6px; font-size:.95rem; color:var(--muted);">
+                                    <input id="medToggleAllVisible" type="checkbox" /> Tout (visible)
+                                </label>
+                            </div>
+
+                            <table id="medTable" style="width:100%;border-collapse:collapse;">
+                                <thead>
+                                <tr>
+                                    <th style="width:60px;">Sel</th>
+                                    <th>Médicament</th>
+                                    <th style="width:120px;">Prix</th>
+                                    <th style="width:120px;">Quantité</th>
+                                </tr>
+                                </thead>
+                                <tbody id="medTableBody">
+                                <% for (Medicament m : medicaments) {
+                                    Integer q = qtyMap.get(m.getIdMedicament());
+                                    boolean checked = (q != null && q > 0);
+                                    int value = checked ? q : 1;
+                                %>
+                                <tr data-name="<%= HtmlUtil.escape(m.getNom()) %>">
+                                    <td>
+                                        <input type="checkbox" class="med-check" name="medicamentId"
+                                               value="<%= m.getIdMedicament() %>" <%= checked ? "checked" : "" %> />
+                                    </td>
+                                    <td class="med-name"><%= HtmlUtil.escape(m.getNom()) %></td>
+                                    <td class="med-price" data-price="<%= m.getPrixUnitaire() %>"><%= money.format(m.getPrixUnitaire()) %></td>
+                                    <td>
+                                        <input type="number" class="med-qty" name="quantite_<%= m.getIdMedicament() %>"
+                                               value="<%= value %>" min="1" style="width:84px;" />
+                                    </td>
+                                </tr>
+                                <% } %>
+                                </tbody>
+                            </table>
+
+                            <div id="medFooterBar" style="margin-top:10px; display:flex; justify-content:space-between; align-items:center; color:var(--muted);">
+                                <div><span id="medCountVisible">0</span> éléments visibles • <span id="medCountSelected">0</span> sélectionnés</div>
+                                <div>Total estimé: <strong id="medTotalEstime">0,00 DH</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" id="orderFormSubmit" style="display:none;"></button>
+            </form>
+
+            <div style="margin-top:14px;text-align:right;">
+                <button type="button" class="btn" onclick="closeModal()" style="margin-right:8px;">Annuler</button>
+                <button type="button" class="btn btn-primary" onclick="submitOrderForm()"><%= editMode ? "Enregistrer" : "Créer" %></button>
+            </div>
         </div>
     </div>
-</div>
-
+</c:if>
 <script>
     function openModal(){const m=document.getElementById('orderModal');m.style.display='flex';m.setAttribute('aria-hidden','false')}
     function closeModal(){const m=document.getElementById('orderModal');m.style.display='none';m.setAttribute('aria-hidden','true')}

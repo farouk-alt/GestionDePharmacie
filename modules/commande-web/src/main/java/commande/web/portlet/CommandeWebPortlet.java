@@ -70,9 +70,30 @@ private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
             req.setAttribute("fournisseurs", UtilisateurLocalServiceUtil.getUtilisateurByRole("FOURNISSEUR"));
             req.setAttribute("medicaments", MedicamentLocalServiceUtil.getMedicaments(-1, -1));
 
-            // Always populate the list for the table (even in edit mode)
-            List<Commande> commandes = CommandeLocalServiceUtil.getCommandes(-1, -1);
+
+            String userRole = getUserRole(req);
+            Utilisateur meFournisseur = getCurrentFournisseur(req);
+            boolean isFournisseur = "FOURNISSEUR".equalsIgnoreCase(userRole);
+
+            // Filter the list
+            // Filter the list
+            List<Commande> commandes;
+            if (isFournisseur && meFournisseur != null) {
+                List<Commande> mine = CommandeLocalServiceUtil.getCommandesByUtilisateurId(meFournisseur.getIdUtilisateur());
+                // Keep only PENDING for fournisseurs
+                List<Commande> pendingOnly = new ArrayList<>();
+                for (Commande c : mine) {
+                    String st = (c.getStatut() != null) ? c.getStatut().trim().toUpperCase() : "";
+                    if (ST_PENDING.equalsIgnoreCase(st)) {
+                        pendingOnly.add(c);
+                    }
+                }
+                commandes = pendingOnly;
+            } else {
+                commandes = CommandeLocalServiceUtil.getCommandes(-1, -1);
+            }
             req.setAttribute("commandes", commandes);
+
 
             // For both "detail" and "edit", load header + details
             if (("detail".equalsIgnoreCase(mode) || "edit".equalsIgnoreCase(mode)) && commandeId > 0) {
@@ -95,7 +116,10 @@ private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
 
             req.setAttribute("mode", (mode == null || mode.isEmpty()) ? "list" : mode);
             req.setAttribute("editMode", "edit".equalsIgnoreCase(mode)); // <-- add this
-            req.setAttribute("commandes", CommandeLocalServiceUtil.getCommandes(-1, -1));
+            req.setAttribute("commandes", commandes);
+            req.setAttribute("isFournisseur", isFournisseur);
+            req.setAttribute("currentFournisseurId", (meFournisseur != null) ? meFournisseur.getIdUtilisateur() : 0L);
+
 
 
         } catch (Exception e) {
@@ -106,6 +130,8 @@ private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
                 req.setAttribute("fournisseurs", UtilisateurLocalServiceUtil.getUtilisateurByRole("FOURNISSEUR"));
                 req.setAttribute("medicaments", MedicamentLocalServiceUtil.getMedicaments(-1, -1));
                 req.setAttribute("commandes", CommandeLocalServiceUtil.getCommandes(-1, -1));
+                req.setAttribute("isFournisseur", false);
+                req.setAttribute("currentFournisseurId", 0L);
             } catch (Exception ignore) {}
         }
         super.doView(req, res);
@@ -115,6 +141,14 @@ private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
     @ProcessAction(name = "createCommande")
     public void createCommande(ActionRequest request, ActionResponse response) {
         // Use upload wrapper (your form is multipart + you already use it elsewhere)
+
+        String role = getUserRole(request);
+        if ("FOURNISSEUR".equalsIgnoreCase(role)) {
+            SessionMessages.add(request, "commande-update-error"); // or a dedicated “not allowed”
+            redirectToDashboard(request, response, PortalUtil.getUploadPortletRequest(request));
+            return;
+        }
+
         UploadPortletRequest uploadRequest = PortalUtil.getUploadPortletRequest(request);
 
         try {
@@ -323,93 +357,62 @@ private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
             throw new PortletException(e);
         }
     }
-/*    @ProcessAction(name = "deleteCommande")
+
+    @ProcessAction(name = "deleteCommande")
     public void deleteCommande(ActionRequest request, ActionResponse response) {
+        String role = getUserRole(request);
+        if ("FOURNISSEUR".equalsIgnoreCase(role)) {
+            SessionMessages.add(request, "commande-update-error"); // or a dedicated “not allowed”
+            redirectToDashboard(request, response, PortalUtil.getUploadPortletRequest(request));
+            return;
+        }
+
         long commandeId = ParamUtil.getLong(request, "commandeId");
 
+        // wrap even if not multipart, so we can reuse your redirect helper
+        UploadPortletRequest uploadRequest = PortalUtil.getUploadPortletRequest(request);
+
         try {
-            // 1) Cascade delete (your custom service impl)
+            Commande cmd = CommandeLocalServiceUtil.fetchCommande(commandeId);
+            if (cmd == null) {
+                SessionMessages.add(request, "commande-delete-error");
+                redirectToDashboard(request, response, uploadRequest);
+                return;
+            }
+
+            String statut = (cmd.getStatut() != null) ? cmd.getStatut().trim().toUpperCase() : "";
+
+            // Use your centralized rule (CREATED / PENDING / SENT are allowed)
+            boolean deletable = commande.web.constants.CommandeStatus.isCancelable(statut);
+
+            if (!deletable) {
+                SessionMessages.add(request, "commande-delete-not-allowed");
+                redirectToDashboard(request, response, uploadRequest);
+                return;
+            }
+
+            // Cascade delete via your local service impl
             CommandeLocalServiceUtil.getService().deleteCommandeWithDetails(commandeId);
             SessionMessages.add(request, "commande-deleted-success");
         } catch (Exception e) {
             SessionMessages.add(request, "commande-delete-error");
         }
 
-        // 2) Make sure the next render lands on the list view
-        response.setRenderParameter("mvcPath", "/view.jsp");
-        response.setRenderParameter("mode", "list");
-
-        // 3) (Optional but robust) Preload data so even if doView changes later,
-        //    the list still shows up after this action.
-        try {
-            request.setAttribute("fournisseurs",
-                    gestion_de_pharmacie.service.UtilisateurLocalServiceUtil.getUtilisateurByRole("FOURNISSEUR"));
-            request.setAttribute("medicaments",
-                    gestion_de_pharmacie.service.MedicamentLocalServiceUtil.getMedicaments(-1, -1));
-
-            // same logic you use in doView for list mode
-            PortletSession ps = request.getPortletSession();
-            String userEmail = (String) ps.getAttribute("USER_EMAIL", PortletSession.APPLICATION_SCOPE);
-            String userRole  = (String) ps.getAttribute("USER_ROLE", PortletSession.APPLICATION_SCOPE);
-
-            java.util.List<gestion_de_pharmacie.model.Commande> commandes;
-            if ("FOURNISSEUR".equalsIgnoreCase(userRole) && userEmail != null) {
-                gestion_de_pharmacie.model.Utilisateur f =
-                        gestion_de_pharmacie.service.UtilisateurLocalServiceUtil.getUtilisateurByEmail(userEmail);
-                commandes = (f != null)
-                        ? gestion_de_pharmacie.service.CommandeLocalServiceUtil.getCommandesByUtilisateurId(f.getIdUtilisateur())
-                        : new java.util.ArrayList<>();
-            } else if ("PHARMACIEN".equalsIgnoreCase(userRole) || "ADMIN".equalsIgnoreCase(userRole)) {
-                commandes = gestion_de_pharmacie.service.CommandeLocalServiceUtil.getCommandes(-1, -1);
-            } else {
-                commandes = new java.util.ArrayList<>();
-            }
-            request.setAttribute("commandes", commandes);
-        } catch (Exception ignore) {
-            // doView will still repopulate
-        }
-    }*/
-@ProcessAction(name = "deleteCommande")
-public void deleteCommande(ActionRequest request, ActionResponse response) {
-    long commandeId = ParamUtil.getLong(request, "commandeId");
-
-    // wrap even if not multipart, so we can reuse your redirect helper
-    UploadPortletRequest uploadRequest = PortalUtil.getUploadPortletRequest(request);
-
-    try {
-        Commande cmd = CommandeLocalServiceUtil.fetchCommande(commandeId);
-        if (cmd == null) {
-            SessionMessages.add(request, "commande-delete-error");
-            redirectToDashboard(request, response, uploadRequest);
-            return;
-        }
-
-        String statut = (cmd.getStatut() != null) ? cmd.getStatut().trim().toUpperCase() : "";
-
-        // Use your centralized rule (CREATED / PENDING / SENT are allowed)
-        boolean deletable = commande.web.constants.CommandeStatus.isCancelable(statut);
-
-        if (!deletable) {
-            SessionMessages.add(request, "commande-delete-not-allowed");
-            redirectToDashboard(request, response, uploadRequest);
-            return;
-        }
-
-        // Cascade delete via your local service impl
-        CommandeLocalServiceUtil.getService().deleteCommandeWithDetails(commandeId);
-        SessionMessages.add(request, "commande-deleted-success");
-    } catch (Exception e) {
-        SessionMessages.add(request, "commande-delete-error");
+        // Always go back to Dashboard → Commandes (repopulates list)
+        redirectToDashboard(request, response, uploadRequest);
     }
-
-    // Always go back to Dashboard → Commandes (repopulates list)
-    redirectToDashboard(request, response, uploadRequest);
-}
 
 
 
     @ProcessAction(name = "updateCommande")
     public void updateCommande(ActionRequest request, ActionResponse response) {
+        String role = getUserRole(request);
+        if ("FOURNISSEUR".equalsIgnoreCase(role)) {
+            SessionMessages.add(request, "commande-update-error"); // or a dedicated “not allowed”
+            redirectToDashboard(request, response, PortalUtil.getUploadPortletRequest(request));
+            return;
+        }
+
         UploadPortletRequest uploadRequest = PortalUtil.getUploadPortletRequest(request);
 
         try {
@@ -484,10 +487,6 @@ public void deleteCommande(ActionRequest request, ActionResponse response) {
         redirectToDashboard(request, response, uploadRequest);
     }
 
-    /**
-     * Redirects to the Dashboard portlet "commandes" section.
-     * If the form provided a "redirect" hidden field, use it; otherwise build the URL.
-     */
     private void redirectToDashboard(ActionRequest request, ActionResponse response, UploadPortletRequest uploadRequest) {
         try {
             String redirect = ParamUtil.getString(uploadRequest, "redirect");
@@ -526,6 +525,11 @@ public void deleteCommande(ActionRequest request, ActionResponse response) {
     @ProcessAction(name = "cancelCommande")
     public void cancelCommande(ActionRequest request, ActionResponse response) {
         long commandeId = ParamUtil.getLong(request, "commandeId");
+        if ("FOURNISSEUR".equalsIgnoreCase(getUserRole(request))) {
+            SessionMessages.add(request, "commande-update-error");
+            redirectToDashboard(request, response, PortalUtil.getUploadPortletRequest(request));
+            return;
+        }
 
         UploadPortletRequest uploadRequest = PortalUtil.getUploadPortletRequest(request);
         try {
@@ -559,7 +563,11 @@ public void deleteCommande(ActionRequest request, ActionResponse response) {
     @ProcessAction(name = "sendCommande")
     public void sendCommande(ActionRequest request, ActionResponse response) {
         long commandeId = ParamUtil.getLong(request, "commandeId");
-
+        if ("FOURNISSEUR".equalsIgnoreCase(getUserRole(request))) {
+            SessionMessages.add(request, "commande-update-error");
+            redirectToDashboard(request, response, PortalUtil.getUploadPortletRequest(request));
+            return;
+        }
         UploadPortletRequest uploadRequest = PortalUtil.getUploadPortletRequest(request);
         try {
             Commande cmd = CommandeLocalServiceUtil.fetchCommande(commandeId);
@@ -587,5 +595,135 @@ public void deleteCommande(ActionRequest request, ActionResponse response) {
 
         redirectToDashboard(request, response, uploadRequest);
     }
+
+
+
+
+    private String getUserRole(PortletRequest req) {
+        PortletSession ps = req.getPortletSession();
+        String userRole = (String) ps.getAttribute("USER_ROLE", PortletSession.APPLICATION_SCOPE);
+        return (userRole != null) ? userRole : "";
+    }
+
+    private String getUserEmail(PortletRequest req) {
+        PortletSession ps = req.getPortletSession();
+        String userEmail = (String) ps.getAttribute("USER_EMAIL", PortletSession.APPLICATION_SCOPE);
+        return (userEmail != null) ? userEmail : "";
+    }
+
+    private Utilisateur getCurrentFournisseur(PortletRequest req) {
+        String role = getUserRole(req);
+        if (!"FOURNISSEUR".equalsIgnoreCase(role)) return null;
+        String email = getUserEmail(req);
+        if (email == null || email.isEmpty()) return null;
+        try {
+            return UtilisateurLocalServiceUtil.getUtilisateurByEmail(email);
+        } catch (Exception ignore) { return null; }
+    }
+    @ProcessAction(name = "acceptCommande")
+    public void acceptCommande(ActionRequest request, ActionResponse response) {
+        UploadPortletRequest upload = PortalUtil.getUploadPortletRequest(request);
+        try {
+            Utilisateur me = getCurrentFournisseur(request);
+            if (me == null) { SessionMessages.add(request, "commande-update-error"); redirectToDashboard(request, response, upload); return; }
+
+            long commandeId = ParamUtil.getLong(upload, "commandeId");
+            Commande cmd = CommandeLocalServiceUtil.fetchCommande(commandeId);
+            if (cmd == null) { SessionMessages.add(request, "commande-update-error"); redirectToDashboard(request, response, upload); return; }
+
+            // must belong to me + be PENDING
+            if (cmd.getIdUtilisateur() != me.getIdUtilisateur() || !ST_PENDING.equalsIgnoreCase(cmd.getStatut())) {
+                SessionMessages.add(request, "commande-update-error");
+                redirectToDashboard(request, response, upload);
+                return;
+            }
+
+            cmd.setStatut(ST_ACCEPTED);
+            CommandeLocalServiceUtil.updateCommande(cmd);
+            SessionMessages.add(request, "commande-updated-success");
+        } catch (Exception e) {
+            SessionMessages.add(request, "commande-update-error");
+        }
+        redirectToDashboard(request, response, upload);
+    }
+
+    @ProcessAction(name = "rejectCommande")
+    public void rejectCommande(ActionRequest request, ActionResponse response) {
+        UploadPortletRequest upload = PortalUtil.getUploadPortletRequest(request);
+        try {
+            Utilisateur me = getCurrentFournisseur(request);
+            if (me == null) { SessionMessages.add(request, "commande-update-error"); redirectToDashboard(request, response, upload); return; }
+
+            long commandeId = ParamUtil.getLong(upload, "commandeId");
+            Commande cmd = CommandeLocalServiceUtil.fetchCommande(commandeId);
+            if (cmd == null) { SessionMessages.add(request, "commande-update-error"); redirectToDashboard(request, response, upload); return; }
+
+            // must belong to me + be PENDING
+            if (cmd.getIdUtilisateur() != me.getIdUtilisateur() || !ST_PENDING.equalsIgnoreCase(cmd.getStatut())) {
+                SessionMessages.add(request, "commande-update-error");
+                redirectToDashboard(request, response, upload);
+                return;
+            }
+
+            cmd.setStatut(ST_REFUSED);
+            CommandeLocalServiceUtil.updateCommande(cmd);
+            SessionMessages.add(request, "commande-updated-success");
+        } catch (Exception e) {
+            SessionMessages.add(request, "commande-update-error");
+        }
+        redirectToDashboard(request, response, upload);
+    }
+    @ProcessAction(name = "reassignCommande")
+    public void reassignCommande(ActionRequest request, ActionResponse response) {
+        // Only Pharmacien/Admin can reassign
+        if ("FOURNISSEUR".equalsIgnoreCase(getUserRole(request))) {
+            SessionMessages.add(request, "commande-update-error");
+            redirectToDashboard(request, response, PortalUtil.getUploadPortletRequest(request));
+            return;
+        }
+
+        UploadPortletRequest upload = PortalUtil.getUploadPortletRequest(request);
+        try {
+            long commandeId = ParamUtil.getLong(upload, "commandeId");
+            long newFournisseurId = ParamUtil.getLong(upload, "newFournisseurId");
+            boolean sendNow = ParamUtil.getBoolean(upload, "sendNow", false);
+
+            Commande cmd = CommandeLocalServiceUtil.fetchCommande(commandeId);
+            if (cmd == null || newFournisseurId <= 0) {
+                SessionMessages.add(request, "commande-update-error");
+                redirectToDashboard(request, response, upload);
+                return;
+            }
+
+            // Only allow reassign from REFUSED (adjust if you want CANCELED too)
+            String st = (cmd.getStatut() != null) ? cmd.getStatut().trim().toUpperCase() : "";
+            if (!ST_REFUSED.equalsIgnoreCase(st)) {
+                SessionMessages.add(request, "commande-update-error");
+                redirectToDashboard(request, response, upload);
+                return;
+            }
+
+            // Ensure target fournisseur exists
+            Utilisateur target = UtilisateurLocalServiceUtil.fetchUtilisateur(newFournisseurId);
+            if (target == null) {
+                SessionMessages.add(request, "commande-update-error");
+                redirectToDashboard(request, response, upload);
+                return;
+            }
+
+            // Reassign
+            cmd.setIdUtilisateur(newFournisseurId);
+            cmd.setDateCommande(new Date()); // optional: bump date
+            cmd.setStatut(sendNow ? ST_PENDING : ST_CREATED);
+            CommandeLocalServiceUtil.updateCommande(cmd);
+
+            SessionMessages.add(request, "commande-updated-success");
+        } catch (Exception e) {
+            SessionMessages.add(request, "commande-update-error");
+        }
+
+        redirectToDashboard(request, response, upload);
+    }
+
 
 }
