@@ -84,6 +84,7 @@ private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
         super.doView(req, res);
     }
 */
+/*
 @Override
 public void doView(RenderRequest req, RenderResponse res) throws PortletException, IOException {
     try {
@@ -122,7 +123,29 @@ public void doView(RenderRequest req, RenderResponse res) throws PortletExceptio
         req.setAttribute("fournisseurs", UtilisateurLocalServiceUtil.getUtilisateurByRole("FOURNISSEUR"));
         req.setAttribute("medicaments", MedicamentLocalServiceUtil.getMedicaments(-1, -1));
 
-        if ("detail".equalsIgnoreCase(mode) && commandeId > 0) {
+        */
+/*if ("detail".equalsIgnoreCase(mode) && commandeId > 0) {
+            Commande cmd = CommandeLocalServiceUtil.fetchCommande(commandeId);
+            req.setAttribute("commande", cmd);
+
+            Utilisateur fournisseur = (cmd != null)
+                    ? UtilisateurLocalServiceUtil.fetchUtilisateur(cmd.getIdUtilisateur())
+                    : null;
+            req.setAttribute("fournisseur", fournisseur);
+
+            java.util.List<CommandeDetail> details;
+            try {
+                details = CommandeDetailLocalServiceUtil.findByCommandeId(commandeId);
+            } catch (Throwable t) {
+                details = CommandeDetailLocalServiceUtil.findByCommandeId(commandeId, -1, -1);
+            }
+            req.setAttribute("details", details);
+        } else {
+            java.util.List<Commande> commandes = CommandeLocalServiceUtil.getCommandes(-1, -1);
+            req.setAttribute("commandes", commandes);
+        }*//*
+
+        if (( "detail".equalsIgnoreCase(mode) || "edit".equalsIgnoreCase(mode) ) && commandeId > 0) {
             Commande cmd = CommandeLocalServiceUtil.fetchCommande(commandeId);
             req.setAttribute("commande", cmd);
 
@@ -142,12 +165,85 @@ public void doView(RenderRequest req, RenderResponse res) throws PortletExceptio
             java.util.List<Commande> commandes = CommandeLocalServiceUtil.getCommandes(-1, -1);
             req.setAttribute("commandes", commandes);
         }
+
     } catch (Exception e) {
         e.printStackTrace();
     }
     super.doView(req, res);
 }
+*/
 
+    @Override
+    public void doView(RenderRequest req, RenderResponse res) throws PortletException, IOException {
+        try {
+            String mode = ParamUtil.getString(req, "mode", null);
+            long commandeId = ParamUtil.getLong(req, "commandeId");
+
+            if ((mode == null || mode.isEmpty()) || commandeId == 0) {
+                javax.servlet.http.HttpServletRequest httpReq = PortalUtil.getHttpServletRequest(req);
+                javax.servlet.http.HttpServletRequest origReq = PortalUtil.getOriginalServletRequest(httpReq);
+
+                String portletId = PortalUtil.getPortletId(req);
+                String ns = PortalUtil.getPortletNamespace(portletId);
+
+                // Read ONLY if our namespaced params are actually present in the original request
+                if ((mode == null || mode.isEmpty())
+                        && origReq.getParameter(ns + "mode") != null) {
+                    mode = ParamUtil.getString(origReq, ns + "mode", "list");
+                }
+                if (commandeId == 0
+                        && origReq.getParameter(ns + "commandeId") != null) {
+                    commandeId = ParamUtil.getLong(origReq, ns + "commandeId");
+                }
+            }
+
+
+            System.out.println("DEBUG doView: mode=" + mode + ", commandeId=" + commandeId);
+
+            // Always provide common data
+            req.setAttribute("fournisseurs", UtilisateurLocalServiceUtil.getUtilisateurByRole("FOURNISSEUR"));
+            req.setAttribute("medicaments", MedicamentLocalServiceUtil.getMedicaments(-1, -1));
+
+            // Always populate the list for the table (even in edit mode)
+            List<Commande> commandes = CommandeLocalServiceUtil.getCommandes(-1, -1);
+            req.setAttribute("commandes", commandes);
+
+            // For both "detail" and "edit", load header + details
+            if (("detail".equalsIgnoreCase(mode) || "edit".equalsIgnoreCase(mode)) && commandeId > 0) {
+                Commande cmd = CommandeLocalServiceUtil.fetchCommande(commandeId);
+                req.setAttribute("commande", cmd);
+
+                Utilisateur fournisseur = (cmd != null)
+                        ? UtilisateurLocalServiceUtil.fetchUtilisateur(cmd.getIdUtilisateur())
+                        : null;
+                req.setAttribute("fournisseur", fournisseur);
+
+                List<CommandeDetail> details;
+                try {
+                    details = CommandeDetailLocalServiceUtil.findByCommandeId(commandeId);
+                } catch (Throwable t) {
+                    details = CommandeDetailLocalServiceUtil.findByCommandeId(commandeId, -1, -1);
+                }
+                req.setAttribute("details", details);
+            }
+
+            req.setAttribute("mode", (mode == null || mode.isEmpty()) ? "list" : mode);
+            req.setAttribute("editMode", "edit".equalsIgnoreCase(mode)); // <-- add this
+            req.setAttribute("commandes", CommandeLocalServiceUtil.getCommandes(-1, -1));
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            req.setAttribute("mode", "list");
+            // at least keep the table populated
+            try {
+                req.setAttribute("fournisseurs", UtilisateurLocalServiceUtil.getUtilisateurByRole("FOURNISSEUR"));
+                req.setAttribute("medicaments", MedicamentLocalServiceUtil.getMedicaments(-1, -1));
+                req.setAttribute("commandes", CommandeLocalServiceUtil.getCommandes(-1, -1));
+            } catch (Exception ignore) {}
+        }
+        super.doView(req, res);
+    }
 
 
     @ProcessAction(name = "createCommande")
@@ -457,7 +553,227 @@ public void doView(RenderRequest req, RenderResponse res) throws PortletExceptio
     }
 
 
+    /*@ProcessAction(name = "updateCommande")
+    public void updateCommande(ActionRequest request, ActionResponse response) {
+        try {
+            UploadPortletRequest uploadRequest = PortalUtil.getUploadPortletRequest(request);
 
+            long commandeId    = ParamUtil.getLong(uploadRequest, "commandeId");
+            long fournisseurId = ParamUtil.getLong(uploadRequest, "fournisseurId");
+            String[] medicamentIds = uploadRequest.getParameterValues("medicamentId");
 
+            if (commandeId <= 0 || fournisseurId <= 0 || medicamentIds == null || medicamentIds.length == 0) {
+                SessionMessages.add(request, "commande-update-error");
+                response.setRenderParameter("mvcPath", "/view.jsp");
+                response.setRenderParameter("mode", "list");
+                return;
+            }
+
+            Commande commande = CommandeLocalServiceUtil.fetchCommande(commandeId);
+            if (commande == null) {
+                SessionMessages.add(request, "commande-update-error");
+                response.setRenderParameter("mvcPath", "/view.jsp");
+                response.setRenderParameter("mode", "list");
+                return;
+            }
+
+            // --- header ---
+            commande.setIdUtilisateur(fournisseurId);
+            commande.setDateCommande(new Date()); // or keep existing date, your call
+
+            // --- remove old details ---
+            List<CommandeDetail> oldDetails;
+            try {
+                oldDetails = CommandeDetailLocalServiceUtil.findByCommandeId(commandeId);
+            } catch (Throwable t) {
+                oldDetails = CommandeDetailLocalServiceUtil.findByCommandeId(commandeId, -1, -1);
+            }
+            for (CommandeDetail d : oldDetails) {
+                CommandeDetailLocalServiceUtil.deleteCommandeDetail(d);
+            }
+
+            // --- recreate details ---
+            double total = 0.0;
+            for (String medIdStr : medicamentIds) {
+                if (medIdStr == null || medIdStr.trim().isEmpty()) continue;
+
+                long medId = Long.parseLong(medIdStr);
+                int quantity = ParamUtil.getInteger(uploadRequest, "quantite_" + medId, 1);
+                if (quantity <= 0) quantity = 1;
+
+                Medicament medicament = MedicamentLocalServiceUtil.fetchMedicament(medId);
+                if (medicament == null) continue;
+
+                double pu = medicament.getPrixUnitaire();
+                double subtotal = pu * quantity;
+                total += subtotal;
+
+                long detailId = CounterLocalServiceUtil.increment(CommandeDetail.class.getName());
+                CommandeDetail detail = CommandeDetailLocalServiceUtil.createCommandeDetail(detailId);
+                detail.setIdCommande(commandeId);
+                detail.setIdMedicament(medId);
+                detail.setQuantite(quantity);
+                detail.setPrixUnitaire(pu);
+                CommandeDetailLocalServiceUtil.addCommandeDetail(detail);
+            }
+
+            // --- save header ---
+            commande.setMontantTotal(total);
+            CommandeLocalServiceUtil.updateCommande(commande);
+
+            SessionMessages.add(request, "commande-updated-success");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            SessionMessages.add(request, "commande-update-error");
+        }
+
+        // ✅ Preload data so list view isn’t empty after redirect
+        try {
+            request.setAttribute("fournisseurs",
+                    UtilisateurLocalServiceUtil.getUtilisateurByRole("FOURNISSEUR"));
+            request.setAttribute("medicaments",
+                    MedicamentLocalServiceUtil.getMedicaments(-1, -1));
+
+            PortletSession ps = request.getPortletSession();
+            String userEmail = (String) ps.getAttribute("USER_EMAIL", PortletSession.APPLICATION_SCOPE);
+            String userRole  = (String) ps.getAttribute("USER_ROLE", PortletSession.APPLICATION_SCOPE);
+
+            List<Commande> commandes;
+            if ("FOURNISSEUR".equalsIgnoreCase(userRole) && userEmail != null) {
+                Utilisateur f = UtilisateurLocalServiceUtil.getUtilisateurByEmail(userEmail);
+                commandes = (f != null)
+                        ? CommandeLocalServiceUtil.getCommandesByUtilisateurId(f.getIdUtilisateur())
+                        : new ArrayList<>();
+            } else if ("PHARMACIEN".equalsIgnoreCase(userRole) || "ADMIN".equalsIgnoreCase(userRole)) {
+                commandes = CommandeLocalServiceUtil.getCommandes(-1, -1);
+            } else {
+                commandes = new ArrayList<>();
+            }
+            request.setAttribute("commandes", commandes);
+        } catch (Exception ignore) {
+            // doView will repopulate anyway
+        }
+
+        // back to list
+        response.setRenderParameter("mvcPath", "/view.jsp");
+        response.setRenderParameter("mode", "list");
+    }
+
+*/
+    @ProcessAction(name = "updateCommande")
+    public void updateCommande(ActionRequest request, ActionResponse response) {
+        UploadPortletRequest uploadRequest = PortalUtil.getUploadPortletRequest(request);
+
+        try {
+            long commandeId    = ParamUtil.getLong(uploadRequest, "commandeId");
+            long fournisseurId = ParamUtil.getLong(uploadRequest, "fournisseurId");
+            String[] medicamentIds = uploadRequest.getParameterValues("medicamentId");
+
+            if (commandeId <= 0 || fournisseurId <= 0 || medicamentIds == null || medicamentIds.length == 0) {
+                SessionMessages.add(request, "commande-update-error");
+                redirectToDashboard(request, response, uploadRequest);
+                return;
+            }
+
+            Commande commande = CommandeLocalServiceUtil.fetchCommande(commandeId);
+            if (commande == null) {
+                SessionMessages.add(request, "commande-update-error");
+                redirectToDashboard(request, response, uploadRequest);
+                return;
+            }
+
+            // --- header ---
+            commande.setIdUtilisateur(fournisseurId);
+            commande.setDateCommande(new Date()); // or keep existing date
+
+            // --- remove old details ---
+            List<CommandeDetail> oldDetails;
+            try {
+                oldDetails = CommandeDetailLocalServiceUtil.findByCommandeId(commandeId);
+            } catch (Throwable t) {
+                oldDetails = CommandeDetailLocalServiceUtil.findByCommandeId(commandeId, -1, -1);
+            }
+            for (CommandeDetail d : oldDetails) {
+                CommandeDetailLocalServiceUtil.deleteCommandeDetail(d);
+            }
+
+            // --- recreate details ---
+            double total = 0.0;
+            for (String medIdStr : medicamentIds) {
+                if (medIdStr == null || medIdStr.trim().isEmpty()) continue;
+
+                long medId = Long.parseLong(medIdStr);
+                int quantity = ParamUtil.getInteger(uploadRequest, "quantite_" + medId, 1);
+                if (quantity <= 0) quantity = 1;
+
+                Medicament medicament = MedicamentLocalServiceUtil.fetchMedicament(medId);
+                if (medicament == null) continue;
+
+                double pu = medicament.getPrixUnitaire();
+                total += pu * quantity;
+
+                long detailId = CounterLocalServiceUtil.increment(CommandeDetail.class.getName());
+                CommandeDetail detail = CommandeDetailLocalServiceUtil.createCommandeDetail(detailId);
+                detail.setIdCommande(commandeId);
+                detail.setIdMedicament(medId);
+                detail.setQuantite(quantity);
+                detail.setPrixUnitaire(pu);
+                CommandeDetailLocalServiceUtil.addCommandeDetail(detail);
+            }
+
+            // --- save header ---
+            commande.setMontantTotal(total);
+            CommandeLocalServiceUtil.updateCommande(commande);
+
+            SessionMessages.add(request, "commande-updated-success");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            SessionMessages.add(request, "commande-update-error");
+        }
+
+        // Always go back to Dashboard → Commandes
+        redirectToDashboard(request, response, uploadRequest);
+    }
+
+    /**
+     * Redirects to the Dashboard portlet "commandes" section.
+     * If the form provided a "redirect" hidden field, use it; otherwise build the URL.
+     */
+    private void redirectToDashboard(ActionRequest request, ActionResponse response, UploadPortletRequest uploadRequest) {
+        try {
+            String redirect = ParamUtil.getString(uploadRequest, "redirect");
+            if (com.liferay.portal.kernel.util.Validator.isNotNull(redirect)) {
+                response.sendRedirect(redirect);
+                return;
+            }
+
+            // Fallback: build the dashboard URL programmatically
+            com.liferay.portal.kernel.theme.ThemeDisplay td =
+                    (com.liferay.portal.kernel.theme.ThemeDisplay) request.getAttribute(com.liferay.portal.kernel.util.WebKeys.THEME_DISPLAY);
+
+            javax.servlet.http.HttpServletRequest httpReq = PortalUtil.getHttpServletRequest(request);
+
+            com.liferay.portal.kernel.portlet.LiferayPortletURL dash =
+                    com.liferay.portal.kernel.portlet.PortletURLFactoryUtil.create(
+                            httpReq,
+                            "dashboard_web_DashboardWebPortlet_INSTANCE_oddl", // <-- instance id
+                            td.getPlid(),
+                            PortletRequest.RENDER_PHASE
+                    );
+            dash.setPortletMode(PortletMode.VIEW);
+            dash.setWindowState(WindowState.NORMAL);
+            dash.setParameter("mvcPath", "/common/dashboard.jsp");
+            dash.setParameter("section", "commandes");
+
+            response.sendRedirect(dash.toString());
+        } catch (Exception ex) {
+            // Last resort: avoid breaking the flow
+            try {
+                response.sendRedirect("/dashboard");
+            } catch (IOException ignored) {}
+        }
+    }
 
 }
