@@ -285,6 +285,13 @@ public class CommandeLocalServiceUtil {
 	}
 
 	/**
+	 * Mark an order as RECEIVED, increment stocks per detail, and log IN movements.
+	 */
+	public static void receiveCommande(long commandeId) throws Exception {
+		getService().receiveCommande(commandeId);
+	}
+
+	/**
 	 * Updates the commande in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
 	 * <p>

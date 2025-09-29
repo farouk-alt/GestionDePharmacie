@@ -775,6 +775,10 @@
         <portlet:param name="mvcPath" value="/common/dashboard.jsp"/>
         <portlet:param name="section" value="commandes"/>
     </portlet:renderURL>
+    <portlet:renderURL var="tabStocks">
+        <portlet:param name="mvcPath" value="/common/dashboard.jsp"/>
+        <portlet:param name="section" value="stocks"/>
+    </portlet:renderURL>
 
 
     <div class="tabs">
@@ -792,7 +796,9 @@
         <c:if test="${userRole == 'ADMIN' || userRole == 'PHARMACIEN' || userRole == 'FOURNISSEUR'}">
             <a class="tab ${currentSection=='commandes' ? 'active' : ''}" href="${tabCommandes}">Commandes</a>
         </c:if>
-
+        <c:if test="${userRole == 'ADMIN' || userRole == 'PHARMACIEN'}">
+            <a class="tab ${currentSection=='stocks' ? 'active' : ''}" href="${tabStocks}">Stocks</a>
+        </c:if>
 
 
 
@@ -837,155 +843,6 @@
         </c:when>
 
         <%-- Admins management --%>
-        <%--
-                <c:when test="${currentSection == 'admins'}">
-                    <c:if test="${userRole == 'SUPER_ADMIN' || userRole == 'ADMIN'}">
-                        <div class="admin-section">
-                            <h3 style="margin-top:0;"><i class="fas fa-shield-alt"></i> Panneau d'Administration</h3>
-
-                            <div class="employee-management">
-                                <h4><i class="fas fa-user-shield"></i> Liste des Admins</h4>
-                                <c:if test="${not empty employees}">
-                                    <table class="employee-table">
-                                        <thead>
-                                        <tr>
-                                            <th>Nom</th><th>Email</th><th>Rôle</th><th>Date Création</th><th>Dernière Connexion</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <c:forEach var="employee" items="${employees}">
-                                            <c:if test="${employee.role == 'ADMIN'}">
-                                                <tr>
-                                                    <td>${employee.prenom} ${employee.nom}</td>
-                                                    <td>${employee.email}</td>
-                                                    <td>${employee.role}</td>
-                                                    <td><fmt:formatDate value="${employee.dateCreation}" pattern="dd/MM/yyyy HH:mm"/></td>
-                                                    <td>
-                                                        <c:choose>
-                                                            <c:when test="${not empty employee.lastLogin}">
-                                                                <fmt:formatDate value="${employee.lastLogin}" pattern="dd/MM/yyyy HH:mm"/>
-                                                            </c:when>
-                                                            <c:otherwise>-</c:otherwise>
-                                                        </c:choose>
-                                                    </td>
-                                                </tr>
-                                            </c:if>
-                                        </c:forEach>
-                                        </tbody>
-                                    </table>
-                                </c:if>
-                            </div>
-
-                            <div class="employee-management">
-                                <h4><i class="fas fa-users"></i> Liste des Employés</h4>
-
-                                    &lt;%&ndash; SEARCH + CONTROLS &ndash;%&gt;
-                                <c:if test="${not empty employees}">
-                                    <div class="table-controls">
-                                        <input id="employeeSearch" type="search" placeholder="Rechercher par nom, email ou rôle…" />
-                                        <span class="pager-info" id="pagerInfo"></span>
-                                    </div>
-                                </c:if>
-
-                                <c:if test="${not empty employees}">
-                                    <table class="employee-table" id="employeesTable">
-                                        <thead>
-                                        <tr>
-                                            <th class="sortable" data-sort-key="name">Nom <span class="arrow">↕</span></th>
-                                            <th class="sortable" data-sort-key="email">Email <span class="arrow">↕</span></th>
-                                            <th class="sortable" data-sort-key="role">Rôle <span class="arrow">↕</span></th>
-                                            <th class="sortable" data-sort-key="dateCreation">Date Création <span class="arrow">↕</span></th>
-                                            <th class="sortable" data-sort-key="lastLogin">Dernière Connexion <span class="arrow">↕</span></th>
-                                            <th>Nouveau Rôle</th>
-                                            <th>Action</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <c:forEach var="employee" items="${employees}">
-                                            <c:if test="${employee.role != 'ADMIN'}">
-                                                <tr>
-                                                    <td data-key="name">${employee.prenom} ${employee.nom}</td>
-                                                    <td data-key="email">${employee.email}</td>
-                                                    <td data-key="role">${employee.role}</td>
-                                                    <td data-key="dateCreation"
-                                                        data-sort="${employee.dateCreation.time}">
-                                                        <fmt:formatDate value="${employee.dateCreation}" pattern="dd/MM/yyyy HH:mm"/>
-                                                    </td>
-                                                    <td data-key="lastLogin"
-                                                        data-sort="${empty employee.lastLogin ? 0 : employee.lastLogin.time}">
-                                                        <c:choose>
-                                                            <c:when test="${not empty employee.lastLogin}">
-                                                                <fmt:formatDate value="${employee.lastLogin}" pattern="dd/MM/yyyy HH:mm"/>
-                                                            </c:when>
-                                                            <c:otherwise>-</c:otherwise>
-                                                        </c:choose>
-                                                    </td>
-                                                    <td>
-                                                        <portlet:actionURL name="switchRole" var="switchRoleURL"/>
-                                                        <form class="inline" method="post" action="${switchRoleURL}">
-                                                            <input type="hidden" name="<portlet:namespace/>targetUserEmail" value="${employee.email}"/>
-                                                            <select name="<portlet:namespace/>newRole" class="role-select">
-                                                                <option value="PHARMACIEN" ${employee.role=='PHARMACIEN' ? 'selected' : ''}>Pharmacien</option>
-                                                                <option value="FOURNISSEUR" ${employee.role=='FOURNISSEUR' ? 'selected' : ''}>Fournisseur</option>
-                                                                <c:if test="${userRole == 'SUPER_ADMIN'}">
-                                                                    <option value="ADMIN" ${employee.role=='ADMIN' ? 'selected' : ''}>Admin</option>
-                                                                </c:if>
-                                                            </select>
-                                                            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px;">Mettre à jour</button>
-                                                        </form>
-                                                    </td>
-                                                    <td>
-                                                        <c:if test="${userRole == 'SUPER_ADMIN'}">
-                                                            <portlet:actionURL name="deleteAdmin" var="deleteAdminURL">
-                                                                <portlet:param name="email" value="${employee.email}" />
-                                                            </portlet:actionURL>
-                                                            <form method="post" action="${deleteAdminURL}" style="margin:0;">
-                                                                <button type="submit" class="btn btn-danger"
-                                                                        onclick="return confirm('Supprimer ${employee.email}?')">
-                                                                    Supprimer
-                                                                </button>
-                                                            </form>
-                                                        </c:if>
-                                                    </td>
-                                                </tr>
-                                            </c:if>
-                                        </c:forEach>
-                                        </tbody>
-                                    </table>
-
-                                    &lt;%&ndash; PAGINATION &ndash;%&gt;
-                                    <div class="pager" id="pager"></div>
-                                </c:if>
-
-                                <c:if test="${empty employees}"><p>Aucun employé à afficher.</p></c:if>
-                            </div>
-
-                            <c:if test="${userRole == 'SUPER_ADMIN'}">
-                                <div class="employee-management">
-                                    <h4><i class="fas fa-user-plus"></i> Ajouter un Admin</h4>
-                                    <portlet:actionURL name="addAdmin" var="addAdminURL"/>
-                                    <form method="post" action="${addAdminURL}" class="stack-sm">
-                                        <input type="text"  name="<portlet:namespace/>nom"         placeholder="Nom" required />
-                                        <input type="text"  name="<portlet:namespace/>prenom"      placeholder="Prénom" required />
-                                        <input type="email" name="<portlet:namespace/>email"       placeholder="Email" required />
-                                        <input type="password" name="<portlet:namespace/>motDePasse" placeholder="Mot de passe" required />
-                                        <button type="submit" class="btn btn-primary"><i class="fas fa-user-plus"></i> Ajouter Admin</button>
-                                    </form>
-                                </div>
-
-                                <div class="employee-management">
-                                    <h4><i class="fas fa-user-times"></i> Supprimer un Administrateur</h4>
-                                    <portlet:actionURL name="deleteAdmin" var="deleteAdminDirectURL"/>
-                                    <form method="post" action="${deleteAdminDirectURL}" class="stack-sm">
-                                        <input type="email" name="<portlet:namespace/>email" placeholder="Email Admin à supprimer" required />
-                                        <button type="submit" class="btn btn-danger"><i class="fas fa-user-times"></i> Supprimer Admin</button>
-                                    </form>
-                                </div>
-                            </c:if>
-                        </div>
-                    </c:if>
-                </c:when>
-        --%>
         <c:when test="${currentSection == 'admins'}">
             <c:if test="${userRole == 'SUPER_ADMIN' || userRole == 'ADMIN'}">
 
@@ -1135,7 +992,21 @@
             </c:choose>
         </c:when>
 
-
+        <c:when test="${currentSection == 'stocks'}">
+            <c:choose>
+                <c:when test="${userRole == 'ADMIN' || userRole == 'PHARMACIEN'}">
+                    <div class="admin-section">
+                        <h3 style="margin-top:0;"><i class="fas fa-boxes-stacked"></i> Stocks</h3>
+                        <liferay-portlet:runtime
+                                portletName="stock_web"
+                                instanceId="STK" />
+                    </div>
+                </c:when>
+                <c:otherwise>
+                    <div class="message error">Section réservée (ADMIN / PHARMACIEN).</div>
+                </c:otherwise>
+            </c:choose>
+        </c:when>
 
 
 

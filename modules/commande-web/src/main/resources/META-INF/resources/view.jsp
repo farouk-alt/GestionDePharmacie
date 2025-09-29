@@ -128,6 +128,7 @@
     <liferay-ui:success key="commande-cancel-success" message="Commande annulée." />
     <liferay-ui:error   key="commande-cancel-error" message="Échec de l’annulation." />
     <liferay-ui:error   key="commande-cancel-not-allowed" message="Impossible d’annuler : la commande a déjà été traitée." />
+    <liferay-ui:success key="commande-received-success" message="Commande réceptionnée et stock mis à jour." />
 
 
 
@@ -420,6 +421,21 @@
                                 <button type="submit" class="btn icon-btn" title="Réaffecter" style="margin-left:6px;">🔁</button>
                             </form>
                         </c:if>
+                        <%
+                            statutUpper = (c.getStatut() != null) ? c.getStatut().trim().toUpperCase() : "";
+                            boolean canReceive = "ACCEPTED".equals(statutUpper) && !isFournisseur; // only Admin/Pharmacien
+                        %>
+
+                        <c:if test="<%= canReceive %>">
+                            <portlet:actionURL name="receiveCommande" var="receiveURL">
+                                <portlet:param name="commandeId" value="<%= String.valueOf(c.getIdCommande()) %>" />
+                            </portlet:actionURL>
+                            <form action="${receiveURL}" method="post" style="display:inline;" data-senna-off="true"
+                                  onsubmit="return confirm('Marquer la commande #<%= c.getIdCommande() %> comme reçue et mettre à jour le stock ?');">
+                                <button type="submit" class="btn icon-btn" title="Réceptionner" style="margin-left:6px;">📦</button>
+                            </form>
+                        </c:if>
+
 
                     </c:otherwise>
                 </c:choose>

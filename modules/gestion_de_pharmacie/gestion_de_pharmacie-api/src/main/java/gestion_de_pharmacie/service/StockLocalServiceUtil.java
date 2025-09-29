@@ -200,6 +200,10 @@ public class StockLocalServiceUtil {
 		return getService().fetchStock(idStock);
 	}
 
+	public static Stock fetchStockByMedicamentId(long medicamentId) {
+		return getService().fetchStockByMedicamentId(medicamentId);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 

@@ -7,6 +7,7 @@ package gestion_de_pharmacie.service.impl;
 
 import com.liferay.portal.aop.AopService;
 
+import gestion_de_pharmacie.model.Stock;
 import gestion_de_pharmacie.service.base.StockLocalServiceBaseImpl;
 
 import org.osgi.service.component.annotations.Component;
@@ -19,4 +20,9 @@ import org.osgi.service.component.annotations.Component;
 	service = AopService.class
 )
 public class StockLocalServiceImpl extends StockLocalServiceBaseImpl {
+
+    public Stock fetchStockByMedicamentId(long medicamentId) {
+        return stockPersistence.fetchByMed(medicamentId);
+    }
+
 }

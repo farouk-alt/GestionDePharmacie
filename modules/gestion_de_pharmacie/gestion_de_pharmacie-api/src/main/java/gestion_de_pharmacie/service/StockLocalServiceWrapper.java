@@ -218,6 +218,13 @@ public class StockLocalServiceWrapper
 	}
 
 	@Override
+	public gestion_de_pharmacie.model.Stock fetchStockByMedicamentId(
+		long medicamentId) {
+
+		return _stockLocalService.fetchStockByMedicamentId(medicamentId);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 

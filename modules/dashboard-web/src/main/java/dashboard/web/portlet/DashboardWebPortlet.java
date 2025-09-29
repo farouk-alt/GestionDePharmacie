@@ -194,36 +194,7 @@ public class DashboardWebPortlet extends MVCPortlet {
         response.setRenderParameter("section", "admins");
     }
 
-    /*@Override
-    public void render(RenderRequest request, RenderResponse response) throws IOException, PortletException {
-        HttpSession hs = PortalSessionUtil.httpSession(request);
-        String userRole  = (String) hs.getAttribute(PortalSessionKeys.USER_ROLE);
-        String userEmail = (String) hs.getAttribute(PortalSessionKeys.USER_EMAIL);
-// DEBUG: must match the [AUTH] line
-        System.out.println("[DASH] get HS id=" + hs.getId()
-                + " email=" + userEmail
-                + " role="  + userRole);
-        request.setAttribute("userRole",  userRole);   // request-scope for JSP
-        request.setAttribute("userEmail", userEmail);
 
-        System.out.println("[DBG] HS userRole=" + hs.getAttribute(PortalSessionKeys.USER_ROLE)
-                + ", userEmail=" + hs.getAttribute(PortalSessionKeys.USER_EMAIL));
-
-
-        if ("SUPER_ADMIN".equals(userRole) || "ADMIN".equals(userRole)) {
-            try {
-                List<Utilisateur> allUsers = UtilisateurLocalServiceUtil.getUtilisateurs(-1, -1);
-                List<Utilisateur> employees = allUsers.stream()
-                        .filter(u -> !"SUPER_ADMIN".equals(u.getRole()))
-                        .filter(u -> !u.getEmail().equals(userEmail))
-                        .collect(Collectors.toList());
-                request.setAttribute("employees", employees);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        super.render(request, response);
-    }*/
     @Override
     public void render(RenderRequest request, RenderResponse response)
             throws IOException, PortletException {

@@ -257,6 +257,11 @@ public interface CommandeLocalService
 		throws PortalException;
 
 	/**
+	 * Mark an order as RECEIVED, increment stocks per detail, and log IN movements.
+	 */
+	public void receiveCommande(long commandeId) throws Exception;
+
+	/**
 	 * Updates the commande in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
 	 * <p>

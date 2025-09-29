@@ -192,6 +192,9 @@ public interface StockLocalService
 	public Stock fetchStock(long idStock);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public Stock fetchStockByMedicamentId(long medicamentId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ActionableDynamicQuery getActionableDynamicQuery();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)

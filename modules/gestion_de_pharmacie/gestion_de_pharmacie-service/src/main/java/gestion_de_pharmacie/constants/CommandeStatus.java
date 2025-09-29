@@ -1,4 +1,4 @@
-package commande.web.constants;
+package gestion_de_pharmacie.constants;
 
 import java.util.Set;
 

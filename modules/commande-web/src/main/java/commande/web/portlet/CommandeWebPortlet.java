@@ -725,5 +725,27 @@ private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
         redirectToDashboard(request, response, upload);
     }
 
+    @ProcessAction(name = "receiveCommande")
+    public void receiveCommande(ActionRequest request, ActionResponse response) {
+        UploadPortletRequest upload = PortalUtil.getUploadPortletRequest(request);
+        try {
+            // Only Admin/Pharmacien can receive
+            String role = getUserRole(request);
+            if (!"ADMIN".equalsIgnoreCase(role) && !"PHARMACIEN".equalsIgnoreCase(role)) {
+                SessionMessages.add(request, "commande-update-error");
+                redirectToDashboard(request, response, upload);
+                return;
+            }
+
+            long commandeId = ParamUtil.getLong(upload, "commandeId");
+            // call service method
+            CommandeLocalServiceUtil.getService().receiveCommande(commandeId);
+
+            SessionMessages.add(request, "commande-updated-success"); // or a new key like "commande-received-success"
+        } catch (Exception e) {
+            SessionMessages.add(request, "commande-update-error");
+        }
+        redirectToDashboard(request, response, upload);
+    }
 
 }
