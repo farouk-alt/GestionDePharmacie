@@ -72,6 +72,14 @@ public class VenteLocalServiceUtil {
 		return getService().createVente(idVente);
 	}
 
+	public static Vente createVente(
+			long idUtilisateur, long[] medicamentIds, int[] quantities)
+		throws PortalException {
+
+		return getService().createVente(
+			idUtilisateur, medicamentIds, quantities);
+	}
+
 	/**
 	 * @throws PortalException
 	 */

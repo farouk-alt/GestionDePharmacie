@@ -62,6 +62,14 @@
         <column name="idUtilisateur" type="long" />
         <column name="dateVente" type="Date" />
         <column name="montantTotal" type="double" />
+        <finder name="User" return-type="Collection">
+            <finder-column name="idUtilisateur"/>
+        </finder>
+
+        <!-- Useful to page/sort by date -->
+        <finder name="Date" return-type="Collection">
+            <finder-column name="dateVente"/>
+        </finder>
     </entity>
 
     <entity name="VenteDetail" local-service="true" remote-service="true">
@@ -71,6 +79,13 @@
         <column name="quantite" type="int" />
         <column name="prixUnitaire" type="double" />
         <column name="sousTotal" type="double" />
+        <finder name="Vente" return-type="Collection">
+            <finder-column name="idVente"/>
+        </finder>
+
+        <finder name="Medicament" return-type="Collection">
+            <finder-column name="idMedicament"/>
+        </finder>
     </entity>
 
 

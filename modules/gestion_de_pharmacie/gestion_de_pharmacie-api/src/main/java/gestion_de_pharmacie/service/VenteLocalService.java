@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 
+import gestion_de_pharmacie.model.*;
 import gestion_de_pharmacie.model.Vente;
 
 import java.io.Serializable;
@@ -81,6 +82,10 @@ public interface VenteLocalService
 	 */
 	@Transactional(enabled = false)
 	public Vente createVente(long idVente);
+
+	public Vente createVente(
+			long idUtilisateur, long[] medicamentIds, int[] quantities)
+		throws PortalException;
 
 	/**
 	 * @throws PortalException

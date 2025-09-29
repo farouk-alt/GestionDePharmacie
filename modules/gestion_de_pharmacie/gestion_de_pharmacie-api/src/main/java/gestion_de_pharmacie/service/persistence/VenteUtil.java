@@ -13,6 +13,7 @@ import gestion_de_pharmacie.model.Vente;
 
 import java.io.Serializable;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -105,6 +106,336 @@ public class VenteUtil {
 	 */
 	public static Vente update(Vente vente, ServiceContext serviceContext) {
 		return getPersistence().update(vente, serviceContext);
+	}
+
+	/**
+	 * Returns all the ventes where idUtilisateur = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @return the matching ventes
+	 */
+	public static List<Vente> findByUser(long idUtilisateur) {
+		return getPersistence().findByUser(idUtilisateur);
+	}
+
+	/**
+	 * Returns a range of all the ventes where idUtilisateur = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>VenteModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param start the lower bound of the range of ventes
+	 * @param end the upper bound of the range of ventes (not inclusive)
+	 * @return the range of matching ventes
+	 */
+	public static List<Vente> findByUser(
+		long idUtilisateur, int start, int end) {
+
+		return getPersistence().findByUser(idUtilisateur, start, end);
+	}
+
+	/**
+	 * Returns an ordered range of all the ventes where idUtilisateur = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>VenteModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param start the lower bound of the range of ventes
+	 * @param end the upper bound of the range of ventes (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching ventes
+	 */
+	public static List<Vente> findByUser(
+		long idUtilisateur, int start, int end,
+		OrderByComparator<Vente> orderByComparator) {
+
+		return getPersistence().findByUser(
+			idUtilisateur, start, end, orderByComparator);
+	}
+
+	/**
+	 * Returns an ordered range of all the ventes where idUtilisateur = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>VenteModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param start the lower bound of the range of ventes
+	 * @param end the upper bound of the range of ventes (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching ventes
+	 */
+	public static List<Vente> findByUser(
+		long idUtilisateur, int start, int end,
+		OrderByComparator<Vente> orderByComparator, boolean useFinderCache) {
+
+		return getPersistence().findByUser(
+			idUtilisateur, start, end, orderByComparator, useFinderCache);
+	}
+
+	/**
+	 * Returns the first vente in the ordered set where idUtilisateur = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching vente
+	 * @throws NoSuchVenteException if a matching vente could not be found
+	 */
+	public static Vente findByUser_First(
+			long idUtilisateur, OrderByComparator<Vente> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchVenteException {
+
+		return getPersistence().findByUser_First(
+			idUtilisateur, orderByComparator);
+	}
+
+	/**
+	 * Returns the first vente in the ordered set where idUtilisateur = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching vente, or <code>null</code> if a matching vente could not be found
+	 */
+	public static Vente fetchByUser_First(
+		long idUtilisateur, OrderByComparator<Vente> orderByComparator) {
+
+		return getPersistence().fetchByUser_First(
+			idUtilisateur, orderByComparator);
+	}
+
+	/**
+	 * Returns the last vente in the ordered set where idUtilisateur = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching vente
+	 * @throws NoSuchVenteException if a matching vente could not be found
+	 */
+	public static Vente findByUser_Last(
+			long idUtilisateur, OrderByComparator<Vente> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchVenteException {
+
+		return getPersistence().findByUser_Last(
+			idUtilisateur, orderByComparator);
+	}
+
+	/**
+	 * Returns the last vente in the ordered set where idUtilisateur = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching vente, or <code>null</code> if a matching vente could not be found
+	 */
+	public static Vente fetchByUser_Last(
+		long idUtilisateur, OrderByComparator<Vente> orderByComparator) {
+
+		return getPersistence().fetchByUser_Last(
+			idUtilisateur, orderByComparator);
+	}
+
+	/**
+	 * Returns the ventes before and after the current vente in the ordered set where idUtilisateur = &#63;.
+	 *
+	 * @param idVente the primary key of the current vente
+	 * @param idUtilisateur the id utilisateur
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next vente
+	 * @throws NoSuchVenteException if a vente with the primary key could not be found
+	 */
+	public static Vente[] findByUser_PrevAndNext(
+			long idVente, long idUtilisateur,
+			OrderByComparator<Vente> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchVenteException {
+
+		return getPersistence().findByUser_PrevAndNext(
+			idVente, idUtilisateur, orderByComparator);
+	}
+
+	/**
+	 * Removes all the ventes where idUtilisateur = &#63; from the database.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 */
+	public static void removeByUser(long idUtilisateur) {
+		getPersistence().removeByUser(idUtilisateur);
+	}
+
+	/**
+	 * Returns the number of ventes where idUtilisateur = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @return the number of matching ventes
+	 */
+	public static int countByUser(long idUtilisateur) {
+		return getPersistence().countByUser(idUtilisateur);
+	}
+
+	/**
+	 * Returns all the ventes where dateVente = &#63;.
+	 *
+	 * @param dateVente the date vente
+	 * @return the matching ventes
+	 */
+	public static List<Vente> findByDate(Date dateVente) {
+		return getPersistence().findByDate(dateVente);
+	}
+
+	/**
+	 * Returns a range of all the ventes where dateVente = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>VenteModelImpl</code>.
+	 * </p>
+	 *
+	 * @param dateVente the date vente
+	 * @param start the lower bound of the range of ventes
+	 * @param end the upper bound of the range of ventes (not inclusive)
+	 * @return the range of matching ventes
+	 */
+	public static List<Vente> findByDate(Date dateVente, int start, int end) {
+		return getPersistence().findByDate(dateVente, start, end);
+	}
+
+	/**
+	 * Returns an ordered range of all the ventes where dateVente = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>VenteModelImpl</code>.
+	 * </p>
+	 *
+	 * @param dateVente the date vente
+	 * @param start the lower bound of the range of ventes
+	 * @param end the upper bound of the range of ventes (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching ventes
+	 */
+	public static List<Vente> findByDate(
+		Date dateVente, int start, int end,
+		OrderByComparator<Vente> orderByComparator) {
+
+		return getPersistence().findByDate(
+			dateVente, start, end, orderByComparator);
+	}
+
+	/**
+	 * Returns an ordered range of all the ventes where dateVente = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>VenteModelImpl</code>.
+	 * </p>
+	 *
+	 * @param dateVente the date vente
+	 * @param start the lower bound of the range of ventes
+	 * @param end the upper bound of the range of ventes (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching ventes
+	 */
+	public static List<Vente> findByDate(
+		Date dateVente, int start, int end,
+		OrderByComparator<Vente> orderByComparator, boolean useFinderCache) {
+
+		return getPersistence().findByDate(
+			dateVente, start, end, orderByComparator, useFinderCache);
+	}
+
+	/**
+	 * Returns the first vente in the ordered set where dateVente = &#63;.
+	 *
+	 * @param dateVente the date vente
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching vente
+	 * @throws NoSuchVenteException if a matching vente could not be found
+	 */
+	public static Vente findByDate_First(
+			Date dateVente, OrderByComparator<Vente> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchVenteException {
+
+		return getPersistence().findByDate_First(dateVente, orderByComparator);
+	}
+
+	/**
+	 * Returns the first vente in the ordered set where dateVente = &#63;.
+	 *
+	 * @param dateVente the date vente
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching vente, or <code>null</code> if a matching vente could not be found
+	 */
+	public static Vente fetchByDate_First(
+		Date dateVente, OrderByComparator<Vente> orderByComparator) {
+
+		return getPersistence().fetchByDate_First(dateVente, orderByComparator);
+	}
+
+	/**
+	 * Returns the last vente in the ordered set where dateVente = &#63;.
+	 *
+	 * @param dateVente the date vente
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching vente
+	 * @throws NoSuchVenteException if a matching vente could not be found
+	 */
+	public static Vente findByDate_Last(
+			Date dateVente, OrderByComparator<Vente> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchVenteException {
+
+		return getPersistence().findByDate_Last(dateVente, orderByComparator);
+	}
+
+	/**
+	 * Returns the last vente in the ordered set where dateVente = &#63;.
+	 *
+	 * @param dateVente the date vente
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching vente, or <code>null</code> if a matching vente could not be found
+	 */
+	public static Vente fetchByDate_Last(
+		Date dateVente, OrderByComparator<Vente> orderByComparator) {
+
+		return getPersistence().fetchByDate_Last(dateVente, orderByComparator);
+	}
+
+	/**
+	 * Returns the ventes before and after the current vente in the ordered set where dateVente = &#63;.
+	 *
+	 * @param idVente the primary key of the current vente
+	 * @param dateVente the date vente
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next vente
+	 * @throws NoSuchVenteException if a vente with the primary key could not be found
+	 */
+	public static Vente[] findByDate_PrevAndNext(
+			long idVente, Date dateVente,
+			OrderByComparator<Vente> orderByComparator)
+		throws gestion_de_pharmacie.exception.NoSuchVenteException {
+
+		return getPersistence().findByDate_PrevAndNext(
+			idVente, dateVente, orderByComparator);
+	}
+
+	/**
+	 * Removes all the ventes where dateVente = &#63; from the database.
+	 *
+	 * @param dateVente the date vente
+	 */
+	public static void removeByDate(Date dateVente) {
+		getPersistence().removeByDate(dateVente);
+	}
+
+	/**
+	 * Returns the number of ventes where dateVente = &#63;.
+	 *
+	 * @param dateVente the date vente
+	 * @return the number of matching ventes
+	 */
+	public static int countByDate(Date dateVente) {
+		return getPersistence().countByDate(dateVente);
 	}
 
 	/**

@@ -779,6 +779,10 @@
         <portlet:param name="mvcPath" value="/common/dashboard.jsp"/>
         <portlet:param name="section" value="stocks"/>
     </portlet:renderURL>
+    <portlet:renderURL var="tabVentes">
+        <portlet:param name="mvcPath" value="/common/dashboard.jsp"/>
+        <portlet:param name="section" value="ventes"/>
+    </portlet:renderURL>
 
 
     <div class="tabs">
@@ -798,6 +802,9 @@
         </c:if>
         <c:if test="${userRole == 'ADMIN' || userRole == 'PHARMACIEN'}">
             <a class="tab ${currentSection=='stocks' ? 'active' : ''}" href="${tabStocks}">Stocks</a>
+        </c:if>
+        <c:if test="${userRole == 'ADMIN' || userRole == 'PHARMACIEN'}">
+            <a class="tab ${currentSection=='ventes' ? 'active' : ''}" href="${tabVentes}">Ventes</a>
         </c:if>
 
 
@@ -1007,6 +1014,20 @@
                 </c:otherwise>
             </c:choose>
         </c:when>
+        <c:when test="${currentSection == 'ventes'}">
+            <c:choose>
+                <c:when test="${userRole == 'ADMIN' || userRole == 'PHARMACIEN'}">
+                    <div class="admin-section">
+                        <h3 style="margin-top:0;"><i class="fas fa-cash-register"></i> Ventes</h3>
+                        <liferay-portlet:runtime portletName="vente_web_VenteWebPortlet" instanceId="VNT" />
+                    </div>
+                </c:when>
+                <c:otherwise>
+                    <div class="message error">Section réservée (ADMIN / PHARMACIEN).</div>
+                </c:otherwise>
+            </c:choose>
+        </c:when>
+
 
 
 

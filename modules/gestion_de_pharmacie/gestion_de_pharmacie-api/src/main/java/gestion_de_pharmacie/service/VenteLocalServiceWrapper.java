@@ -65,6 +65,15 @@ public class VenteLocalServiceWrapper
 		return _venteLocalService.createVente(idVente);
 	}
 
+	@Override
+	public gestion_de_pharmacie.model.Vente createVente(
+			long idUtilisateur, long[] medicamentIds, int[] quantities)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _venteLocalService.createVente(
+			idUtilisateur, medicamentIds, quantities);
+	}
+
 	/**
 	 * @throws PortalException
 	 */

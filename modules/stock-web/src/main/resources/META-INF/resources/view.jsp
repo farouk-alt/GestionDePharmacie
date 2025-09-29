@@ -48,9 +48,6 @@
             <th class="num">Prix (DH)</th>
             <th class="num">Quantité</th>
             <th>Dernière MAJ</th>
-<%--
-            <th>Actions</th>
---%>
         </tr>
         </thead>
         <tbody id="stkBody">
@@ -65,27 +62,6 @@
                         <c:otherwise>-</c:otherwise>
                     </c:choose>
                 </td>
-<%--                <td>
-                    <!-- +10 -->
-                    <form class="inline" action="${adjustURL}" method="post" data-senna-off="true">
-                        <input type="hidden" name="idMedicament" value="${r['idMedicament']}"/>
-                        <input type="hidden" name="delta" value="10"/>
-                        <button type="submit" class="btn">+10</button>
-                    </form>
-                    <!-- -10 -->
-                    <form class="inline" action="${adjustURL}" method="post" data-senna-off="true"
-                          onsubmit="return confirm('Réduire le stock de 10 ?');">
-                        <input type="hidden" name="idMedicament" value="${r['idMedicament']}"/>
-                        <input type="hidden" name="delta" value="-10"/>
-                        <button type="submit" class="btn">-10</button>
-                    </form>
-                    <!-- set exact -->
-                    <form class="inline" action="${setURL}" method="post" data-senna-off="true" style="margin-left:6px;">
-                        <input type="hidden" name="idMedicament" value="${r['idMedicament']}"/>
-                        <input type="number" name="qty" min="0" placeholder="Qté…" style="width:88px; padding:6px; border:1px solid #E5E7EB; border-radius:8px;"/>
-                        <button type="submit" class="btn btn-primary">Définir</button>
-                    </form>
-                </td>--%>
             </tr>
         </c:forEach>
         </tbody>
