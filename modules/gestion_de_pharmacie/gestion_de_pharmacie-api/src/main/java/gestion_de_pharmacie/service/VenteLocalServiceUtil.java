@@ -13,6 +13,7 @@ import com.liferay.portal.kernel.module.service.Snapshot;
 import com.liferay.portal.kernel.util.OrderByComparator;
 
 import gestion_de_pharmacie.model.Vente;
+import gestion_de_pharmacie.model.VenteDetail;
 
 import java.io.Serializable;
 
@@ -50,6 +51,10 @@ public class VenteLocalServiceUtil {
 	 */
 	public static Vente addVente(Vente vente) {
 		return getService().addVente(vente);
+	}
+
+	public static int countByDateRange(java.util.Date from, java.util.Date to) {
+		return getService().countByDateRange(from, to);
 	}
 
 	/**
@@ -208,10 +213,28 @@ public class VenteLocalServiceUtil {
 		return getService().fetchVente(idVente);
 	}
 
+	public static List<Vente> findByDateRange(
+		java.util.Date from, java.util.Date to, int start, int end) {
+
+		return getService().findByDateRange(from, to, start, end);
+	}
+
+	public static List<Vente> findByUserAndDate(
+		long idUtilisateur, java.util.Date from, java.util.Date to, int start,
+		int end) {
+
+		return getService().findByUserAndDate(
+			idUtilisateur, from, to, start, end);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 
 		return getService().getActionableDynamicQuery();
+	}
+
+	public static List<VenteDetail> getDetails(long idVente) {
+		return getService().getDetails(idVente);
 	}
 
 	public static

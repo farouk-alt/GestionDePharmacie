@@ -27,6 +27,7 @@ import gestion_de_pharmacie.model.Vente;
 
 import java.io.Serializable;
 
+import java.util.Date;
 import java.util.List;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -67,6 +68,8 @@ public interface VenteLocalService
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	public Vente addVente(Vente vente);
+
+	public int countByDateRange(Date from, Date to);
 
 	/**
 	 * @throws PortalException
@@ -196,8 +199,16 @@ public interface VenteLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public Vente fetchVente(long idVente);
 
+	public List<Vente> findByDateRange(Date from, Date to, int start, int end);
+
+	public List<Vente> findByUserAndDate(
+		long idUtilisateur, Date from, Date to, int start, int end);
+
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ActionableDynamicQuery getActionableDynamicQuery();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<VenteDetail> getDetails(long idVente);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();

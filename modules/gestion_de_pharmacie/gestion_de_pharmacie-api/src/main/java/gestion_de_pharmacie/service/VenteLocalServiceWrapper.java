@@ -7,6 +7,7 @@ package gestion_de_pharmacie.service;
 
 import com.liferay.portal.kernel.service.ServiceWrapper;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
+import gestion_de_pharmacie.model.VenteDetail;
 
 /**
  * Provides a wrapper for {@link VenteLocalService}.
@@ -41,6 +42,11 @@ public class VenteLocalServiceWrapper
 		gestion_de_pharmacie.model.Vente vente) {
 
 		return _venteLocalService.addVente(vente);
+	}
+
+	@Override
+	public int countByDateRange(java.util.Date from, java.util.Date to) {
+		return _venteLocalService.countByDateRange(from, to);
 	}
 
 	/**
@@ -227,10 +233,31 @@ public class VenteLocalServiceWrapper
 	}
 
 	@Override
+	public java.util.List<gestion_de_pharmacie.model.Vente> findByDateRange(
+		java.util.Date from, java.util.Date to, int start, int end) {
+
+		return _venteLocalService.findByDateRange(from, to, start, end);
+	}
+
+	@Override
+	public java.util.List<gestion_de_pharmacie.model.Vente> findByUserAndDate(
+		long idUtilisateur, java.util.Date from, java.util.Date to, int start,
+		int end) {
+
+		return _venteLocalService.findByUserAndDate(
+			idUtilisateur, from, to, start, end);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 
 		return _venteLocalService.getActionableDynamicQuery();
+	}
+
+	@Override
+	public java.util.List<VenteDetail> getDetails(long idVente) {
+		return _venteLocalService.getDetails(idVente);
 	}
 
 	@Override

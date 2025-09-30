@@ -53,6 +53,10 @@
         <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:14px">
             <strong>Total: <span id="total">0.00</span> DH</strong>
             <button type="submit" class="btn btn-primary">Enregistrer la vente</button>
+            <a class="btn" href="<portlet:actionURL><portlet:param name="mvcPath" value="/history.jsp"/></portlet:actionURL>">
+                Voir l’historique
+            </a>
+
         </div>
     </form>
 </div>
