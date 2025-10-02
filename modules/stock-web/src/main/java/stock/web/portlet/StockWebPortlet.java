@@ -4,15 +4,20 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import gestion_de_pharmacie.model.Medicament;
 import gestion_de_pharmacie.model.Stock;
+import gestion_de_pharmacie.model.Utilisateur;
 import gestion_de_pharmacie.service.MedicamentLocalServiceUtil;
+import gestion_de_pharmacie.service.NotificationLocalServiceUtil;
 import gestion_de_pharmacie.service.StockLocalServiceUtil;
 
+import gestion_de_pharmacie.service.UtilisateurLocalServiceUtil;
 import org.osgi.service.component.annotations.Component;
 
 import javax.portlet.*;
@@ -96,11 +101,17 @@ public class StockWebPortlet extends MVCPortlet {
                 s.setIdMedicament(idMedicament);
                 s.setQuantiteDisponible(0);
             }
-
+            int previousQty = s.getQuantiteDisponible();
             int newQty = Math.max(0, s.getQuantiteDisponible() + delta);
             s.setQuantiteDisponible(newQty);
             s.setDateDerniereMaj(new Date());
             StockLocalServiceUtil.updateStock(s);
+            System.out.println("[adjustStock] idMed=" + idMedicament + " delta=" + delta);
+
+
+            StockLocalServiceUtil.adjustStockDelta(idMedicament, delta);
+
+
 
             // (Optional) also write a MouvementStock row here if you want every manual adjust tracked
 
@@ -127,10 +138,22 @@ public class StockWebPortlet extends MVCPortlet {
                 long id = com.liferay.counter.kernel.service.CounterLocalServiceUtil.increment(Stock.class.getName());
                 s = StockLocalServiceUtil.createStock(id);
                 s.setIdMedicament(idMedicament);
+                s.setQuantiteDisponible(0);
             }
-            s.setQuantiteDisponible(qty);
+
+            int previousQty = s.getQuantiteDisponible();
+            int newQty = Math.max(0, qty);
+
+            s.setQuantiteDisponible(newQty);
             s.setDateDerniereMaj(new Date());
             StockLocalServiceUtil.updateStock(s);
+            System.out.println("[setStock] idMed=" + idMedicament + " qty=" + qty);
+
+            StockLocalServiceUtil.setStockQty(idMedicament, qty);
+
+
+
+
 
             SessionMessages.add(request, "stock-updated");
         } catch (Exception e) {
@@ -138,4 +161,5 @@ public class StockWebPortlet extends MVCPortlet {
         }
         response.setRenderParameter("mvcPath", "/view.jsp");
     }
+
 }

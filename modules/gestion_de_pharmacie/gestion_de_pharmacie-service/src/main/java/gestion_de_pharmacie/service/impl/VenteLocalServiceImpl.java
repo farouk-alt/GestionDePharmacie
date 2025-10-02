@@ -105,22 +105,25 @@ public class VenteLocalServiceImpl extends VenteLocalServiceBaseImpl {
             venteDetailLocalService.addVenteDetail(d); // <-- add*, not update*
 
             // stock -
-            Stock stock = stockLocalService.fetchStockByMedicamentId(mid);
+/*            Stock stock = stockLocalService.fetchStockByMedicamentId(mid);
             if (stock == null) {
                 throw new PortalException("No stock row for medicament " + mid);
             }
             stock.setQuantiteDisponible(Math.max(0, stock.getQuantiteDisponible() - qty));
             stock.setDateDerniereMaj(now);
-            stockLocalService.updateStock(stock); // update existing row
+            stockLocalService.updateStock(stock); // update existing row*/
+// stock -
+            Stock updatedStock = stockLocalService.adjustStockDelta(mid, -qty);   // updates & notifies
 
-            // mouvement
+// mouvement
             long idMv = CounterLocalServiceUtil.increment(MouvementStock.class.getName());
             MouvementStock mv = mouvementStockPersistence.create(idMv);
-            mv.setIdStock(stock.getIdStock());
+            mv.setIdStock(updatedStock.getIdStock());   // <-- use updatedStock
             mv.setTypeMouvement("VENTE");
             mv.setQuantite(qty);
             mv.setDateMouvement(now);
-            mouvementStockLocalService.addMouvementStock(mv); // add*, not update*
+            mouvementStockLocalService.addMouvementStock(mv);
+
         }
         try {
             int itemCount = 0;

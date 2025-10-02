@@ -68,6 +68,11 @@ public interface StockLocalService
 	public Stock addStock(Stock stock);
 
 	/**
+	 * Public API used by Vente + Portlet: adjust by delta (can be negative).
+	 */
+	public Stock adjustStockDelta(long idMedicament, int delta);
+
+	/**
 	 * @throws PortalException
 	 */
 	public PersistedModel createPersistedModel(Serializable primaryKeyObj)
@@ -246,6 +251,11 @@ public interface StockLocalService
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getStocksCount();
+
+	/**
+	 * Public API: set absolute qty.
+	 */
+	public Stock setStockQty(long idMedicament, int qty);
 
 	/**
 	 * Updates the stock in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
