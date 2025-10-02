@@ -104,8 +104,12 @@ public class MedicamentWebPortlet extends MVCPortlet {
            stock.setQuantiteDisponible(0);
            stock.setDateDerniereMaj(new Date());
            StockLocalServiceUtil.addStock(stock);
+           // ----- notify roles that a new med was created (no low-stock check here)
+           long actorId = resolveUid(request);  // your helper that returns current user's id
+           String msg = "Nouveau médicament ajouté : " + nom + " (code " + code + ")";
+           _notifLocalService.addNotificationForRoleExceptUser("ADMIN",      "MED_ADDED", msg, actorId);
+           _notifLocalService.addNotificationForRoleExceptUser("PHARMACIEN", "MED_ADDED", msg, actorId);
 
-           _notifLocalService.createLowStockAlertsForMed(medicament.getIdMedicament());
 
            SessionMessages.add(request, "medicament-added-successfully");
            response.setRenderParameter("mvcPath", "/view.jsp");
