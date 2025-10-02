@@ -78,6 +78,14 @@ public class NotificationLocalServiceWrapper
 		_notificationLocalService.addNotificationForRole(role, type, message);
 	}
 
+	@Override
+	public void addNotificationForRoleExceptUser(
+		String role, String type, String message, long excludeUserId) {
+
+		_notificationLocalService.addNotificationForRoleExceptUser(
+			role, type, message, excludeUserId);
+	}
+
 	/**
 	 * Legacy convenience: count unread via finder (if you prefer).
 	 */

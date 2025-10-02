@@ -359,5 +359,15 @@ public class NotificationLocalServiceImpl extends NotificationLocalServiceBaseIm
         }
     }
 
+    // In NotificationLocalServiceImpl (impl)
+    public void addNotificationForRoleExceptUser(String role, String type, String message, long excludeUserId) {
+        List<Utilisateur> users = utilisateurPersistence.findByRole(role); // or your existing finder
+        Date now = new Date();
+        for (Utilisateur u : users) {
+            if (u.getIdUtilisateur() == excludeUserId) continue;
+            addNotification(u.getIdUtilisateur(), type, message, now);
+        }
+    }
+
 
 }

@@ -37,6 +37,11 @@ public class CommandeLocalServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to <code>gestion_de_pharmacie.service.impl.CommandeLocalServiceImpl</code> and rerun ServiceBuilder to regenerate this class.
 	 */
+	public static void acceptCommande(long actorId, long commandeId)
+		throws PortalException {
+
+		getService().acceptCommande(actorId, commandeId);
+	}
 
 	/**
 	 * Adds the commande to the database. Also notifies the appropriate model listeners.
@@ -50,6 +55,12 @@ public class CommandeLocalServiceUtil {
 	 */
 	public static Commande addCommande(Commande commande) {
 		return getService().addCommande(commande);
+	}
+
+	public static void cancelCommande(long actorId, long commandeId)
+		throws PortalException {
+
+		getService().cancelCommande(actorId, commandeId);
 	}
 
 	/**
@@ -284,11 +295,41 @@ public class CommandeLocalServiceUtil {
 		return getService().getPersistedModel(primaryKeyObj);
 	}
 
-	/**
-	 * Mark an order as RECEIVED, increment stocks per detail, and log IN movements.
-	 */
+	public static void notifyCommandeEdited(long actorId, long commandeId)
+		throws PortalException {
+
+		getService().notifyCommandeEdited(actorId, commandeId);
+	}
+
+	public static void reassignCommande(
+			long actorId, long commandeId, long newFournisseurId,
+			boolean sendNow)
+		throws PortalException {
+
+		getService().reassignCommande(
+			actorId, commandeId, newFournisseurId, sendNow);
+	}
+
 	public static void receiveCommande(long commandeId) throws Exception {
 		getService().receiveCommande(commandeId);
+	}
+
+	public static void receiveCommande(long actorId, long commandeId)
+		throws Exception {
+
+		getService().receiveCommande(actorId, commandeId);
+	}
+
+	public static void rejectCommande(long actorId, long commandeId)
+		throws PortalException {
+
+		getService().rejectCommande(actorId, commandeId);
+	}
+
+	public static void sendCommande(long actorId, long commandeId)
+		throws PortalException {
+
+		getService().sendCommande(actorId, commandeId);
 	}
 
 	/**

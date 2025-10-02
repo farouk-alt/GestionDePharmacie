@@ -79,6 +79,13 @@ public class NotificationLocalServiceUtil {
 		getService().addNotificationForRole(role, type, message);
 	}
 
+	public static void addNotificationForRoleExceptUser(
+		String role, String type, String message, long excludeUserId) {
+
+		getService().addNotificationForRoleExceptUser(
+			role, type, message, excludeUserId);
+	}
+
 	/**
 	 * Legacy convenience: count unread via finder (if you prefer).
 	 */

@@ -475,6 +475,9 @@ private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
             // --- save header ---
             commande.setMontantTotal(total);
             CommandeLocalServiceUtil.updateCommande(commande);
+            long actorId = getCurrentUtilisateurId(request);
+            CommandeLocalServiceUtil.getService().notifyCommandeEdited(actorId, commandeId);
+
 
             SessionMessages.add(request, "commande-updated-success");
 
@@ -522,79 +525,37 @@ private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
         }
     }
 
+    // CANCEL
     @ProcessAction(name = "cancelCommande")
     public void cancelCommande(ActionRequest request, ActionResponse response) {
+        long actorId = getCurrentUtilisateurId(request);
         long commandeId = ParamUtil.getLong(request, "commandeId");
-        if ("FOURNISSEUR".equalsIgnoreCase(getUserRole(request))) {
-            SessionMessages.add(request, "commande-update-error");
-            redirectToDashboard(request, response, PortalUtil.getUploadPortletRequest(request));
-            return;
-        }
-
-        UploadPortletRequest uploadRequest = PortalUtil.getUploadPortletRequest(request);
         try {
-            Commande cmd = CommandeLocalServiceUtil.fetchCommande(commandeId);
-            if (cmd == null) {
-                SessionMessages.add(request, "commande-update-error");
-                redirectToDashboard(request, response, uploadRequest);
-                return;
-            }
-
-            String st = cmd.getStatut();
-            boolean canCancel = ST_CREATED.equalsIgnoreCase(st) || ST_PENDING.equalsIgnoreCase(st);
-            if (!canCancel) {
-                SessionMessages.add(request, "commande-update-error");
-                redirectToDashboard(request, response, uploadRequest);
-                return;
-            }
-
-            cmd.setStatut(ST_CANCELED);
-            CommandeLocalServiceUtil.updateCommande(cmd);
-
+            CommandeLocalServiceUtil.getService().cancelCommande(actorId, commandeId); // do not set status here
             SessionMessages.add(request, "commande-updated-success");
         } catch (Exception e) {
-            e.printStackTrace();
             SessionMessages.add(request, "commande-update-error");
         }
-
-        redirectToDashboard(request, response, uploadRequest);
+        redirectToDashboard(request, response, PortalUtil.getUploadPortletRequest(request));
     }
 
+
+
+    // SEND
     @ProcessAction(name = "sendCommande")
     public void sendCommande(ActionRequest request, ActionResponse response) {
-        long commandeId = ParamUtil.getLong(request, "commandeId");
-        if ("FOURNISSEUR".equalsIgnoreCase(getUserRole(request))) {
-            SessionMessages.add(request, "commande-update-error");
-            redirectToDashboard(request, response, PortalUtil.getUploadPortletRequest(request));
-            return;
-        }
-        UploadPortletRequest uploadRequest = PortalUtil.getUploadPortletRequest(request);
+        long actorId = getCurrentUtilisateurId(request);
+        long commandeId = ParamUtil.getLong(PortalUtil.getUploadPortletRequest(request), "commandeId");
         try {
-            Commande cmd = CommandeLocalServiceUtil.fetchCommande(commandeId);
-            if (cmd == null) {
-                SessionMessages.add(request, "commande-update-error");
-                redirectToDashboard(request, response, uploadRequest);
-                return;
-            }
-
-            // guard: only CREATED can be sent
-            if (!ST_CREATED.equalsIgnoreCase(cmd.getStatut())) {
-                SessionMessages.add(request, "commande-update-error");
-                redirectToDashboard(request, response, uploadRequest);
-                return;
-            }
-
-            cmd.setStatut(ST_PENDING);
-            CommandeLocalServiceUtil.updateCommande(cmd);
-
+            CommandeLocalServiceUtil.getService().sendCommande(actorId, commandeId); // single call
             SessionMessages.add(request, "commande-updated-success");
         } catch (Exception e) {
-            e.printStackTrace();
             SessionMessages.add(request, "commande-update-error");
         }
-
-        redirectToDashboard(request, response, uploadRequest);
+        redirectToDashboard(request, response, PortalUtil.getUploadPortletRequest(request));
     }
+
+
 
 
 
@@ -629,17 +590,12 @@ private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
 
             long commandeId = ParamUtil.getLong(upload, "commandeId");
             Commande cmd = CommandeLocalServiceUtil.fetchCommande(commandeId);
-            if (cmd == null) { SessionMessages.add(request, "commande-update-error"); redirectToDashboard(request, response, upload); return; }
-
-            // must belong to me + be PENDING
-            if (cmd.getIdUtilisateur() != me.getIdUtilisateur() || !ST_PENDING.equalsIgnoreCase(cmd.getStatut())) {
-                SessionMessages.add(request, "commande-update-error");
-                redirectToDashboard(request, response, upload);
-                return;
+            if (cmd == null || cmd.getIdUtilisateur() != me.getIdUtilisateur()) {
+                SessionMessages.add(request, "commande-update-error"); redirectToDashboard(request, response, upload); return;
             }
 
-            cmd.setStatut(ST_ACCEPTED);
-            CommandeLocalServiceUtil.updateCommande(cmd);
+            long actorId = getCurrentUtilisateurId(request);
+            CommandeLocalServiceUtil.getService().acceptCommande(actorId, commandeId);
             SessionMessages.add(request, "commande-updated-success");
         } catch (Exception e) {
             SessionMessages.add(request, "commande-update-error");
@@ -656,96 +612,66 @@ private static final Log _log = LogFactoryUtil.getLog(CommandeWebPortlet.class);
 
             long commandeId = ParamUtil.getLong(upload, "commandeId");
             Commande cmd = CommandeLocalServiceUtil.fetchCommande(commandeId);
-            if (cmd == null) { SessionMessages.add(request, "commande-update-error"); redirectToDashboard(request, response, upload); return; }
-
-            // must belong to me + be PENDING
-            if (cmd.getIdUtilisateur() != me.getIdUtilisateur() || !ST_PENDING.equalsIgnoreCase(cmd.getStatut())) {
-                SessionMessages.add(request, "commande-update-error");
-                redirectToDashboard(request, response, upload);
-                return;
+            if (cmd == null || cmd.getIdUtilisateur() != me.getIdUtilisateur()) {
+                SessionMessages.add(request, "commande-update-error"); redirectToDashboard(request, response, upload); return;
             }
 
-            cmd.setStatut(ST_REFUSED);
-            CommandeLocalServiceUtil.updateCommande(cmd);
+            long actorId = getCurrentUtilisateurId(request);
+            CommandeLocalServiceUtil.getService().rejectCommande(actorId, commandeId);
             SessionMessages.add(request, "commande-updated-success");
         } catch (Exception e) {
             SessionMessages.add(request, "commande-update-error");
         }
         redirectToDashboard(request, response, upload);
     }
+
     @ProcessAction(name = "reassignCommande")
     public void reassignCommande(ActionRequest request, ActionResponse response) {
-        // Only Pharmacien/Admin can reassign
         if ("FOURNISSEUR".equalsIgnoreCase(getUserRole(request))) {
             SessionMessages.add(request, "commande-update-error");
             redirectToDashboard(request, response, PortalUtil.getUploadPortletRequest(request));
             return;
         }
-
         UploadPortletRequest upload = PortalUtil.getUploadPortletRequest(request);
         try {
             long commandeId = ParamUtil.getLong(upload, "commandeId");
             long newFournisseurId = ParamUtil.getLong(upload, "newFournisseurId");
             boolean sendNow = ParamUtil.getBoolean(upload, "sendNow", false);
 
-            Commande cmd = CommandeLocalServiceUtil.fetchCommande(commandeId);
-            if (cmd == null || newFournisseurId <= 0) {
-                SessionMessages.add(request, "commande-update-error");
-                redirectToDashboard(request, response, upload);
-                return;
-            }
-
-            // Only allow reassign from REFUSED (adjust if you want CANCELED too)
-            String st = (cmd.getStatut() != null) ? cmd.getStatut().trim().toUpperCase() : "";
-            if (!ST_REFUSED.equalsIgnoreCase(st)) {
-                SessionMessages.add(request, "commande-update-error");
-                redirectToDashboard(request, response, upload);
-                return;
-            }
-
-            // Ensure target fournisseur exists
-            Utilisateur target = UtilisateurLocalServiceUtil.fetchUtilisateur(newFournisseurId);
-            if (target == null) {
-                SessionMessages.add(request, "commande-update-error");
-                redirectToDashboard(request, response, upload);
-                return;
-            }
-
-            // Reassign
-            cmd.setIdUtilisateur(newFournisseurId);
-            cmd.setDateCommande(new Date()); // optional: bump date
-            cmd.setStatut(sendNow ? ST_PENDING : ST_CREATED);
-            CommandeLocalServiceUtil.updateCommande(cmd);
-
+            long actorId = getCurrentUtilisateurId(request);
+            CommandeLocalServiceUtil.getService().reassignCommande(actorId, commandeId, newFournisseurId, sendNow);
             SessionMessages.add(request, "commande-updated-success");
         } catch (Exception e) {
             SessionMessages.add(request, "commande-update-error");
         }
-
         redirectToDashboard(request, response, upload);
     }
 
+
+    // RECEIVE
     @ProcessAction(name = "receiveCommande")
     public void receiveCommande(ActionRequest request, ActionResponse response) {
-        UploadPortletRequest upload = PortalUtil.getUploadPortletRequest(request);
+        long actorId = getCurrentUtilisateurId(request);
+        long commandeId = ParamUtil.getLong(PortalUtil.getUploadPortletRequest(request), "commandeId");
         try {
-            // Only Admin/Pharmacien can receive
-            String role = getUserRole(request);
-            if (!"ADMIN".equalsIgnoreCase(role) && !"PHARMACIEN".equalsIgnoreCase(role)) {
-                SessionMessages.add(request, "commande-update-error");
-                redirectToDashboard(request, response, upload);
-                return;
-            }
-
-            long commandeId = ParamUtil.getLong(upload, "commandeId");
-            // call service method
-            CommandeLocalServiceUtil.getService().receiveCommande(commandeId);
-
-            SessionMessages.add(request, "commande-updated-success"); // or a new key like "commande-received-success"
+            CommandeLocalServiceUtil.getService().receiveCommande(actorId, commandeId); // implement overload that notifies
+            SessionMessages.add(request, "commande-updated-success");
         } catch (Exception e) {
             SessionMessages.add(request, "commande-update-error");
         }
-        redirectToDashboard(request, response, upload);
+        redirectToDashboard(request, response, PortalUtil.getUploadPortletRequest(request));
     }
+
+    private long getCurrentUtilisateurId(PortletRequest req) {
+        try {
+            String email = getUserEmail(req);
+            if (email != null && !email.isEmpty()) {
+                Utilisateur u = UtilisateurLocalServiceUtil.getUtilisateurByEmail(email);
+                if (u != null) return u.getIdUtilisateur();
+            }
+        } catch (Exception ignore) {}
+        return 0L;
+    }
+
 
 }

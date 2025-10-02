@@ -87,6 +87,9 @@ public interface NotificationLocalService
 	public void addNotificationForRole(
 		String role, String type, String message);
 
+	public void addNotificationForRoleExceptUser(
+		String role, String type, String message, long excludeUserId);
+
 	/**
 	 * Legacy convenience: count unread via finder (if you prefer).
 	 */

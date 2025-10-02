@@ -55,6 +55,8 @@ public interface CommandeLocalService
 	 *
 	 * Never modify this interface directly. Add custom service methods to <code>gestion_de_pharmacie.service.impl.CommandeLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the commande local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link CommandeLocalServiceUtil} if injection and service tracking are not available.
 	 */
+	public void acceptCommande(long actorId, long commandeId)
+		throws PortalException;
 
 	/**
 	 * Adds the commande to the database. Also notifies the appropriate model listeners.
@@ -68,6 +70,9 @@ public interface CommandeLocalService
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	public Commande addCommande(Commande commande);
+
+	public void cancelCommande(long actorId, long commandeId)
+		throws PortalException;
 
 	/**
 	 * Creates a new commande with the primary key. Does not add the commande to the database.
@@ -256,10 +261,23 @@ public interface CommandeLocalService
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
 		throws PortalException;
 
-	/**
-	 * Mark an order as RECEIVED, increment stocks per detail, and log IN movements.
-	 */
+	public void notifyCommandeEdited(long actorId, long commandeId)
+		throws PortalException;
+
+	public void reassignCommande(
+			long actorId, long commandeId, long newFournisseurId,
+			boolean sendNow)
+		throws PortalException;
+
 	public void receiveCommande(long commandeId) throws Exception;
+
+	public void receiveCommande(long actorId, long commandeId) throws Exception;
+
+	public void rejectCommande(long actorId, long commandeId)
+		throws PortalException;
+
+	public void sendCommande(long actorId, long commandeId)
+		throws PortalException;
 
 	/**
 	 * Updates the commande in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
