@@ -245,5 +245,22 @@ public class NotificationWebPortlet extends MVCPortlet {
         response.setRenderParameter("mvcPath", "/view.jsp");
         response.setRenderParameter("ts", String.valueOf(System.currentTimeMillis()));
     }
+    @ProcessAction(name = "mark_all")
+    public void markAll(ActionRequest request, ActionResponse response) throws PortletException {
+        long uid = resolveUtilisateurId(request);
+        System.out.println("[mark_all] for uid=" + uid);
+        if (uid > 0) {
+            try {
+                int changed = notificationLocalService.markAllAsRead(uid);
+                System.out.println("[mark_all] changed=" + changed);
+            } catch (Exception e) {
+                System.out.println("[mark_all] ERROR " + e);
+                throw new PortletException(e);
+            }
+        }
+        // re-render
+        response.setRenderParameter("mvcPath", "/view.jsp");
+        response.setRenderParameter("ts", String.valueOf(System.currentTimeMillis()));
+    }
 
 }

@@ -21,6 +21,8 @@
 
 <liferay-portlet:actionURL name="delete_all" var="deleteAllURL" />
 <liferay-portlet:actionURL name="mark_read"  var="markReadURL"  />
+<liferay-portlet:actionURL name="mark_all" var="markAllURL" />
+
 
 <div class="toolbar">
     <strong>Notifications</strong>
@@ -29,6 +31,8 @@
     <form method="post" action="${deleteAllURL}" data-senna-off="true" style="display:inline">
         <button type="submit" class="btn btn-secondary">Supprimer tout (temp.)</button>
     </form>
+
+    <a class="btn" href="${markAllURL}">Tout marquer comme lus</a>
 </div>
 
 <div class="list" id="<portlet:namespace/>list"></div>
