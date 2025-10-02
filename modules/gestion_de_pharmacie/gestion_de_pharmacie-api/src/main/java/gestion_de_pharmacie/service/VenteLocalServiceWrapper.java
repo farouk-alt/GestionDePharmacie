@@ -7,7 +7,6 @@ package gestion_de_pharmacie.service;
 
 import com.liferay.portal.kernel.service.ServiceWrapper;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
-import gestion_de_pharmacie.model.VenteDetail;
 
 /**
  * Provides a wrapper for {@link VenteLocalService}.
@@ -256,7 +255,9 @@ public class VenteLocalServiceWrapper
 	}
 
 	@Override
-	public java.util.List<VenteDetail> getDetails(long idVente) {
+	public java.util.List<gestion_de_pharmacie.model.VenteDetail> getDetails(
+		long idVente) {
+
 		return _venteLocalService.getDetails(idVente);
 	}
 

@@ -13,7 +13,6 @@ import com.liferay.portal.kernel.module.service.Snapshot;
 import com.liferay.portal.kernel.util.OrderByComparator;
 
 import gestion_de_pharmacie.model.Vente;
-import gestion_de_pharmacie.model.VenteDetail;
 
 import java.io.Serializable;
 
@@ -233,7 +232,9 @@ public class VenteLocalServiceUtil {
 		return getService().getActionableDynamicQuery();
 	}
 
-	public static List<VenteDetail> getDetails(long idVente) {
+	public static List<gestion_de_pharmacie.model.VenteDetail> getDetails(
+		long idVente) {
+
 		return getService().getDetails(idVente);
 	}
 

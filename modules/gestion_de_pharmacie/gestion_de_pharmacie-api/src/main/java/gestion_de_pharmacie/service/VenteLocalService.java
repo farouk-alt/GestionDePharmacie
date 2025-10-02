@@ -208,7 +208,8 @@ public interface VenteLocalService
 	public ActionableDynamicQuery getActionableDynamicQuery();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<VenteDetail> getDetails(long idVente);
+	public List<gestion_de_pharmacie.model.VenteDetail> getDetails(
+		long idVente);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();

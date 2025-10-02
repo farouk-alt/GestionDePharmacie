@@ -1,83 +1,112 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
-<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
-<%@ taglib prefix="c"   uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
-
-<portlet:defineObjects />
-
-<%
-    @SuppressWarnings("unchecked")
-    java.util.List<gestion_de_pharmacie.model.Notification> notifs =
-            (java.util.List<gestion_de_pharmacie.model.Notification>) request.getAttribute("notifs");
-    if (notifs == null) notifs = java.util.Collections.emptyList();
-%>
+<%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
 
 <style>
-    :root{ --primary:#1E3A8A; --border:#E5E7EB; --text:#111827; --white:#fff; --muted:#6B7280; }
-    .wrap{font-family:'Segoe UI',Tahoma,Verdana,sans-serif;color:var(--text)}
-    .hdr{display:flex;align-items:center;justify-content:space-between;margin:0 0 14px 0}
-    .btn{background:#fff;color:var(--primary);border:1px solid var(--border);padding:8px 12px;border-radius:10px;font-weight:600;cursor:pointer;text-decoration:none}
-    .btn:hover{background:#F8FAFC}
-    table.tbl{width:100%;border-collapse:separate;border-spacing:0;background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-    .tbl thead th{background:var(--primary);color:#fff;text-align:left;padding:12px 14px}
-    .tbl tbody td{padding:12px 14px;border-bottom:1px solid var(--border)}
-    .empty{padding:16px;border:1px dashed var(--border);border-radius:10px;background:#fff;color:var(--muted)}
-    .badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700;background:#eef2ff;color:#3730a3}
+    #<portlet:namespace/>badge{display:none;background:#ef4444;color:#fff;padding:2px 8px;border-radius:999px;font-size:12px}
+    .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+    .list{margin-top:12px;border:1px solid #e5e7eb;border-radius:10px;background:#fff}
+    .item{padding:12px 14px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;gap:12px}
+    .item:last-child{border-bottom:none}
+    .meta{color:#6b7280;font-size:12px}
+    .btn{border:1px solid #e5e7eb;background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer}
+    .btn:hover{background:#f8fafc}
+    .status{font-size:12px;padding:2px 8px;border-radius:999px}
+    .status.UNREAD{background:#fee2e2;color:#991b1b}
+    .status.READ{background:#e5e7eb;color:#374151}
 </style>
 
-<div class="wrap">
-    <div class="hdr">
-        <h3 style="margin:0">🔔 Notifications</h3>
+<!-- Resource & Action URLs -->
+<liferay-portlet:resourceURL var="unreadURL" id="unread" />
+<liferay-portlet:resourceURL var="listURL"   id="list" />
 
-        <!-- Mark all as read -->
-        <c:if test="<%= !notifs.isEmpty() %>">
-            <portlet:actionURL name="markAllRead" var="markAllURL" />
-            <form method="post" action="${markAllURL}" style="margin:0">
-                <button class="btn" type="submit">Tout marquer comme lu</button>
-            </form>
-        </c:if>
-    </div>
+<liferay-portlet:actionURL name="delete_all" var="deleteAllURL" />
+<liferay-portlet:actionURL name="mark_read"  var="markReadURL"  />
 
-    <liferay-ui:success key="notif-updated" message="Notifications mises à jour." />
-    <liferay-ui:error   key="notif-error"   message="Erreur lors de la mise à jour des notifications." />
+<div class="toolbar">
+    <strong>Notifications</strong>
+    <span id="<portlet:namespace/>badge">0</span>
 
-    <c:choose>
-        <c:when test="<%= notifs.isEmpty() %>">
-            <div class="empty">Aucune notification.</div>
-        </c:when>
-        <c:otherwise>
-            <table class="tbl">
-                <thead>
-                <tr>
-                    <th>Type</th>
-                    <th>Message</th>
-                    <th>Statut</th>
-                    <th>Date</th>
-                    <th style="width:1%">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <c:forEach var="n" items="<%= notifs %>">
-                    <tr>
-                        <td><span class="badge"><c:out value="${n.type}"/></span></td>
-                        <td><c:out value="${n.message}"/></td>
-                        <td><c:out value="${n.statut}"/></td>
-                        <td><fmt:formatDate value="${n.dateCreation}" pattern="dd/MM/yyyy HH:mm"/></td>
-                        <td>
-                            <c:if test="${n.statut ne 'READ'}">
-                                <portlet:actionURL name="markRead" var="markURL">
-                                    <portlet:param name="id" value="${n.idNotification}" />
-                                </portlet:actionURL>
-                                <form method="post" action="${markURL}" style="margin:0">
-                                    <button class="btn" type="submit">Marquer comme lue</button>
-                                </form>
-                            </c:if>
-                        </td>
-                    </tr>
-                </c:forEach>
-                </tbody>
-            </table>
-        </c:otherwise>
-    </c:choose>
+    <form method="post" action="${deleteAllURL}" data-senna-off="true" style="display:inline">
+        <button type="submit" class="btn btn-secondary">Supprimer tout (temp.)</button>
+    </form>
 </div>
+
+<div class="list" id="<portlet:namespace/>list"></div>
+
+<!-- Hidden form used to mark as read (guarantees namespaced param is sent) -->
+<form id="<portlet:namespace/>markForm" method="post" action="${markReadURL}" data-senna-off="true" style="display:none">
+    <input type="hidden" name="<portlet:namespace/>idNotification" id="<portlet:namespace/>idNotification_ns" />
+    <input type="hidden" name="idNotification"                          id="<portlet:namespace/>idNotification_plain" />
+</form>
+
+<script>
+    (function(){
+        const ns    = '<portlet:namespace/>';
+        const badge = document.getElementById(ns+'badge');
+        const list  = document.getElementById(ns+'list');
+
+        function escapeHTML(s){
+            return String(s).replace(/[&<>"']/g, c => (
+                {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
+            ));
+        }
+
+        function refreshBadge(){
+            return fetch('${unreadURL}', {credentials:'same-origin'})
+                .then(r => r.ok ? r.json() : {unread:0})
+                .then(d => {
+                    const n = (d && typeof d.unread === 'number') ? d.unread : 0;
+                    if (n > 0){ badge.textContent = n; badge.style.display='inline-block'; }
+                    else { badge.style.display='none'; }
+                }).catch(()=>{});
+        }
+
+        function refreshList(){
+            return fetch('${listURL}', {credentials:'same-origin'})
+                .then(r => r.ok ? r.json() : [])
+                .then(arr => {
+                    list.innerHTML = '';
+                    if (!arr || arr.length === 0) {
+                        list.innerHTML = '<div class="item"><span>Aucune notification.</span></div>';
+                        return;
+                    }
+                    arr.forEach(n => {
+                        const id = n.idNotification || n.id;
+                        const div = document.createElement('div');
+                        div.className = 'item';
+                        div.innerHTML =
+                            '<div>'
+                            +   '<div><strong>' + escapeHTML(n.type||'') + '</strong> – ' + escapeHTML(n.message||'') + '</div>'
+                            +   '<div class="meta">' + escapeHTML(n.date||'') + '</div>'
+                            + '</div>'
+                            + '<div style="display:flex;align-items:center;gap:8px">'
+                            +   '<span class="status ' + (n.status||n.statut||'') + '">' + (n.status||n.statut||'') + '</span>'
+                            +   ((n.status === 'UNREAD' || n.statut === 'UNREAD') ? (
+                                '<button type="button" class="btn" data-id="'+ id +'">Marquer comme lue</button>'
+                            ) : '')
+                            + '</div>';
+                        list.appendChild(div);
+                    });
+
+                    // wire buttons to the hidden form
+                    list.querySelectorAll('button[data-id]').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const id = btn.getAttribute('data-id');
+                            const f  = document.getElementById(ns+'markForm');
+                            document.getElementById(ns+'idNotification_ns').value    = id;
+                            document.getElementById(ns+'idNotification_plain').value = id;
+                            f.submit(); // server renders -> after render, list/badge will refresh on next load
+                        });
+                    });
+                })
+                .catch(()=>{
+                    list.innerHTML = '<div class="item"><span>Erreur de chargement.</span></div>';
+                });
+        }
+
+        // initial load + poll badge
+        refreshBadge();
+        refreshList();
+        setInterval(refreshBadge, 30000);
+    })();
+</script>

@@ -37,10 +37,23 @@ public class NotificationLocalServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to <code>gestion_de_pharmacie.service.impl.NotificationLocalServiceImpl</code> and rerun ServiceBuilder to regenerate this class.
 	 */
-	public static Notification addNotification(
-		long userId, String type, String message) {
 
-		return getService().addNotification(userId, type, message);
+	/**
+	 * Custom helper: create one UNREAD notification now.
+	 */
+	public static Notification addNotification(
+		long idUtilisateur, String type, String message) {
+
+		return getService().addNotification(idUtilisateur, type, message);
+	}
+
+	/**
+	 * Custom helper: create one UNREAD notification at a given time.
+	 */
+	public static Notification addNotification(
+		long idUtilisateur, String type, String message, java.util.Date when) {
+
+		return getService().addNotification(idUtilisateur, type, message, when);
 	}
 
 	/**
@@ -57,16 +70,25 @@ public class NotificationLocalServiceUtil {
 		return getService().addNotification(notification);
 	}
 
+	/**
+	 * Create the same notification for all users having a role.
+	 */
 	public static void addNotificationForRole(
 		String role, String type, String message) {
 
 		getService().addNotificationForRole(role, type, message);
 	}
 
+	/**
+	 * Legacy convenience: count unread via finder (if you prefer).
+	 */
 	public static int countUnread(long idUtilisateur) {
 		return getService().countUnread(idUtilisateur);
 	}
 
+	/**
+	 * Count unread for badge (dynamicQuery variant, with debugs).
+	 */
 	public static int countUnreadByUser(long userId) {
 		return getService().countUnreadByUser(userId);
 	}
@@ -93,6 +115,14 @@ public class NotificationLocalServiceUtil {
 		throws PortalException {
 
 		return getService().createPersistedModel(primaryKeyObj);
+	}
+
+	public static int deleteAllForUser(long idUtilisateur) {
+		return getService().deleteAllForUser(idUtilisateur);
+	}
+
+	public static int deleteAllNotifications() {
+		return getService().deleteAllNotifications();
 	}
 
 	/**
@@ -246,6 +276,15 @@ public class NotificationLocalServiceUtil {
 	}
 
 	/**
+	 * List latest (any status) ordered by dateCreation desc.
+	 */
+	public static List<Notification> getLatestByUser(
+		long userId, int start, int end) {
+
+		return getService().getLatestByUser(userId, start, end);
+	}
+
+	/**
 	 * Returns the notification with the primary key.
 	 *
 	 * @param idNotification the primary key of the notification
@@ -300,12 +339,35 @@ public class NotificationLocalServiceUtil {
 		return getService().getPersistedModel(primaryKeyObj);
 	}
 
+	/**
+	 * List unread (paged).
+	 */
+	public static List<Notification> getUnreadByUser(
+		long idUtilisateur, int start, int end) {
+
+		return getService().getUnreadByUser(idUtilisateur, start, end);
+	}
+
 	public static int markAllAsRead(long idUtilisateur) {
 		return getService().markAllAsRead(idUtilisateur);
 	}
 
+	public static int markAllRead(long idUtilisateur) {
+		return getService().markAllRead(idUtilisateur);
+	}
+
 	public static Notification markAsRead(long idNotification) {
 		return getService().markAsRead(idNotification);
+	}
+
+	/**
+	 * Triggered by VenteLocalServiceImpl after a sale is saved.
+	 * If seller is ADMIN or PHARMACIEN, notify all other ADMINs.
+	 */
+	public static void notifyAdminsOfSale(
+		long sellerUtilisateurId, gestion_de_pharmacie.model.Vente vente) {
+
+		getService().notifyAdminsOfSale(sellerUtilisateurId, vente);
 	}
 
 	/**

@@ -29,11 +29,26 @@ public class NotificationLocalServiceWrapper
 		_notificationLocalService = notificationLocalService;
 	}
 
+	/**
+	 * Custom helper: create one UNREAD notification now.
+	 */
 	@Override
 	public gestion_de_pharmacie.model.Notification addNotification(
-		long userId, String type, String message) {
+		long idUtilisateur, String type, String message) {
 
-		return _notificationLocalService.addNotification(userId, type, message);
+		return _notificationLocalService.addNotification(
+			idUtilisateur, type, message);
+	}
+
+	/**
+	 * Custom helper: create one UNREAD notification at a given time.
+	 */
+	@Override
+	public gestion_de_pharmacie.model.Notification addNotification(
+		long idUtilisateur, String type, String message, java.util.Date when) {
+
+		return _notificationLocalService.addNotification(
+			idUtilisateur, type, message, when);
 	}
 
 	/**
@@ -53,6 +68,9 @@ public class NotificationLocalServiceWrapper
 		return _notificationLocalService.addNotification(notification);
 	}
 
+	/**
+	 * Create the same notification for all users having a role.
+	 */
 	@Override
 	public void addNotificationForRole(
 		String role, String type, String message) {
@@ -60,11 +78,17 @@ public class NotificationLocalServiceWrapper
 		_notificationLocalService.addNotificationForRole(role, type, message);
 	}
 
+	/**
+	 * Legacy convenience: count unread via finder (if you prefer).
+	 */
 	@Override
 	public int countUnread(long idUtilisateur) {
 		return _notificationLocalService.countUnread(idUtilisateur);
 	}
 
+	/**
+	 * Count unread for badge (dynamicQuery variant, with debugs).
+	 */
 	@Override
 	public int countUnreadByUser(long userId) {
 		return _notificationLocalService.countUnreadByUser(userId);
@@ -97,6 +121,16 @@ public class NotificationLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _notificationLocalService.createPersistedModel(primaryKeyObj);
+	}
+
+	@Override
+	public int deleteAllForUser(long idUtilisateur) {
+		return _notificationLocalService.deleteAllForUser(idUtilisateur);
+	}
+
+	@Override
+	public int deleteAllNotifications() {
+		return _notificationLocalService.deleteAllNotifications();
 	}
 
 	/**
@@ -281,6 +315,16 @@ public class NotificationLocalServiceWrapper
 	}
 
 	/**
+	 * List latest (any status) ordered by dateCreation desc.
+	 */
+	@Override
+	public java.util.List<gestion_de_pharmacie.model.Notification>
+		getLatestByUser(long userId, int start, int end) {
+
+		return _notificationLocalService.getLatestByUser(userId, start, end);
+	}
+
+	/**
 	 * Returns the notification with the primary key.
 	 *
 	 * @param idNotification the primary key of the notification
@@ -344,9 +388,25 @@ public class NotificationLocalServiceWrapper
 		return _notificationLocalService.getPersistedModel(primaryKeyObj);
 	}
 
+	/**
+	 * List unread (paged).
+	 */
+	@Override
+	public java.util.List<gestion_de_pharmacie.model.Notification>
+		getUnreadByUser(long idUtilisateur, int start, int end) {
+
+		return _notificationLocalService.getUnreadByUser(
+			idUtilisateur, start, end);
+	}
+
 	@Override
 	public int markAllAsRead(long idUtilisateur) {
 		return _notificationLocalService.markAllAsRead(idUtilisateur);
+	}
+
+	@Override
+	public int markAllRead(long idUtilisateur) {
+		return _notificationLocalService.markAllRead(idUtilisateur);
 	}
 
 	@Override
@@ -354,6 +414,18 @@ public class NotificationLocalServiceWrapper
 		long idNotification) {
 
 		return _notificationLocalService.markAsRead(idNotification);
+	}
+
+	/**
+	 * Triggered by VenteLocalServiceImpl after a sale is saved.
+	 * If seller is ADMIN or PHARMACIEN, notify all other ADMINs.
+	 */
+	@Override
+	public void notifyAdminsOfSale(
+		long sellerUtilisateurId, gestion_de_pharmacie.model.Vente vente) {
+
+		_notificationLocalService.notifyAdminsOfSale(
+			sellerUtilisateurId, vente);
 	}
 
 	/**

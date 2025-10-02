@@ -783,6 +783,11 @@
         <portlet:param name="mvcPath" value="/common/dashboard.jsp"/>
         <portlet:param name="section" value="ventes"/>
     </portlet:renderURL>
+    <portlet:renderURL var="tabNotifications">
+        <portlet:param name="mvcPath" value="/common/dashboard.jsp"/>
+        <portlet:param name="section" value="notifications"/>
+    </portlet:renderURL>
+
 
 
     <div class="tabs">
@@ -806,6 +811,14 @@
         <c:if test="${userRole == 'ADMIN' || userRole == 'PHARMACIEN'}">
             <a class="tab ${currentSection=='ventes' ? 'active' : ''}" href="${tabVentes}">Ventes</a>
         </c:if>
+        <a class="tab ${currentSection=='notifications' ? 'active' : ''}" href="${tabNotifications}">
+            Notifications
+            <span id="notifBadge"
+                  style="margin-left:8px; padding:2px 8px; border-radius:999px; background:#ef4444; color:#fff; font-size:12px; display:none;">
+        0
+    </span>
+        </a>
+
 
 
 
@@ -1026,6 +1039,16 @@
                     <div class="message error">Section réservée (ADMIN / PHARMACIEN).</div>
                 </c:otherwise>
             </c:choose>
+        </c:when>
+        <c:when test="${currentSection == 'notifications'}">
+            <div class="admin-section">
+                <h3 style="margin-top:0;"><i class="fas fa-bell"></i> Notifications</h3>
+
+                <!-- The ONLY thing inside: your NotificationWebPortlet -->
+                <liferay-portlet:runtime
+                        portletName="notification_web_NotificationWebPortlet"
+                        instanceId="NOTIF" />
+            </div>
         </c:when>
 
 
@@ -1424,6 +1447,33 @@
         document.querySelectorAll('.js-role').forEach(b=>{
             b.addEventListener('click', ()=> openRole(b.dataset.email, b.dataset.current));
         });
+    })();
+</script>
+<script>
+    (function(){
+        var badge = document.getElementById('notifBadge');
+        if (!badge) return;
+
+        // Hits NotificationWebPortlet.serveResource(id="unread") on the same page instance (INSTANCE_NOTIF)
+        var url = '${notifUnreadURL}';
+
+        function refreshBadge(){
+            fetch(url, {credentials: 'same-origin'})
+                .then(function(r){ return r.ok ? r.json() : {unread:0}; })
+                .then(function(d){
+                    var n = (d && typeof d.unread === 'number') ? d.unread : 0;
+                    if (n > 0) {
+                        badge.textContent = n;
+                        badge.style.display = 'inline-block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                })
+                .catch(function(){ /* ignore */ });
+        }
+
+        refreshBadge();
+        setInterval(refreshBadge, 30000); // every 30s
     })();
 </script>
 
