@@ -9,6 +9,13 @@
 
 
 <portlet:defineObjects />
+<%-- put this near the top, after <portlet:defineObjects/>, and definitely OUTSIDE any <c:choose> --%>
+<liferay-portlet:resourceURL
+        var="notifUnreadURL"
+        id="unread"
+        portletName="notification_web_NotificationWebPortlet_INSTANCE_NOTIF"
+/>
+
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -727,6 +734,7 @@
         #<portlet:namespace/>admAdd .pwd-toggle[aria-pressed="true"]  .ic-eye{ display:none; }
         #<portlet:namespace/>admAdd .pwd-toggle[aria-pressed="true"]  .ic-eye-off{ display:block; }
 
+
     </style>
 
 
@@ -787,6 +795,8 @@
         <portlet:param name="mvcPath" value="/common/dashboard.jsp"/>
         <portlet:param name="section" value="notifications"/>
     </portlet:renderURL>
+
+
 
 
 
@@ -1050,7 +1060,6 @@
                         instanceId="NOTIF" />
             </div>
         </c:when>
-
 
 
 
