@@ -24,6 +24,7 @@ import java.util.*;
 
 /**
  * Notifications portlet – uses APP session identity first (USER_EMAIL), falls back to Liferay portal user.
+ * Now includes date and category filtering.
  */
 @Component(
         property = {
@@ -85,29 +86,38 @@ public class NotificationWebPortlet extends MVCPortlet {
             String ns = PortalUtil.getPortletNamespace(PortalUtil.getPortletId(req));
             int page = ParamUtil.getInteger(req, ns + "page", ParamUtil.getInteger(req, "page", 1));
             int size = ParamUtil.getInteger(req, ns + "size", ParamUtil.getInteger(req, "size", 10));
+
+            // Get filter parameters
+            String dateFrom = ParamUtil.getString(req, ns + "dateFrom", ParamUtil.getString(req, "dateFrom", ""));
+            String dateTo = ParamUtil.getString(req, ns + "dateTo", ParamUtil.getString(req, "dateTo", ""));
+            String category = ParamUtil.getString(req, ns + "category", ParamUtil.getString(req, "category", ""));
+
+            System.out.println("[list] filters - dateFrom=" + dateFrom + " dateTo=" + dateTo + " category=" + category);
+
             page = (page <= 0) ? 1 : page;
             size = (size <= 0) ? 10 : size;
             int start = (page - 1) * size;
             int end = start + size;
 
+            // ---- BUILD BASE QUERY WITH FILTERS ----
+            DynamicQuery baseQuery = buildFilteredQuery(uid, dateFrom, dateTo, category);
+
             // ---- COUNT (NO ORDER!) ----
-            DynamicQuery dqCount = notificationLocalService.dynamicQuery()
-                    .add(RestrictionsFactoryUtil.eq("idUtilisateur", uid));
+            DynamicQuery dqCount = buildFilteredQuery(uid, dateFrom, dateTo, category);
             int total = (int) notificationLocalService.dynamicQueryCount(dqCount);
 
             // ---- PAGE (WITH ORDER + LIMITS) ----
-            DynamicQuery dqPage = notificationLocalService.dynamicQuery()
-                    .add(RestrictionsFactoryUtil.eq("idUtilisateur", uid))
-                    .addOrder(OrderFactoryUtil.desc("dateCreation"));
+            DynamicQuery dqPage = buildFilteredQuery(uid, dateFrom, dateTo, category);
+            dqPage.addOrder(OrderFactoryUtil.desc("dateCreation"));
 
             @SuppressWarnings("unchecked")
             List<Notification> rows = (List<Notification>) (List<?>)
                     notificationLocalService.dynamicQuery(dqPage, start, end);
 
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm");
-            java.util.List<java.util.Map<String, Object>> items = new java.util.ArrayList<>();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            List<Map<String, Object>> items = new ArrayList<>();
             for (Notification n : rows) {
-                java.util.Map<String, Object> r = new java.util.LinkedHashMap<>();
+                Map<String, Object> r = new LinkedHashMap<>();
                 r.put("id", n.getIdNotification());
                 r.put("idNotification", n.getIdNotification());
                 r.put("type", n.getType());
@@ -121,7 +131,7 @@ public class NotificationWebPortlet extends MVCPortlet {
             int finalPage = page;
             int finalSize = size;
             String json = com.liferay.portal.kernel.json.JSONFactoryUtil.getJSONFactory()
-                    .looseSerializeDeep(new java.util.LinkedHashMap<String, Object>() {{
+                    .looseSerializeDeep(new LinkedHashMap<String, Object>() {{
                         put("items", items);
                         put("total", total);
                         put("page", finalPage);
@@ -130,6 +140,71 @@ public class NotificationWebPortlet extends MVCPortlet {
             res.getWriter().write(json);
             return;
         }
+    }
+
+    /**
+     * Build a dynamic query with filters applied.
+     * This method is used for both counting and fetching results,
+     * ensuring pagination works correctly with filters.
+     */
+    private DynamicQuery buildFilteredQuery(long uid, String dateFrom, String dateTo, String category) {
+        DynamicQuery dq = notificationLocalService.dynamicQuery()
+                .add(RestrictionsFactoryUtil.eq("idUtilisateur", uid));
+
+        // Date range filter
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        if (dateFrom != null && !dateFrom.trim().isEmpty()) {
+            try {
+                Date fromDate = sdf.parse(dateFrom.trim());
+                // Set to beginning of day (00:00:00.000)
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(fromDate);
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                dq.add(RestrictionsFactoryUtil.ge("dateCreation", cal.getTime()));
+                System.out.println("[buildFilteredQuery] dateFrom filter: " + cal.getTime());
+            } catch (Exception e) {
+                System.out.println("[buildFilteredQuery] Invalid dateFrom format: " + dateFrom + " - " + e.getMessage());
+            }
+        }
+
+        if (dateTo != null && !dateTo.trim().isEmpty()) {
+            try {
+                Date toDate = sdf.parse(dateTo.trim());
+                // Set to end of day (23:59:59.999)
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(toDate);
+                cal.set(Calendar.HOUR_OF_DAY, 23);
+                cal.set(Calendar.MINUTE, 59);
+                cal.set(Calendar.SECOND, 59);
+                cal.set(Calendar.MILLISECOND, 999);
+                dq.add(RestrictionsFactoryUtil.le("dateCreation", cal.getTime()));
+                System.out.println("[buildFilteredQuery] dateTo filter: " + cal.getTime());
+            } catch (Exception e) {
+                System.out.println("[buildFilteredQuery] Invalid dateTo format: " + dateTo + " - " + e.getMessage());
+            }
+        }
+
+        // Category/Type filter - handle special case for COMMANDE group
+        if (category != null && !category.trim().isEmpty()) {
+            String normalizedCategory = category.trim().toUpperCase();
+
+            // If category is "COMMANDE", filter by all CMD_* types
+            if ("COMMANDE".equals(normalizedCategory)) {
+                // Use LIKE with wildcard to match all CMD_* notifications
+                dq.add(RestrictionsFactoryUtil.like("type", "CMD_%"));
+                System.out.println("[buildFilteredQuery] category filter: CMD_* (all command types)");
+            } else {
+                // Single exact match for other categories
+                dq.add(RestrictionsFactoryUtil.eq("type", normalizedCategory));
+                System.out.println("[buildFilteredQuery] category filter: " + normalizedCategory);
+            }
+        }
+
+        return dq;
     }
 
     /* =========================
@@ -205,10 +280,11 @@ public class NotificationWebPortlet extends MVCPortlet {
             return 0;
         }
     }
+
     @ProcessAction(name = "delete_all")
     public void deleteAll(ActionRequest request, ActionResponse response) throws PortletException {
         request.getParameterMap().forEach((k,v) ->
-                System.out.println("[delete_all] param " + k + "=" + java.util.Arrays.toString(v)));
+                System.out.println("[delete_all] param " + k + "=" + Arrays.toString(v)));
 
         long uid = resolveUtilisateurId(request);
         System.out.println("[delete_all] for uid=" + uid);
@@ -217,9 +293,8 @@ public class NotificationWebPortlet extends MVCPortlet {
             try {
                 int deleted;
                 try {
-                    deleted = notificationLocalService.deleteAllForUser(uid); // your per-user method
+                    deleted = notificationLocalService.deleteAllForUser(uid);
                 } catch (NoSuchMethodError | RuntimeException ex) {
-                    // fallback if you only have a global method during testing
                     deleted = notificationLocalService.deleteAllNotifications();
                 }
                 System.out.println("[delete_all] removed=" + deleted);
@@ -232,15 +307,14 @@ public class NotificationWebPortlet extends MVCPortlet {
         response.setRenderParameter("mvcPath", "/view.jsp");
         response.setRenderParameter("ts", String.valueOf(System.currentTimeMillis()));
     }
+
     @ProcessAction(name = "mark_read")
     public void markRead(ActionRequest request, ActionResponse response) throws PortletException {
-        // Try namespaced, plain, then original servlet request (belt & suspenders)
         String ns = PortalUtil.getPortletNamespace(PortalUtil.getPortletId(request));
 
         long id = ParamUtil.getLong(request, ns + "idNotification");
         if (id == 0) id = ParamUtil.getLong(request, "idNotification");
         if (id == 0) {
-            // final fallback if container filtered the plain param
             javax.servlet.http.HttpServletRequest httpReq = PortalUtil.getOriginalServletRequest(
                     PortalUtil.getHttpServletRequest(request));
             try { id = Long.parseLong(httpReq.getParameter(ns + "idNotification")); } catch (Exception ignore) {}
@@ -255,6 +329,7 @@ public class NotificationWebPortlet extends MVCPortlet {
         response.setRenderParameter("mvcPath", "/view.jsp");
         response.setRenderParameter("ts", String.valueOf(System.currentTimeMillis()));
     }
+
     @ProcessAction(name = "mark_all")
     public void markAll(ActionRequest request, ActionResponse response) throws PortletException {
         long uid = resolveUtilisateurId(request);
@@ -268,9 +343,7 @@ public class NotificationWebPortlet extends MVCPortlet {
                 throw new PortletException(e);
             }
         }
-        // re-render
         response.setRenderParameter("mvcPath", "/view.jsp");
         response.setRenderParameter("ts", String.valueOf(System.currentTimeMillis()));
     }
-
 }

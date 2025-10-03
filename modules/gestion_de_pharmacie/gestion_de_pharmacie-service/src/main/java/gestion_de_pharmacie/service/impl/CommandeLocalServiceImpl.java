@@ -6,7 +6,6 @@
 package gestion_de_pharmacie.service.impl;
 
 import com.liferay.portal.aop.AopService;
-
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.transaction.Transactional;
 import gestion_de_pharmacie.constants.CommandeStatus;
@@ -18,6 +17,8 @@ import gestion_de_pharmacie.service.CommandeDetailLocalService;
 import gestion_de_pharmacie.service.FournisseurLocalService;
 import gestion_de_pharmacie.service.StockLocalService;
 import gestion_de_pharmacie.service.base.CommandeLocalServiceBaseImpl;
+
+import gestion_de_pharmacie.constants.NotificationConstants;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -61,19 +62,12 @@ public class CommandeLocalServiceImpl extends CommandeLocalServiceBaseImpl {
     public static final String ST_CANCELED = "CANCELED";
     public static final String ST_RECEIVED = "RECEIVED";
 
-    // ----- Notification types (distinct from statuses)
-    private static final String NT_CMD_SENT      = "CMD_SENT";
-    private static final String NT_CMD_RECEIVED  = "CMD_RECEIVED";
-    private static final String NT_CMD_REASSIGN  = "CMD_REASSIGNED";
-    private static final String NT_CMD_CANCELED  = "CMD_CANCELED";
-    private static final String NT_CMD_UPDATED   = "CMD_UPDATED";
-    private static final String NT_CMD_ACCEPTED  = "CMD_ACCEPTED";
-    private static final String NT_CMD_REFUSED   = "CMD_REFUSED";
-
-
+    // Notification types: use shared constants so other modules (JSPs, web modules) can reuse them
     private static final java.util.Set<String> SUPPLIER_VISIBLE =
             new java.util.HashSet<>(java.util.Arrays.asList(
-                    NT_CMD_SENT, NT_CMD_ACCEPTED, NT_CMD_RECEIVED
+                    NotificationConstants.NT_CMD_SENT,
+                    NotificationConstants.NT_CMD_ACCEPTED,
+                    NotificationConstants.NT_CMD_RECEIVED
             ));
 
     private boolean shouldNotifyFournisseur(String type) {
@@ -111,7 +105,7 @@ public class CommandeLocalServiceImpl extends CommandeLocalServiceBaseImpl {
         cmd.setStatut(ST_PENDING);
         updateCommande(cmd);
 
-        notifyCommandeAction(actorId, cmd, NT_CMD_SENT,
+        notifyCommandeAction(actorId, cmd, NotificationConstants.NT_CMD_SENT,
                 MessageFormat.format("Commande #{0} envoyée au fournisseur.", cmd.getIdCommande()));
     }
 
@@ -124,7 +118,7 @@ public class CommandeLocalServiceImpl extends CommandeLocalServiceBaseImpl {
         cmd.setStatut(ST_CANCELED);
         updateCommande(cmd);
 
-        notifyCommandeAction(actorId, cmd, NT_CMD_CANCELED,
+        notifyCommandeAction(actorId, cmd, NotificationConstants.NT_CMD_CANCELED,
                 MessageFormat.format("Commande #{0} annulée.", cmd.getIdCommande()));
     }
     public void reassignCommande(long actorId, long commandeId, long newFournisseurId, boolean sendNow) throws PortalException {
@@ -138,7 +132,7 @@ public class CommandeLocalServiceImpl extends CommandeLocalServiceBaseImpl {
         cmd.setStatut(sendNow ? ST_PENDING : ST_CREATED);
         updateCommande(cmd);
 
-        notifyCommandeAction(actorId, cmd, NT_CMD_REASSIGN,
+        notifyCommandeAction(actorId, cmd, NotificationConstants.NT_CMD_REASSIGN,
                 MessageFormat.format("Commande #{0} réassignée (nouveau fournisseur {1}).", cmd.getIdCommande(), newFournisseurId));
     }
 
@@ -224,7 +218,7 @@ public class CommandeLocalServiceImpl extends CommandeLocalServiceBaseImpl {
     public void receiveCommande(long actorId, long commandeId) throws Exception {
         receiveCommandeCore(commandeId);
         Commande cmd = fetchCommande(commandeId);
-        notifyCommandeAction(actorId, cmd, NT_CMD_RECEIVED,
+        notifyCommandeAction(actorId, cmd, NotificationConstants.NT_CMD_RECEIVED,
                 MessageFormat.format("Commande #{0} réceptionnée.", cmd.getIdCommande()));
     }
 
@@ -238,7 +232,7 @@ public class CommandeLocalServiceImpl extends CommandeLocalServiceBaseImpl {
         cmd.setStatut(ST_ACCEPTED);
         updateCommande(cmd);
 
-        notifyCommandeAction(actorId, cmd, NT_CMD_ACCEPTED,
+        notifyCommandeAction(actorId, cmd, NotificationConstants.NT_CMD_ACCEPTED,
                 MessageFormat.format("Commande #{0} acceptée par le fournisseur.", cmd.getIdCommande()));
     }
 
@@ -251,13 +245,13 @@ public class CommandeLocalServiceImpl extends CommandeLocalServiceBaseImpl {
         cmd.setStatut(ST_REFUSED);
         updateCommande(cmd);
 
-        notifyCommandeAction(actorId, cmd, NT_CMD_REFUSED,
+        notifyCommandeAction(actorId, cmd, NotificationConstants.NT_CMD_REFUSED,
                 MessageFormat.format("Commande #{0} refusée par le fournisseur.", cmd.getIdCommande()));
     }
     public void notifyCommandeEdited(long actorId, long commandeId) throws PortalException {
         Commande cmd = fetchCommande(commandeId);
         if (cmd == null) throw new PortalException("Commande introuvable: " + commandeId);
-        notifyCommandeAction(actorId, cmd, NT_CMD_UPDATED,
+        notifyCommandeAction(actorId, cmd, NotificationConstants.NT_CMD_UPDATED,
                 MessageFormat.format("Commande #{0} modifiée.", cmd.getIdCommande()));
     }
 
