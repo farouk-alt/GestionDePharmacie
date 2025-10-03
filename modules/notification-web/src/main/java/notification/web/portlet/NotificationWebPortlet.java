@@ -60,7 +60,7 @@ public class NotificationWebPortlet extends MVCPortlet {
 
         String rid = req.getResourceID();                    // from <liferay-portlet:resourceURL id="...">
         String cmd = ParamUtil.getString(req, "cmd");        // fallback for manual calls
-        String op  = (rid != null && !rid.isEmpty()) ? rid : cmd;
+        String op = (rid != null && !rid.isEmpty()) ? rid : cmd;
 
         long uid = resolveUtilisateurId(req);
         System.out.println("[serveResource] op=" + op + " uid=" + uid);
@@ -75,51 +75,61 @@ public class NotificationWebPortlet extends MVCPortlet {
 
         if ("list".equals(op)) {
             res.setContentType("application/json; charset=UTF-8");
-            List<Map<String,Object>> out = new ArrayList<>();
 
+            uid = resolveUtilisateurId(req);
             if (uid == 0) {
-                System.out.println("[list] uid=0 (not mapped) -> returning empty list");
-                res.getWriter().write("[]");
+                res.getWriter().write("{\"items\":[],\"total\":0,\"page\":1,\"size\":10}");
                 return;
             }
 
-            // Latest first for THIS user
-            DynamicQuery dq = notificationLocalService.dynamicQuery()
+            String ns = PortalUtil.getPortletNamespace(PortalUtil.getPortletId(req));
+            int page = ParamUtil.getInteger(req, ns + "page", ParamUtil.getInteger(req, "page", 1));
+            int size = ParamUtil.getInteger(req, ns + "size", ParamUtil.getInteger(req, "size", 10));
+            page = (page <= 0) ? 1 : page;
+            size = (size <= 0) ? 10 : size;
+            int start = (page - 1) * size;
+            int end = start + size;
+
+            // ---- COUNT (NO ORDER!) ----
+            DynamicQuery dqCount = notificationLocalService.dynamicQuery()
+                    .add(RestrictionsFactoryUtil.eq("idUtilisateur", uid));
+            int total = (int) notificationLocalService.dynamicQueryCount(dqCount);
+
+            // ---- PAGE (WITH ORDER + LIMITS) ----
+            DynamicQuery dqPage = notificationLocalService.dynamicQuery()
                     .add(RestrictionsFactoryUtil.eq("idUtilisateur", uid))
                     .addOrder(OrderFactoryUtil.desc("dateCreation"));
 
             @SuppressWarnings("unchecked")
-            List<Notification> rows = (List<Notification>)(List<?>)
-                    notificationLocalService.dynamicQuery(dq, 0, 50);
+            List<Notification> rows = (List<Notification>) (List<?>)
+                    notificationLocalService.dynamicQuery(dqPage, start, end);
 
-            System.out.println("[list] rows=" + rows.size() + " for uid=" + uid);
-
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm");
+            java.util.List<java.util.Map<String, Object>> items = new java.util.ArrayList<>();
             for (Notification n : rows) {
-                Map<String,Object> r = new LinkedHashMap<>();
+                java.util.Map<String, Object> r = new java.util.LinkedHashMap<>();
                 r.put("id", n.getIdNotification());
-                r.put("idNotification", n.getIdNotification()); // keep both keys for JSP safety
+                r.put("idNotification", n.getIdNotification());
                 r.put("type", n.getType());
                 r.put("message", n.getMessage());
-                r.put("status", n.getStatut());  // JSP checks 'status'
-                r.put("statut", n.getStatut());  // and we still expose 'statut'
+                r.put("status", n.getStatut());
+                r.put("statut", n.getStatut());
                 r.put("date", n.getDateCreation() != null ? sdf.format(n.getDateCreation()) : "");
-                out.add(r);
-
-                System.out.println("[list] n#" + n.getIdNotification()
-                        + " type=" + n.getType()
-                        + " statut=" + n.getStatut()
-                        + " date=" + r.get("date"));
+                items.add(r);
             }
 
-            String json = com.liferay.portal.kernel.json.JSONFactoryUtil
-                    .getJSONFactory().looseSerializeDeep(out);
+            int finalPage = page;
+            int finalSize = size;
+            String json = com.liferay.portal.kernel.json.JSONFactoryUtil.getJSONFactory()
+                    .looseSerializeDeep(new java.util.LinkedHashMap<String, Object>() {{
+                        put("items", items);
+                        put("total", total);
+                        put("page", finalPage);
+                        put("size", finalSize);
+                    }});
             res.getWriter().write(json);
             return;
         }
-
-        System.out.println("[serveResource] unknown op=" + op);
-        super.serveResource(req, res);
     }
 
     /* =========================
