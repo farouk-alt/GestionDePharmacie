@@ -1,95 +1,273 @@
-<%@ page import="java.util.Map" %>
-<%@ page import="java.util.List" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
+<%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <portlet:defineObjects />
 
-<%
-    List<Map<String,Object>> rows = (List<Map<String,Object>>) request.getAttribute("stockRows");
-    if (rows == null) rows = new java.util.ArrayList<>();
-%>
+<liferay-portlet:resourceURL var="listURL" id="list" />
 
 <portlet:actionURL name="adjustStock" var="adjustURL" />
-<portlet:actionURL name="setStock"    var="setURL" />
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="utf-8" />
-    <title>Stocks</title>
-    <style>
-        .stk-card{background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(17,24,39,.06)}
-        #stkTable{width:100%;border-collapse:collapse}
-        #stkTable thead th{background:#F8FAFC;color:#1E3A8A;padding:10px 12px;border-bottom:1px solid #E5E7EB;font-weight:700;text-align:left}
-        #stkTable tbody td{padding:10px 12px;border-bottom:1px solid #E5E7EB}
-        .num{text-align:right}
-        .stk-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
-        .stk-controls input[type="search"]{flex:1;min-width:240px;padding:10px;border:1px solid #E5E7EB;border-radius:10px;background:#fff}
-        .btn{display:inline-block;background:#fff;color:#1E3A8A;border:1px solid #E5E7EB;padding:8px 12px;border-radius:10px;font-weight:600;text-decoration:none;cursor:pointer}
-        .btn-primary{background:#10B981;color:#fff;border-color:#10B981}
-        .inline{display:inline}
-    </style>
-</head>
+<portlet:actionURL name="setStock" var="setURL" />
 
-<body>
+<style>
+    .stk-card{background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(17,24,39,.06);margin-bottom:20px}
+    .filters{display:flex;gap:8px;align-items:center;margin-bottom:12px;padding:12px;background:#f9fafb;border-radius:8px;flex-wrap:wrap}
+    .filter-group{display:flex;gap:6px;align-items:center}
+    .filter-group label{font-size:13px;font-weight:500;color:#374151}
+    .filter-input, .filter-select{border:1px solid #d1d5db;border-radius:6px;padding:6px 10px;font-size:13px;background:#fff}
+    .filter-input{min-width:180px}
+    .btn{display:inline-block;background:#fff;color:#1E3A8A;border:1px solid #E5E7EB;padding:8px 12px;border-radius:10px;font-weight:600;text-decoration:none;cursor:pointer;font-size:13px}
+    .btn:hover{background:#f8fafc}
+    .btn:disabled{opacity:0.5;cursor:not-allowed}
+    .btn-primary{background:#3b82f6;color:#fff;border-color:#3b82f6}
+    .btn-primary:hover{background:#2563eb}
+    #stkTable{width:100%;border-collapse:collapse}
+    #stkTable thead th{background:#F8FAFC;color:#1E3A8A;padding:10px 12px;border-bottom:1px solid #E5E7EB;font-weight:700;text-align:left}
+    #stkTable tbody td{padding:10px 12px;border-bottom:1px solid #E5E7EB}
+    .num{text-align:right}
+    .stock-badge{font-size:11px;padding:3px 8px;border-radius:999px;font-weight:600}
+    .stock-out{background:#fef2f2;color:#991b1b}
+    .stock-low{background:#fef3c7;color:#92400e}
+    .stock-medium{background:#dbeafe;color:#1e40af}
+    .stock-high{background:#d1fae5;color:#065f46}
+    .empty-state{text-align:center;padding:40px;color:#6b7280}
+</style>
+
 <div class="stk-card">
-    <div class="stk-controls">
-        <input id="stkSearch" type="search" placeholder="Rechercher (médicament)..." />
-        <span id="stkRange" style="color:#6B7280;font-size:12px;"></span>
+    <h2 style="margin:0 0 16px 0;color:#1E3A8A">Gestion des Stocks</h2>
+
+    <!-- Filters -->
+    <div class="filters">
+        <div class="filter-group">
+            <label for="<portlet:namespace />filterSearch">Recherche:</label>
+            <input type="text" id="<portlet:namespace />filterSearch" class="filter-input" placeholder="Nom du médicament..." />
+        </div>
+        <div class="filter-group">
+            <label for="<portlet:namespace />filterStockLevel">Niveau:</label>
+            <select id="<portlet:namespace />filterStockLevel" class="filter-select">
+                <option value="">Tous</option>
+                <option value="OUT">Épuisé (0)</option>
+                <option value="LOW">Bas (≤10)</option>
+                <option value="MEDIUM">Moyen (11-50)</option>
+                <option value="HIGH">Élevé (>50)</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="<portlet:namespace />filterDateFrom">MAJ Du:</label>
+            <input type="date" id="<portlet:namespace />filterDateFrom" class="filter-input" />
+        </div>
+        <div class="filter-group">
+            <label for="<portlet:namespace />filterDateTo">Au:</label>
+            <input type="date" id="<portlet:namespace />filterDateTo" class="filter-input" />
+        </div>
+        <button type="button" id="<portlet:namespace />applyFilters" class="btn btn-primary">Appliquer</button>
+        <button type="button" id="<portlet:namespace />resetFilters" class="btn">Réinitialiser</button>
     </div>
 
-    <table id="stkTable">
-        <thead>
-        <tr>
-            <th>Médicament</th>
-            <th class="num">Prix (DH)</th>
-            <th class="num">Quantité</th>
-            <th>Dernière MAJ</th>
-        </tr>
-        </thead>
-        <tbody id="stkBody">
-        <c:forEach var="r" items="${stockRows}">
-            <tr data-name="${fn:escapeXml(r['nomMedicament'])}">
-                <td>${fn:escapeXml(r['nomMedicament'])}</td>
-                <td class="num"><fmt:formatNumber value="${r['prixUnitaire']}" minFractionDigits="2" maxFractionDigits="2"/></td>
-                <td class="num">${r['quantite']}</td>
-                <td>
-                    <c:choose>
-                        <c:when test="${not empty r['dateMaj']}"><fmt:formatDate value="${r['dateMaj']}" pattern="dd/MM/yyyy HH:mm" /></c:when>
-                        <c:otherwise>-</c:otherwise>
-                    </c:choose>
-                </td>
+    <!-- Table -->
+    <div id="<portlet:namespace />tableContainer">
+        <table id="stkTable">
+            <thead>
+            <tr>
+                <th>Médicament</th>
+                <th class="num">Prix (DH)</th>
+                <th class="num">Quantité</th>
+                <th>Niveau</th>
+                <th>Dernière MAJ</th>
             </tr>
-        </c:forEach>
-        </tbody>
-    </table>
+            </thead>
+            <tbody id="<portlet:namespace />stkBody">
+            <!-- Populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div id="<portlet:namespace />pager" style="margin-top:16px;display:flex;gap:8px;align-items:center;justify-content:center"></div>
 </div>
-
-
 
 <script>
     (function(){
-        const q = document.getElementById('stkSearch');
-        const body = document.getElementById('stkBody');
-        const rows = Array.from(body.querySelectorAll('tr'));
-        const range = document.getElementById('stkRange');
-        function apply(){
-            const s = (q && q.value || '').toLowerCase().trim();
-            let vis = 0;
-            rows.forEach(tr=>{
-                const name = (tr.getAttribute('data-name')||'').toLowerCase();
-                const keep = !s || name.includes(s);
-                tr.style.display = keep ? '' : 'none';
-                if (keep) vis++;
-            });
-            if (range) range.textContent = vis+' élément'+(vis>1?'s':'');
+        const ns = '<portlet:namespace />';
+        const tbody = document.getElementById(ns + 'stkBody');
+        const pager = document.getElementById(ns + 'pager');
+
+        // Filter elements
+        const filterSearch = document.getElementById(ns + 'filterSearch');
+        const filterStockLevel = document.getElementById(ns + 'filterStockLevel');
+        const filterDateFrom = document.getElementById(ns + 'filterDateFrom');
+        const filterDateTo = document.getElementById(ns + 'filterDateTo');
+        const applyFiltersBtn = document.getElementById(ns + 'applyFilters');
+        const resetFiltersBtn = document.getElementById(ns + 'resetFilters');
+
+        let curPage = 1;
+        const pageSize = 10;
+        let total = 0;
+
+        // Filter state
+        let activeFilters = {
+            search: '',
+            stockLevel: '',
+            dateFrom: '',
+            dateTo: ''
+        };
+
+        // Cached data for client-side search
+        let allData = [];
+
+        function escapeHTML(s){
+            return String(s).replace(/[&<>"']/g, c => (
+                {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
+            ));
         }
-        if (q) q.addEventListener('input', apply);
-        apply();
+
+        function getStockBadge(qty){
+            if (qty === 0) return '<span class="stock-badge stock-out">Épuisé</span>';
+            if (qty <= 10) return '<span class="stock-badge stock-low">Bas</span>';
+            if (qty <= 50) return '<span class="stock-badge stock-medium">Moyen</span>';
+            return '<span class="stock-badge stock-high">Élevé</span>';
+        }
+
+        function buildPager(){
+            if (!pager) return;
+            pager.innerHTML = '';
+            const pages = Math.max(1, Math.ceil(total / pageSize));
+
+            const mk = (label, disabled, onclick) => {
+                const b = document.createElement('button');
+                b.className = 'btn';
+                b.type = 'button';
+                b.textContent = label;
+                b.disabled = disabled;
+                if (!disabled) {
+                    b.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        onclick();
+                    }, {capture: true});
+                }
+                return b;
+            };
+
+            pager.appendChild(mk('« Précédent', curPage <= 1, () => { curPage--; refreshList(); }));
+            const span = document.createElement('span');
+            span.textContent = `Page ${curPage} / ${pages}`;
+            span.style.margin = '0 12px';
+            pager.appendChild(span);
+            pager.appendChild(mk('Suivant »', curPage >= pages, () => { curPage++; refreshList(); }));
+        }
+
+        function applyClientSideSearch(items) {
+            if (!activeFilters.search) return items;
+
+            const searchLower = activeFilters.search.toLowerCase();
+            return items.filter(item => {
+                const name = (item.nomMedicament || '').toLowerCase();
+                return name.includes(searchLower);
+            });
+        }
+
+        function refreshList(){
+            let q = ns + 'page=' + encodeURIComponent(curPage) +
+                '&' + ns + 'size=' + encodeURIComponent(pageSize) +
+                '&ts=' + Date.now();
+
+            // Add server-side filters (stockLevel, dates)
+            if (activeFilters.stockLevel) {
+                q += '&' + ns + 'stockLevel=' + encodeURIComponent(activeFilters.stockLevel);
+            }
+            if (activeFilters.dateFrom) {
+                q += '&' + ns + 'dateFrom=' + encodeURIComponent(activeFilters.dateFrom);
+            }
+            if (activeFilters.dateTo) {
+                q += '&' + ns + 'dateTo=' + encodeURIComponent(activeFilters.dateTo);
+            }
+
+            const url = '${listURL}' + ('${listURL}'.includes('?') ? '&' : '?') + q;
+
+            return fetch(url, {credentials:'same-origin'})
+                .then(r => r.ok ? r.json() : {items:[], total:0, page:1, size:pageSize})
+                .then(d => {
+                    let arr = Array.isArray(d.items) ? d.items
+                        : (typeof d.items === 'string' ? JSON.parse(d.items) : []);
+
+                    allData = arr; // Cache for client-side search
+
+                    // Apply client-side search filter
+                    arr = applyClientSideSearch(arr);
+
+                    total = arr.length; // Use filtered count for pagination
+                    curPage = d.page || 1;
+
+                    tbody.innerHTML = '';
+                    if (!arr || arr.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Aucun stock trouvé.</td></tr>';
+                        pager.innerHTML = '';
+                        return;
+                    }
+
+                    arr.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML =
+                            '<td><strong>' + escapeHTML(item.nomMedicament) + '</strong></td>' +
+                            '<td class="num">' + parseFloat(item.prixUnitaire).toFixed(2) + ' DH</td>' +
+                            '<td class="num"><strong>' + item.quantite + '</strong></td>' +
+                            '<td>' + getStockBadge(item.quantite) + '</td>' +
+                            '<td>' + escapeHTML(item.dateMaj || '-') + '</td>';
+                        tbody.appendChild(tr);
+                    });
+
+                    buildPager();
+                })
+                .catch(err => {
+                    console.error('Error loading stock:', err);
+                    tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Erreur de chargement.</td></tr>';
+                    pager.innerHTML = '';
+                });
+        }
+
+        // Filter event handlers
+        applyFiltersBtn.addEventListener('click', () => {
+            activeFilters.search = filterSearch.value.trim();
+            activeFilters.stockLevel = filterStockLevel.value;
+            activeFilters.dateFrom = filterDateFrom.value;
+            activeFilters.dateTo = filterDateTo.value;
+            curPage = 1;
+            refreshList();
+        });
+
+        resetFiltersBtn.addEventListener('click', () => {
+            filterSearch.value = '';
+            filterStockLevel.value = '';
+            filterDateFrom.value = '';
+            filterDateTo.value = '';
+            activeFilters = { search: '', stockLevel: '', dateFrom: '', dateTo: '' };
+            curPage = 1;
+            refreshList();
+        });
+
+        // Allow Enter key to apply filters
+        [filterSearch, filterDateFrom, filterDateTo].forEach(el => {
+            el.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    applyFiltersBtn.click();
+                }
+            });
+        });
+
+        // Real-time search (optional - debounced)
+        let searchTimeout;
+        filterSearch.addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                activeFilters.search = filterSearch.value.trim();
+                // For real-time search, we re-filter the cached data
+                refreshList();
+            }, 300); // 300ms debounce
+        });
+
+        // Initial load
+        refreshList();
     })();
 </script>
-</body>
-</html>
