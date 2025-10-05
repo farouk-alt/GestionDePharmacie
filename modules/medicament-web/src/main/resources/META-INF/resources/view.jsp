@@ -408,7 +408,7 @@
             if (value.length === 12) {
                 const checkDigit = calculateEAN13CheckDigit(value);
                 if (checkDigit !== null) {
-                    display.textContent = `EAN-13 complet: ${value}${checkDigit}`;
+                    display.textContent = 'EAN-13 complet: ' + value + checkDigit;
                     display.style.display = 'block';
                 }
             } else if (value.length === 13) {
@@ -420,7 +420,7 @@
                     display.textContent = '✓ EAN-13 valide';
                     display.style.display = 'block';
                 } else {
-                    display.textContent = `✗ Invalide! Devrait finir par ${calculatedCheckDigit}`;
+                    display.textContent = '✗ Invalide! Devrait finir par ' + calculatedCheckDigit;
                     display.style.display = 'block';
                 }
             } else {
