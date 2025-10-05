@@ -9,7 +9,6 @@ import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-
 import com.liferay.portal.kernel.util.Validator;
 import gestion_de_pharmacie.model.Medicament;
 import gestion_de_pharmacie.model.Stock;
@@ -20,7 +19,6 @@ import gestion_de_pharmacie.service.UtilisateurLocalService;
 import medicament.web.constants.MedicamentWebPortletKeys;
 
 import javax.portlet.*;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -30,9 +28,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-/**
- * @author farou
- */
 @Component(
         immediate = true,
         property = {
@@ -50,78 +45,125 @@ import java.util.List;
 public class MedicamentWebPortlet extends MVCPortlet {
 
     private static final Log _log = LogFactoryUtil.getLog(MedicamentWebPortlet.class);
+
     @Reference
     private NotificationLocalService _notifLocalService;
 
     @Reference
     private UtilisateurLocalService _userLocalService;
 
-   @ProcessAction(name = "ajouterMedicament")
-   public void ajouterMedicament(ActionRequest request, ActionResponse response) {
-       try {
-           String code       = ParamUtil.getString(request, "code");
-           String codeBarre  = ParamUtil.getString(request, "codeBarre");
-           String nom        = ParamUtil.getString(request, "nom");
-           double prix       = ParamUtil.getDouble(request, "prix");
-           String description= ParamUtil.getString(request, "description");
-           String categorie  = ParamUtil.getString(request, "categorie");
-           int seuilMinimum  = ParamUtil.getInteger(request, "seuilMinimum");
+    @Override
+    public void doView(RenderRequest req, RenderResponse res) throws IOException, PortletException {
+        try {
+            // Handle edit mode
+            String mode = ParamUtil.getString(req, "mode", "list");
+            long medicamentId = ParamUtil.getLong(req, "medicamentId", 0);
 
-           if (Validator.isNull(nom) || Validator.isNull(code)) {
-               SessionErrors.add(request, "medicament-required");
-               return;
-           }
-           if (Validator.isNotNull(codeBarre) && !isValidEAN13(codeBarre)) {
-               SessionErrors.add(request, "medicament-barcode-invalid");
-               return;
-           }
-           if (!findByCode(code).isEmpty()) {
-               SessionErrors.add(request, "medicament-code-exists");
-               return;
-           }
-           if (Validator.isNotNull(codeBarre) && !findByBarcode(codeBarre).isEmpty()) {
-               SessionErrors.add(request, "medicament-barcode-exists");
-               return;
-           }
+            if ("edit".equals(mode) && medicamentId > 0) {
+                Medicament medicament = MedicamentLocalServiceUtil.fetchMedicament(medicamentId);
+                req.setAttribute("medicament", medicament);
+                req.setAttribute("editMode", true);
+            } else {
+                req.setAttribute("editMode", false);
+            }
 
-           Medicament medicament = MedicamentLocalServiceUtil.createMedicament(
-                   CounterLocalServiceUtil.increment()
-           );
-           medicament.setCode(code);
-           medicament.setCodeBarre(codeBarre);
-           medicament.setNom(nom);
-           medicament.setPrixUnitaire(prix);
-           medicament.setDescription(description);
-           medicament.setCategorie(categorie);
-           medicament.setSeuilMinimum(seuilMinimum);
-           medicament.setDateAjout(new Date());
+            // Pagination parameters
+            int page = ParamUtil.getInteger(req, "page", 1);
+            int pageSize = ParamUtil.getInteger(req, "pageSize", 10);
+            String searchQuery = ParamUtil.getString(req, "search", "");
+            String sortKey = ParamUtil.getString(req, "sortKey", "");
+            String sortDir = ParamUtil.getString(req, "sortDir", "asc");
 
-           MedicamentLocalServiceUtil.addMedicament(medicament);
+            req.setAttribute("currentPage", page);
+            req.setAttribute("pageSize", pageSize);
+            req.setAttribute("searchQuery", searchQuery);
+            req.setAttribute("sortKey", sortKey);
+            req.setAttribute("sortDir", sortDir);
 
-           // Stock init
-           Stock stock = StockLocalServiceUtil.createStock(CounterLocalServiceUtil.increment());
-           stock.setIdMedicament(medicament.getIdMedicament());
-           stock.setQuantiteDisponible(0);
-           stock.setDateDerniereMaj(new Date());
-           StockLocalServiceUtil.addStock(stock);
-           // ----- notify roles that a new med was created (no low-stock check here)
-           long actorId = resolveUid(request);  // your helper that returns current user's id
-           String msg = "Nouveau médicament ajouté : " + nom + " (code " + code + ")";
-           _notifLocalService.addNotificationForRoleExceptUser("ADMIN",      "MED_ADDED", msg, actorId);
-           _notifLocalService.addNotificationForRoleExceptUser("PHARMACIEN", "MED_ADDED", msg, actorId);
+            // Get unread notifications
+            int unread = 0;
+            try {
+                long uid = resolveUid(req);
+                if (uid > 0) {
+                    unread = _notifLocalService.countUnreadByUser(uid);
+                }
+            } catch (Exception ignore) {}
+            req.setAttribute("unreadCount", unread);
 
+        } catch (Exception e) {
+            _log.error("Error in doView", e);
+        }
 
-           SessionMessages.add(request, "medicament-added-successfully");
-           response.setRenderParameter("mvcPath", "/view.jsp");
-       } catch (Exception e) {
-           _log.error("Error adding medicament: " + e.getMessage(), e);
-           SessionErrors.add(request, "medicament-add-error");
-       }
-   }
+        super.doView(req, res);
+    }
 
-   /* @ProcessAction(name = "updateMedicament")
+    @ProcessAction(name = "ajouterMedicament")
+    public void ajouterMedicament(ActionRequest request, ActionResponse response) {
+        try {
+            String code       = ParamUtil.getString(request, "code");
+            String codeBarre  = ParamUtil.getString(request, "codeBarre");
+            String nom        = ParamUtil.getString(request, "nom");
+            double prix       = ParamUtil.getDouble(request, "prix");
+            String description= ParamUtil.getString(request, "description");
+            String categorie  = ParamUtil.getString(request, "categorie");
+            int seuilMinimum  = ParamUtil.getInteger(request, "seuilMinimum");
+
+            if (Validator.isNull(nom) || Validator.isNull(code)) {
+                SessionErrors.add(request, "medicament-required");
+                return;
+            }
+            if (Validator.isNotNull(codeBarre) && !isValidEAN13(codeBarre)) {
+                SessionErrors.add(request, "medicament-barcode-invalid");
+                return;
+            }
+            if (!findByCode(code).isEmpty()) {
+                SessionErrors.add(request, "medicament-code-exists");
+                return;
+            }
+            if (Validator.isNotNull(codeBarre) && !findByBarcode(codeBarre).isEmpty()) {
+                SessionErrors.add(request, "medicament-barcode-exists");
+                return;
+            }
+
+            Medicament medicament = MedicamentLocalServiceUtil.createMedicament(
+                    CounterLocalServiceUtil.increment()
+            );
+            medicament.setCode(code);
+            medicament.setCodeBarre(codeBarre);
+            medicament.setNom(nom);
+            medicament.setPrixUnitaire(prix);
+            medicament.setDescription(description);
+            medicament.setCategorie(categorie);
+            medicament.setSeuilMinimum(seuilMinimum);
+            medicament.setDateAjout(new Date());
+
+            MedicamentLocalServiceUtil.addMedicament(medicament);
+
+            // Stock init
+            Stock stock = StockLocalServiceUtil.createStock(CounterLocalServiceUtil.increment());
+            stock.setIdMedicament(medicament.getIdMedicament());
+            stock.setQuantiteDisponible(0);
+            stock.setDateDerniereMaj(new Date());
+            StockLocalServiceUtil.addStock(stock);
+
+            // Notify roles
+            long actorId = resolveUid(request);
+            String msg = "Nouveau médicament ajouté : " + nom + " (code " + code + ")";
+            _notifLocalService.addNotificationForRoleExceptUser("ADMIN", "MED_ADDED", msg, actorId);
+            _notifLocalService.addNotificationForRoleExceptUser("PHARMACIEN", "MED_ADDED", msg, actorId);
+
+            SessionMessages.add(request, "medicament-added-successfully");
+            response.setRenderParameter("mvcPath", "/view.jsp");
+
+        } catch (Exception e) {
+            _log.error("Error adding medicament: " + e.getMessage(), e);
+            SessionErrors.add(request, "medicament-add-error");
+        }
+    }
+
+    @ProcessAction(name = "updateMedicament")
     public void updateMedicament(ActionRequest request, ActionResponse response) throws Exception {
-        long medicamentId   = ParamUtil.getLong(request, "medicamentId");
+        long medicamentId = ParamUtil.getLong(request, "medicamentId");
         String code         = ParamUtil.getString(request, "code");
         String codeBarre    = ParamUtil.getString(request, "codeBarre");
         String nom          = ParamUtil.getString(request, "nom");
@@ -132,17 +174,26 @@ public class MedicamentWebPortlet extends MVCPortlet {
 
         Medicament m = MedicamentLocalServiceUtil.getMedicament(medicamentId);
 
-        // Simple conflicts check (ignore current record)
+        // Validation
         if (!code.equals(m.getCode()) && !findByCode(code).isEmpty()) {
-            SessionErrors.add(request, "medicament-code-exists"); return;
+            SessionErrors.add(request, "medicament-code-exists");
+            response.setRenderParameter("mode", "edit");
+            response.setRenderParameter("medicamentId", String.valueOf(medicamentId));
+            return;
         }
         if (Validator.isNotNull(codeBarre) && !isValidEAN13(codeBarre)) {
-            SessionErrors.add(request, "medicament-barcode-invalid"); return;
+            SessionErrors.add(request, "medicament-barcode-invalid");
+            response.setRenderParameter("mode", "edit");
+            response.setRenderParameter("medicamentId", String.valueOf(medicamentId));
+            return;
         }
         if (Validator.isNotNull(codeBarre)
                 && !codeBarre.equals(m.getCodeBarre())
                 && !findByBarcode(codeBarre).isEmpty()) {
-            SessionErrors.add(request, "medicament-barcode-exists"); return;
+            SessionErrors.add(request, "medicament-barcode-exists");
+            response.setRenderParameter("mode", "edit");
+            response.setRenderParameter("medicamentId", String.valueOf(medicamentId));
+            return;
         }
 
         m.setCode(code);
@@ -154,62 +205,25 @@ public class MedicamentWebPortlet extends MVCPortlet {
         m.setSeuilMinimum(seuilMinimum);
 
         MedicamentLocalServiceUtil.updateMedicament(m);
-
         SessionMessages.add(request, "medicament-updated-successfully");
+
         response.setRenderParameter("mvcPath", "/view.jsp");
-    }*/
-   @ProcessAction(name = "updateMedicament")
-   public void updateMedicament(ActionRequest request, ActionResponse response) throws Exception {
-       long medicamentId = ParamUtil.getLong(request, "medicamentId");
-       String code         = ParamUtil.getString(request, "code");
-       String codeBarre    = ParamUtil.getString(request, "codeBarre");
-       String nom          = ParamUtil.getString(request, "nom");
-       double prix         = ParamUtil.getDouble(request, "prix");
-       String description  = ParamUtil.getString(request, "description");
-       String categorie    = ParamUtil.getString(request, "categorie");
-       int seuilMinimum    = ParamUtil.getInteger(request, "seuilMinimum");
+    }
 
-       Medicament m = MedicamentLocalServiceUtil.getMedicament(medicamentId);
+    @ProcessAction(name = "deleteMedicament")
+    public void deleteMedicament(ActionRequest request, ActionResponse response) {
+        try {
+            long medicamentId = ParamUtil.getLong(request, "medicamentId");
+            _log.info("Deleting medicament with ID: " + medicamentId);
+            MedicamentLocalServiceUtil.deleteMedicament(medicamentId);
+            SessionMessages.add(request, "medicament-deleted-successfully");
+            _log.info("Medicament deleted successfully: ID " + medicamentId);
+        } catch (Exception e) {
+            _log.error("Error deleting medicament: " + e.getMessage(), e);
+        }
+    }
 
-       // Simple conflicts check (ignore current record)
-       if (!code.equals(m.getCode()) && !findByCode(code).isEmpty()) {
-           SessionErrors.add(request, "medicament-code-exists"); return;
-       }
-       if (Validator.isNotNull(codeBarre) && !isValidEAN13(codeBarre)) {
-           SessionErrors.add(request, "medicament-barcode-invalid"); return;
-       }
-       if (Validator.isNotNull(codeBarre)
-               && !codeBarre.equals(m.getCodeBarre())
-               && !findByBarcode(codeBarre).isEmpty()) {
-           SessionErrors.add(request, "medicament-barcode-exists"); return;
-       }
-
-       m.setCode(code);
-       m.setCodeBarre(codeBarre);
-       m.setNom(nom);
-       m.setPrixUnitaire(prix);
-       m.setDescription(description);
-       m.setCategorie(categorie);
-       m.setSeuilMinimum(seuilMinimum);
-
-       MedicamentLocalServiceUtil.updateMedicament(m);
-       SessionMessages.add(request, "medicament-updated-successfully");
-
-       boolean fromModal = ParamUtil.getBoolean(request, "fromModal");
-
-       if (fromModal) {
-           // Re-render edit_medicament.jsp inside the iframe with a close instruction
-           response.setRenderParameter("mvcPath", "/edit_medicament.jsp");
-           response.setRenderParameter("medicamentId", String.valueOf(medicamentId));
-           response.setRenderParameter("modal", "1");
-           response.setRenderParameter("close", "1");
-       } else {
-           response.setRenderParameter("mvcPath", "/view.jsp");
-       }
-   }
-
-
-    // --- helpers ---
+    // Helper methods
     private boolean isValidEAN13(String s) {
         if (Validator.isNull(s) || !s.matches("\\d{13}")) return false;
         int sum=0;
@@ -238,59 +252,6 @@ public class MedicamentWebPortlet extends MVCPortlet {
             for (Object o: res) out.add((Medicament)o);
             return out;
         } catch (Exception e) { return Collections.emptyList(); }
-    }
-
-
-    @ProcessAction(name = "deleteMedicament")
-    public void deleteMedicament(ActionRequest request, ActionResponse response) {
-        try {
-            long medicamentId = ParamUtil.getLong(request, "medicamentId");
-
-            _log.info("Deleting medicament with ID: " + medicamentId);
-
-            MedicamentLocalServiceUtil.deleteMedicament(medicamentId);
-
-            SessionMessages.add(request, "medicament-deleted-successfully");
-
-            _log.info("Medicament deleted successfully: ID " + medicamentId);
-
-        } catch (Exception e) {
-            _log.error("Error deleting medicament: " + e.getMessage(), e);
-        }
-    }
-
-
-    private List<Medicament> findByNom(String nom) {
-        try {
-            DynamicQuery dq = MedicamentLocalServiceUtil.dynamicQuery();
-
-            // Exact match, ignoring case
-            dq.add(RestrictionsFactoryUtil.eq("nom", nom));
-
-            List<Object> results = MedicamentLocalServiceUtil.dynamicQuery(dq);
-            List<Medicament> medicaments = new ArrayList<>();
-            for (Object obj : results) {
-                medicaments.add((Medicament) obj);
-            }
-            return medicaments;
-        } catch (Exception e) {
-            _log.error("Error finding medicament by name: " + e.getMessage(), e);
-            return Collections.emptyList();
-        }
-    }
-
-    @Override
-    public void doView(RenderRequest req, RenderResponse res) throws IOException, PortletException {
-        int unread = 0;
-        try {
-            long uid = resolveUid(req);
-            if (uid > 0) {
-                // Use your finder-backed service method (see #4)
-                unread = _notifLocalService.countUnreadByUser(uid);
-            }
-        } catch (Exception ignore) {}
-        req.setAttribute("unreadCount", unread);
-        super.doView(req, res);
     }
 
     private long resolveUid(PortletRequest req) {

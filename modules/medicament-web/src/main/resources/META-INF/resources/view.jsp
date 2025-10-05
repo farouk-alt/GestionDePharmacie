@@ -9,25 +9,36 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ page import="com.liferay.portal.kernel.portlet.LiferayWindowState" %>
 <%@ taglib uri="http://liferay.com/tld/clay" prefix="clay" %>
 <%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
+
+<portlet:defineObjects />
 
 <%
     int unreadCount = 0;
     Object cObj = request.getAttribute("unreadCount");
     if (cObj instanceof Integer) unreadCount = (Integer)cObj;
-%>
 
-<portlet:actionURL name="ajouterMedicament" var="addMedURL" />
-<portlet:actionURL name="updateMedicament"  var="updateMedURL" />
+    Boolean editModeObj = (Boolean) request.getAttribute("editMode");
+    boolean editMode = (editModeObj != null && editModeObj);
+    Medicament editMed = (Medicament) request.getAttribute("medicament");
 
-<%
     List<Medicament> medicaments = MedicamentLocalServiceUtil.getMedicaments(-1, -1);
     NumberFormat money = NumberFormat.getNumberInstance(Locale.FRANCE);
     money.setMinimumFractionDigits(2);
     money.setMaximumFractionDigits(2);
+
+    // Get unique categories for filter
+    Set<String> categories = new TreeSet<String>();
+    for (Medicament m : medicaments) {
+        if (m.getCategorie() != null && !m.getCategorie().trim().isEmpty()) {
+            categories.add(m.getCategorie());
+        }
+    }
 %>
+
+<portlet:actionURL name="ajouterMedicament" var="addMedURL" />
+<portlet:actionURL name="updateMedicament" var="updateMedURL" />
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -38,80 +49,51 @@
         :root{ --primary:#1E3A8A; --secondary:#3B82F6; --accent:#10B981;
             --bg:#F3F4F6; --white:#FFFFFF; --text:#111827; --muted:#6B7280; --border:#E5E7EB; }
         body{background:var(--bg);margin:0;color:var(--text);font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
-        .wrap{max-width:1200px;margin:24px auto;padding:0 16px}
+        .wrap{max-width:1400px;margin:24px auto;padding:0 16px}
         .header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;border-radius:14px;padding:18px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 10px 24px rgba(30,58,138,.25)}
         .header h2{margin:0;font-size:20px}
         .header-actions{display:flex;gap:8px;align-items:center}
-        .btn{display:inline-block;background:#fff;color:var(--primary);border:1px solid transparent;padding:8px 12px;border-radius:10px;font-weight:600;text-decoration:none;cursor:pointer;transition:.2s}
+        .btn{display:inline-block;background:#fff;color:var(--primary);border:1px solid transparent;padding:8px 16px;border-radius:10px;font-weight:600;text-decoration:none;cursor:pointer;transition:.2s;font-size:14px;}
         .btn:hover{background:#F8FAFC;transform:translateY(-1px);color:var(--primary)}
         .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-        .btn-primary:hover{filter:brightness(.95);color:var(--primary)}
+        .btn-primary:hover{filter:brightness(.95);color:#fff}
         .btn-danger{background:#DC2626;color:#fff;border-color:#DC2626}
         .btn-danger:hover{filter:brightness(.95)}
-        .card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(17,24,39,.06);margin-bottom:16px}
-        .controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
-        .controls input[type="search"]{flex:1;min-width:240px;padding:10px;border:1px solid var(--border);border-radius:10px;background:#fff}
-        .count{color:var(--bg);font-size:12px;margin-left:auto}
-        #rangeText{color:var(--muted);font-size:12px;margin-left:auto}
-        table{width:100%;border-collapse:collapse}
-        thead th{text-align:left;background:#F8FAFC;color:var(--primary);padding:10px 12px;border-bottom:1px solid var(--border);font-weight:700}
-        tbody td{padding:10px 12px}
-        tr:hover td{background:#F9FAFB}
-        th.sortable{cursor:pointer;user-select:none}
-        th.sortable .arrow{font-size:12px;opacity:.6;margin-left:6px}
-        .desc{max-width:380px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#334155}
-        .pager{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
-        .pager .btn{padding:6px 12px}
-        .pager .btn.btn-primary{background:var(--secondary);border-color:var(--secondary)}
+        .card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:0 6px 18px rgba(17,24,39,.06);margin-bottom:16px}
 
-        /* Modal size like Admin */
-        #<portlet:namespace/>medModal .modal-dialog{
-            max-width:720px; width:min(92vw,720px); margin-top:6vh; margin-bottom:6vh;
-        }
-        #<portlet:namespace/>medModal .modal-content{ min-height:560px; }
-        #<portlet:namespace/>medModal .modal-body{
-            max-height:calc(100vh - 180px); overflow:auto; padding-bottom:24px;
-        }
+        .filters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr auto;gap:12px;margin-bottom:16px;align-items:end;}
+        .filter-group{display:flex;flex-direction:column;}
+        .filter-group label{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;}
+        .filter-group input,.filter-group select{padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;font-size:14px;}
+        .filter-group input:focus,.filter-group select:focus{outline:none;border-color:var(--secondary);box-shadow:0 0 0 3px rgba(59,130,246,.1);}
 
-        /* Stacked form layout */
-        #<portlet:namespace/>medModal .med-form .stack{
-            display:grid; grid-template-columns:1fr; gap:16px; align-items:start;
-        }
-        #<portlet:namespace/>medModal .med-form .fld{ display:flex; flex-direction:column; }
-        #<portlet:namespace/>medModal .med-form label{ font-weight:600; margin-bottom:6px; color:var(--primary); }
-        #<portlet:namespace/>medModal .med-form .hint{ color:#6B7280; font-size:12px; margin-top:6px; }
+        .stats-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+        #rangeText{color:var(--muted);font-size:14px;}
 
-        #<portlet:namespace/>medModal .form-control{
-            width:100%; height:52px; padding:12px 14px; line-height:normal; box-sizing:border-box;
-            background:#fff; color:#111827; border:1px solid #E5E7EB; border-radius:10px;
-            box-shadow:inset 0 1px 2px rgba(0,0,0,.04);
-        }
-        #<portlet:namespace/>medModal .form-control:focus{
-            outline:none; border-color:#3B82F6; box-shadow:0 0 0 3px rgba(59,130,246,.15);
-        }
-        #<portlet:namespace/>medModal textarea.form-control{ min-height:120px; height:auto; resize:vertical; }
+        table{width:100%;border-collapse:collapse;table-layout:fixed;}
+        thead th{text-align:left;background:#F8FAFC;color:var(--primary);padding:12px;border-bottom:2px solid var(--border);font-weight:700;font-size:13px;}
+        tbody td{padding:12px;font-size:14px;overflow:hidden;}
+        tbody tr{border-bottom:1px solid var(--border);}
+        tbody tr:last-child{border-bottom:none;}
+        tbody tr:hover{background:#F9FAFB;}
+        th.sortable{cursor:pointer;user-select:none;}
+        th.sortable:hover{background:#F1F5F9;}
+        th.sortable .arrow{font-size:12px;opacity:.6;margin-left:6px;font-weight:normal;}
+        .desc{max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#334155;word-break:break-all;}
+        .pager{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+        .pager .btn{padding:8px 12px;min-width:40px;}
+        .pager .btn.btn-primary{background:var(--secondary);border-color:var(--secondary);color:#fff}
 
-        #<portlet:namespace/>medModal input[type="number"]::-webkit-outer-spin-button,
-        #<portlet:namespace/>medModal input[type="number"]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
-        #<portlet:namespace/>medModal input[type="number"]{ -moz-appearance:textfield; }
-
-        /* Row separators in table */
-        #medsTable tbody td { border-bottom: 0; }
-        #medsTable tbody tr { box-shadow: inset 0 -1px 0 var(--border); }
-        #medsTable tbody tr:last-child { box-shadow: none; }
-
-        /* Actions */
         #medsTable td.actions{ white-space:nowrap; vertical-align:middle; }
         #medsTable td.actions form{ display:inline; margin:0; }
-        .icon-btn{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; margin-right:6px;
-            background:transparent; border:1px solid transparent; border-radius:8px; color:#334155; cursor:pointer;
-            transition:background .15s, color .15s, border-color .15s, transform .05s; vertical-align:middle; }
+        .icon-btn{ display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; margin-right:6px;
+            background:transparent; border:1px solid var(--border); border-radius:8px; color:#334155; cursor:pointer;
+            transition:all .15s; vertical-align:middle; }
         .icon-btn:last-child{ margin-right:0; }
-        .icon-btn:hover{ background:#F1F5F9; color:#0f172a; }
-        .icon-btn:active{ transform:scale(.98); }
-        .icon-btn:focus{ outline:0; box-shadow:0 0 0 2px rgba(59,130,246,.35); }
-        .icon-btn.danger{ color:#b91c1c; }
-        .icon-btn.danger:hover{ background:rgba(220,38,38,.08); color:#991b1b; }
+        .icon-btn:hover{ background:#F1F5F9; color:#0f172a; border-color:#cbd5e1; }
+        .icon-btn:active{ transform:scale(.95); }
+        .icon-btn.danger{ color:#b91c1c; border-color:#fecaca; }
+        .icon-btn.danger:hover{ background:#fef2f2; color:#991b1b; border-color:#fca5a5; }
         .icon-btn .lexicon-icon{ width:18px; height:18px; }
         .bell-btn{
             position:relative; display:inline-flex; align-items:center; gap:8px;
@@ -119,10 +101,38 @@
             padding:8px 12px; border-radius:10px; font-weight:600; cursor:pointer;
         }
         .bell-dot{
-            min-width:22px; height:22px; padding:0 6px;
+            min-width:20px; height:20px; padding:0 5px;
             display:inline-flex; align-items:center; justify-content:center;
-            font-size:12px; font-weight:800; color:#fff; background:#ef4444; border-radius:999px;
+            font-size:11px; font-weight:700; color:#fff; background:#ef4444; border-radius:999px;
         }
+
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;animation:fadeIn .2s;overflow-y:auto;padding:20px 0;}
+        @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+        .modal-content{background:#fff; border-radius:16px;max-width:680px;width:95%;max-height:none;display:flex;flex-direction:column;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);animation:slideUp .3s;margin:auto;}
+        @keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+        .modal-header{display:flex;justify-content:space-between;align-items:center;padding:24px 24px 16px;border-bottom:1px solid var(--border);}
+        .modal-header h3{margin:0;font-size:22px;color:var(--primary);font-weight:700;}
+        .modal-close{background:none;border:none;font-size:32px;cursor:pointer;color:var(--muted);line-height:1;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:.2s;}
+        .modal-close:hover{background:#F3F4F6;color:var(--text);}
+        .modal-body{padding:24px;overflow-y:auto;flex:1;max-height:calc(85vh - 180px);}
+        .modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid var(--border);background:#F9FAFB;border-radius:0 0 16px 16px;}
+
+        .form-group{margin-bottom:18px;}
+        .form-group label{display:block;font-weight:600;margin-bottom:8px;color:var(--text);font-size:14px;}
+        .form-group label .required{color:#DC2626;margin-left:2px;}
+        .form-control{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:#fff;box-shadow:inset 0 1px 2px rgba(0,0,0,.04);font-size:14px;transition:all .2s;}
+        .form-control:focus{outline:none;border-color:#3B82F6;box-shadow:0 0 0 3px rgba(59,130,246,.1);}
+        textarea.form-control{min-height:100px;resize:vertical;font-family:inherit;}
+        .hint{color:#6B7280;font-size:12px;margin-top:6px;font-style:italic;}
+        .ean-calc{color:#059669;font-size:12px;margin-top:4px;font-weight:500;background:#ECFDF5;padding:4px 8px;border-radius:4px;display:inline-block;}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+
+        @media (max-width: 768px) {
+            .filters{grid-template-columns:1fr;gap:12px;}
+            .form-row{grid-template-columns:1fr;}
+            .pager{justify-content:center;}
+        }
+
 
     </style>
 </head>
@@ -131,7 +141,7 @@
     <liferay-portlet:renderURL portletName="notification_web_NotificationWebPortlet" var="notifURL" />
 
     <div class="header">
-        <h2>💊 Liste des Médicaments</h2>
+        <h2>Liste des Médicaments</h2>
         <div class="header-actions">
             <a class="bell-btn" href="${notifURL}" title="Notifications">
                 🔔
@@ -139,15 +149,63 @@
                 <span class="bell-dot"><%= unreadCount %></span>
                 <% } %>
             </a>
-            <div class="count" id="topCount"></div>
-            <button type="button" class="btn btn-primary js-med-open" data-mode="add">+ Ajouter</button>
+            <button type="button" class="btn btn-primary" onclick="openAddModal()">+ Ajouter un médicament</button>
         </div>
     </div>
 
+    <liferay-ui:success key="medicament-added-successfully"    message="Médicament ajouté avec succès !" />
+    <liferay-ui:success key="medicament-updated-successfully"  message="Médicament mis à jour avec succès !" />
+    <liferay-ui:success key="medicament-deleted-successfully"  message="Médicament supprimé avec succès !" />
+    <liferay-ui:error   key="medicament-already-exists"        message="Un médicament avec ce nom existe déjà." />
+    <liferay-ui:error   key="medicament-required"               message="Veuillez renseigner au minimum le nom et le code." />
+    <liferay-ui:error   key="medicament-code-exists"            message="Ce code interne existe déjà." />
+    <liferay-ui:error   key="medicament-barcode-invalid"        message="Le code-barres doit être un EAN-13 valide." />
+    <liferay-ui:error   key="medicament-barcode-exists"         message="Ce code-barres existe déjà." />
+
     <div class="card">
-        <div class="controls">
-            <input id="search" type="search" placeholder="Rechercher (code, code-barres, nom, catégorie, description)…" />
-            <span class="count" id="rangeText"></span>
+        <div class="filters">
+            <div class="filter-group">
+                <label for="search">Recherche globale</label>
+                <input id="search" type="search" placeholder="Code, nom, code-barres, description..." />
+            </div>
+            <div class="filter-group">
+                <label for="filterCategorie">Catégorie</label>
+                <select id="filterCategorie">
+                    <option value="">Toutes</option>
+                    <% for (String cat : categories) { %>
+                    <option value="<%= HtmlUtil.escapeAttribute(cat) %>"><%= HtmlUtil.escape(cat) %></option>
+                    <% } %>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filterPrixMin">Prix min (DH)</label>
+                <input id="filterPrixMin" type="number" step="0.01" min="0" placeholder="0" />
+            </div>
+            <div class="filter-group">
+                <label for="filterPrixMax">Prix max (DH)</label>
+                <input id="filterPrixMax" type="number" step="0.01" min="0" placeholder="∞" />
+            </div>
+            <div class="filter-group">
+                <label for="filterSeuil">Seuil min</label>
+                <input id="filterSeuil" type="number" min="0" placeholder="Tous" />
+            </div>
+            <div class="filter-group">
+                <label>&nbsp;</label>
+                <button type="button" class="btn" onclick="resetFilters()" title="Réinitialiser les filtres">Réinitialiser</button>
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <span id="rangeText"></span>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <label for="pageSize" style="font-size:14px;color:var(--muted);">Par page:</label>
+                <select id="pageSize" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
         </div>
 
         <table id="medsTable">
@@ -159,7 +217,7 @@
                 <th class="sortable" data-sort-key="nom">Nom <span class="arrow">↕</span></th>
                 <th class="sortable" data-sort-key="categorie">Catégorie <span class="arrow">↕</span></th>
                 <th class="sortable" data-sort-key="prix">Prix (DH) <span class="arrow">↕</span></th>
-                <th class="sortable" data-sort-key="seuil">Seuil min. <span class="arrow">↕</span></th>
+                <th class="sortable" data-sort-key="seuil">Seuil <span class="arrow">↕</span></th>
                 <th class="sortable" data-sort-key="date">Date ajout <span class="arrow">↕</span></th>
                 <th>Description</th>
                 <th>Actions</th>
@@ -170,7 +228,7 @@
                 for (Medicament m : medicaments) {
                     long ts = (m.getDateAjout() != null) ? m.getDateAjout().getTime() : 0L;
                     String prixAff = money.format(m.getPrixUnitaire());
-                    String dateAff = (m.getDateAjout()!=null) ? new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(m.getDateAjout()) : "-";
+                    String dateAff = (m.getDateAjout()!=null) ? new java.text.SimpleDateFormat("dd/MM/yyyy").format(m.getDateAjout()) : "-";
             %>
             <tr>
                 <td data-key="id" data-sort="<%= m.getIdMedicament() %>"><%= m.getIdMedicament() %></td>
@@ -185,23 +243,19 @@
                     <%= HtmlUtil.escape(m.getDescription()!=null? m.getDescription() : "-") %>
                 </td>
                 <td class="actions">
-                    <!-- Edit -->
-                    <a href="#"
-                       class="icon-btn js-med-open"
-                       data-mode="edit"
-                       data-id="<%= m.getIdMedicament() %>"
-                       data-code="<%= HtmlUtil.escapeAttribute(String.valueOf(m.getCode())) %>"
-                       data-codebarre="<%= HtmlUtil.escapeAttribute(String.valueOf(m.getCodeBarre())) %>"
-                       data-nom="<%= HtmlUtil.escapeAttribute(String.valueOf(m.getNom())) %>"
-                       data-prix="<%= m.getPrixUnitaire() %>"
-                       data-categorie="<%= HtmlUtil.escapeAttribute(String.valueOf(m.getCategorie())) %>"
-                       data-seuil="<%= m.getSeuilMinimum() %>"
-                       data-description="<%= HtmlUtil.escapeAttribute(String.valueOf(m.getDescription())) %>"
-                       aria-label="Éditer" title="Éditer">
+                    <button type="button" class="icon-btn edit-btn"
+                            data-id="<%= m.getIdMedicament() %>"
+                            data-code="<%= HtmlUtil.escapeAttribute(String.valueOf(m.getCode())) %>"
+                            data-codebarre="<%= HtmlUtil.escapeAttribute(String.valueOf(m.getCodeBarre())) %>"
+                            data-nom="<%= HtmlUtil.escapeAttribute(String.valueOf(m.getNom())) %>"
+                            data-prix="<%= m.getPrixUnitaire() %>"
+                            data-categorie="<%= HtmlUtil.escapeAttribute(String.valueOf(m.getCategorie())) %>"
+                            data-seuil="<%= m.getSeuilMinimum() %>"
+                            data-description="<%= HtmlUtil.escapeAttribute(String.valueOf(m.getDescription())) %>"
+                            aria-label="Éditer" title="Éditer">
                         <clay:icon symbol="pencil" />
-                    </a>
+                    </button>
 
-                    <!-- Delete -->
                     <portlet:actionURL name="deleteMedicament" var="deleteURL">
                         <portlet:param name="medicamentId" value="<%= String.valueOf(m.getIdMedicament()) %>" />
                     </portlet:actionURL>
@@ -212,7 +266,6 @@
                         </button>
                     </form>
                 </td>
-
             </tr>
             <% } %>
             </tbody>
@@ -220,57 +273,234 @@
 
         <div class="pager" id="pager"></div>
     </div>
+</div>
 
-
-    <!-- Flash messages -->
-    <liferay-ui:success key="medicament-added-successfully"    message="Médicament ajouté avec succès !" />
-    <liferay-ui:success key="medicament-updated-successfully"  message="Médicament mis à jour avec succès !" />
-    <liferay-ui:success key="medicament-deleted-successfully"  message="Médicament supprimé avec succès !" />
-    <liferay-ui:error   key="medicament-already-exists"        message="Un médicament avec ce nom existe déjà." />
-    <liferay-ui:error   key="medicament-required"               message="Veuillez renseigner au minimum le nom et le code." />
-    <liferay-ui:error   key="medicament-code-exists"            message="Ce code interne existe déjà." />
-    <liferay-ui:error   key="medicament-barcode-invalid"        message="Le code-barres doit être un EAN-13 valide." />
-    <liferay-ui:error   key="medicament-barcode-exists"         message="Ce code-barres existe déjà." />
-</div> <!-- close .wrap once -->
-<template id="medFormTPL">
-    <form id="<portlet:namespace/>medForm" class="med-form" method="post">
-        <input type="hidden" id="<portlet:namespace/>medicamentId" name="<portlet:namespace/>medicamentId"/>
-        <div class="stack">
-            <div class="fld">
-                <label for="<portlet:namespace/>code">Code (interne)</label>
-                <input class="form-control" id="<portlet:namespace/>code" name="<portlet:namespace/>code" maxlength="64" required placeholder="Ex. AMOX500-CAP-20" />
-            </div>
-            <div class="fld">
-                <label for="<portlet:namespace/>codeBarre">Code-barres (EAN-13)</label>
-                <input class="form-control" id="<portlet:namespace/>codeBarre" name="<portlet:namespace/>codeBarre" inputmode="numeric" autocomplete="off" pattern="[0-9]{12,13}" maxlength="13" placeholder="12 ou 13 chiffres (auto-complété)" />
-                <small id="<portlet:namespace/>eanHint" class="hint"></small>
-            </div>
-            <div class="fld">
-                <label for="<portlet:namespace/>nom">Nom</label>
-                <input class="form-control" id="<portlet:namespace/>nom" name="<portlet:namespace/>nom" required />
-            </div>
-            <div class="fld">
-                <label for="<portlet:namespace/>prix">Prix Unitaire (DH)</label>
-                <input class="form-control" id="<portlet:namespace/>prix" name="<portlet:namespace/>prix" type="number" step="0.01" min="0" required />
-            </div>
-            <div class="fld">
-                <label for="<portlet:namespace/>categorie">Catégorie</label>
-                <input class="form-control" id="<portlet:namespace/>categorie" name="<portlet:namespace/>categorie" />
-            </div>
-            <div class="fld">
-                <label for="<portlet:namespace/>seuilMinimum">Seuil Minimum</label>
-                <input class="form-control" id="<portlet:namespace/>seuilMinimum" name="<portlet:namespace/>seuilMinimum" type="number" min="0" />
-            </div>
-            <div class="fld">
-                <label for="<portlet:namespace/>description">Description</label>
-                <textarea class="form-control" id="<portlet:namespace/>description" name="<portlet:namespace/>description"></textarea>
-            </div>
+<!-- Add Modal -->
+<div id="addModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Ajouter un médicament</h3>
+            <button type="button" class="modal-close" onclick="closeAddModal()">&times;</button>
         </div>
-    </form>
-</template>
+        <form id="addForm" action="${addMedURL}" method="post">
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="<portlet:namespace/>add_code">Code interne <span class="required">*</span></label>
+                        <input class="form-control" id="<portlet:namespace/>add_code" name="<portlet:namespace/>code" maxlength="64" required placeholder="Ex: AMOX500" />
+                    </div>
+                    <div class="form-group">
+                        <label for="<portlet:namespace/>add_codeBarre">Code-barres EAN-13</label>
+                        <input class="form-control" id="<portlet:namespace/>add_codeBarre" name="<portlet:namespace/>codeBarre" inputmode="numeric" pattern="[0-9]{13}" maxlength="13" placeholder="13 chiffres" />
+                        <div id="add_eanCalc" class="ean-calc" style="display:none;"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="<portlet:namespace/>add_nom">Nom du médicament <span class="required">*</span></label>
+                    <input class="form-control" id="<portlet:namespace/>add_nom" name="<portlet:namespace/>nom" required placeholder="Ex: Amoxicilline 500mg" />
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="<portlet:namespace/>add_prix">Prix unitaire (DH) <span class="required">*</span></label>
+                        <input class="form-control" id="<portlet:namespace/>add_prix" name="<portlet:namespace/>prix" type="number" step="0.01" min="0" required placeholder="0.00" />
+                    </div>
+                    <div class="form-group">
+                        <label for="<portlet:namespace/>add_categorie">Catégorie</label>
+                        <input class="form-control" id="<portlet:namespace/>add_categorie" name="<portlet:namespace/>categorie" placeholder="Ex: Antibiotique" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="<portlet:namespace/>add_seuilMinimum">Seuil minimum de stock</label>
+                    <input class="form-control" id="<portlet:namespace/>add_seuilMinimum" name="<portlet:namespace/>seuilMinimum" type="number" min="0" value="10" placeholder="10" />
+                    <small class="hint">Quantité minimale avant alerte de stock bas</small>
+                </div>
+                <div class="form-group">
+                    <label for="<portlet:namespace/>add_description">Description</label>
+                    <textarea class="form-control" id="<portlet:namespace/>add_description" name="<portlet:namespace/>description" placeholder="Description détaillée du médicament..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="closeAddModal()">Annuler</button>
+                <button type="submit" class="btn btn-primary">Ajouter le médicament</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="editModalTitle">Modifier le médicament</h3>
+            <button type="button" class="modal-close" onclick="closeEditModal()">&times;</button>
+        </div>
+        <form id="editForm" action="${updateMedURL}" method="post">
+            <input type="hidden" id="<portlet:namespace/>edit_medicamentId" name="<portlet:namespace/>medicamentId" />
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="<portlet:namespace/>edit_code">Code interne <span class="required">*</span></label>
+                        <input class="form-control" id="<portlet:namespace/>edit_code" name="<portlet:namespace/>code" maxlength="64" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="<portlet:namespace/>edit_codeBarre">Code-barres EAN-13</label>
+                        <input class="form-control" id="<portlet:namespace/>edit_codeBarre" name="<portlet:namespace/>codeBarre" inputmode="numeric" pattern="[0-9]{13}" maxlength="13" />
+                        <div id="edit_eanCalc" class="ean-calc" style="display:none;"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="<portlet:namespace/>edit_nom">Nom du médicament <span class="required">*</span></label>
+                    <input class="form-control" id="<portlet:namespace/>edit_nom" name="<portlet:namespace/>nom" required />
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="<portlet:namespace/>edit_prix">Prix unitaire (DH) <span class="required">*</span></label>
+                        <input class="form-control" id="<portlet:namespace/>edit_prix" name="<portlet:namespace/>prix" type="number" step="0.01" min="0" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="<portlet:namespace/>edit_categorie">Catégorie</label>
+                        <input class="form-control" id="<portlet:namespace/>edit_categorie" name="<portlet:namespace/>categorie" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="<portlet:namespace/>edit_seuilMinimum">Seuil minimum de stock</label>
+                    <input class="form-control" id="<portlet:namespace/>edit_seuilMinimum" name="<portlet:namespace/>seuilMinimum" type="number" min="0" />
+                    <small class="hint">Quantité minimale avant alerte de stock bas</small>
+                </div>
+                <div class="form-group">
+                    <label for="<portlet:namespace/>edit_description">Description</label>
+                    <textarea class="form-control" id="<portlet:namespace/>edit_description" name="<portlet:namespace/>description"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="closeEditModal()">Annuler</button>
+                <button type="submit" class="btn btn-primary">Mettre à jour</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
-    /* List filtering/sorting/paging */
+    // EAN-13 calculation function
+    function calculateEAN13CheckDigit(first12) {
+        if (first12.length !== 12 || !/^\d+$/.test(first12)) return null;
+
+        let sum = 0;
+        for (let i = 0; i < 12; i++) {
+            const digit = parseInt(first12.charAt(i), 10);
+            // EAN-13: odd positions (1,3,5,7,9,11) = multiply by 1, even positions (2,4,6,8,10,12) = multiply by 3
+            sum += (i % 2 === 0) ? digit : digit * 3;
+        }
+        const checkDigit = (10 - (sum % 10)) % 10;
+        return checkDigit;
+    }
+
+    // Setup EAN calculation for an input field
+    function setupEANCalculation(inputId, displayId) {
+        const input = document.getElementById(inputId);
+        const display = document.getElementById(displayId);
+
+        if (!input || !display) return;
+
+        input.addEventListener('input', function(e) {
+            const value = e.target.value.replace(/\D/g, '');
+
+            if (value.length === 12) {
+                const checkDigit = calculateEAN13CheckDigit(value);
+                if (checkDigit !== null) {
+                    display.textContent = `EAN-13 complet: ${value}${checkDigit}`;
+                    display.style.display = 'block';
+                }
+            } else if (value.length === 13) {
+                const first12 = value.substring(0, 12);
+                const actualCheckDigit = parseInt(value.charAt(12), 10);
+                const calculatedCheckDigit = calculateEAN13CheckDigit(first12);
+
+                if (calculatedCheckDigit === actualCheckDigit) {
+                    display.textContent = '✓ EAN-13 valide';
+                    display.style.display = 'block';
+                } else {
+                    display.textContent = `✗ Invalide! Devrait finir par ${calculatedCheckDigit}`;
+                    display.style.display = 'block';
+                }
+            } else {
+                display.style.display = 'none';
+            }
+        });
+    }
+
+    // Modal functions
+    function openAddModal() {
+        document.getElementById('addModal').style.display = 'flex';
+        setTimeout(function() {
+            document.getElementById('<portlet:namespace/>add_code').focus();
+        }, 150);
+    }
+
+    function closeAddModal() {
+        document.getElementById('addModal').style.display = 'none';
+        document.getElementById('addForm').reset();
+        document.getElementById('add_eanCalc').style.display = 'none';
+    }
+
+    function openEditModal(button) {
+        const id = button.getAttribute('data-id');
+        const code = button.getAttribute('data-code');
+        const codeBarre = button.getAttribute('data-codebarre');
+        const nom = button.getAttribute('data-nom');
+        const prix = button.getAttribute('data-prix');
+        const categorie = button.getAttribute('data-categorie');
+        const seuil = button.getAttribute('data-seuil');
+        const description = button.getAttribute('data-description');
+
+        document.getElementById('<portlet:namespace/>edit_medicamentId').value = id;
+        document.getElementById('<portlet:namespace/>edit_code').value = code || '';
+        document.getElementById('<portlet:namespace/>edit_codeBarre').value = codeBarre || '';
+        document.getElementById('<portlet:namespace/>edit_nom').value = nom || '';
+        document.getElementById('<portlet:namespace/>edit_prix').value = prix || '';
+        document.getElementById('<portlet:namespace/>edit_categorie').value = categorie || '';
+        document.getElementById('<portlet:namespace/>edit_seuilMinimum').value = seuil || '';
+        document.getElementById('<portlet:namespace/>edit_description').value = description || '';
+
+        document.getElementById('editModalTitle').textContent = 'Modifier: ' + (nom || 'Médicament');
+        document.getElementById('editModal').style.display = 'flex';
+
+        setupEANCalculation('<portlet:namespace/>edit_codeBarre', 'edit_eanCalc');
+
+        setTimeout(function() {
+            document.getElementById('<portlet:namespace/>edit_code').focus();
+        }, 150);
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+        document.getElementById('edit_eanCalc').style.display = 'none';
+    }
+
+    // ESC key to close modals
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            if (document.getElementById('addModal').style.display === 'flex') {
+                closeAddModal();
+            }
+            if (document.getElementById('editModal').style.display === 'flex') {
+                closeEditModal();
+            }
+        }
+    });
+
+    // Setup EAN calculation for add modal
+    setupEANCalculation('<portlet:namespace/>add_codeBarre', 'add_eanCalc');
+
+    // Event delegation for edit buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.edit-btn')) {
+            e.preventDefault();
+            openEditModal(e.target.closest('.edit-btn'));
+        }
+    });
+
+    // Advanced filtering, sorting, and pagination
     (function(){
         var table = document.getElementById('medsTable');
         if(!table) return;
@@ -279,9 +509,13 @@
         var allRows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
         var filtered = allRows.slice();
         var search = document.getElementById('search');
+        var filterCategorie = document.getElementById('filterCategorie');
+        var filterPrixMin = document.getElementById('filterPrixMin');
+        var filterPrixMax = document.getElementById('filterPrixMax');
+        var filterSeuil = document.getElementById('filterSeuil');
         var pager = document.getElementById('pager');
         var rangeText = document.getElementById('rangeText');
-        var topCount = document.getElementById('topCount');
+        var pageSizeSelect = document.getElementById('pageSize');
 
         var pageSize = 10;
         var currentPage = 1;
@@ -299,15 +533,39 @@
             return txt(cell).toLowerCase();
         }
 
-        function applyFilter(){
+        function applyFilters(){
             var q = (search && search.value ? search.value.toLowerCase().trim() : '');
+            var cat = filterCategorie.value.toLowerCase();
+            var prixMin = filterPrixMin.value ? parseFloat(filterPrixMin.value) : null;
+            var prixMax = filterPrixMax.value ? parseFloat(filterPrixMax.value) : null;
+            var seuilMin = filterSeuil.value ? parseInt(filterSeuil.value) : null;
+
             filtered = allRows.filter(function(r){
-                if(!q) return true;
-                var nom=getVal(r,'nom'), code=getVal(r,'code'), cb=getVal(r,'codeBarre'),
-                    cat=getVal(r,'categorie'), desc=txt(r.querySelector('.desc')).toLowerCase();
-                return nom.indexOf(q)>-1 || code.indexOf(q)>-1 || cb.indexOf(q)>-1 ||
-                    cat.indexOf(q)>-1 || desc.indexOf(q)>-1;
+                if(q){
+                    var nom=getVal(r,'nom'), code=getVal(r,'code'), cb=getVal(r,'codeBarre'),
+                        catText=getVal(r,'categorie'), desc=txt(r.querySelector('.desc')).toLowerCase();
+                    if(!(nom.indexOf(q)>-1 || code.indexOf(q)>-1 || cb.indexOf(q)>-1 ||
+                        catText.indexOf(q)>-1 || desc.indexOf(q)>-1)) {
+                        return false;
+                    }
+                }
+
+                if(cat && getVal(r,'categorie') !== cat) {
+                    return false;
+                }
+
+                var prix = getVal(r,'prix');
+                if(prixMin !== null && prix < prixMin) return false;
+                if(prixMax !== null && prix > prixMax) return false;
+
+                if(seuilMin !== null) {
+                    var seuil = getVal(r,'seuil');
+                    if(seuil < seuilMin) return false;
+                }
+
+                return true;
             });
+
             currentPage = 1;
             applySort();
         }
@@ -334,19 +592,53 @@
             filtered.slice(start,end).forEach(function(r){ tbody.appendChild(r); });
 
             Array.prototype.slice.call(table.querySelectorAll('th.sortable .arrow'))
-                .forEach(function(a){ a.textContent='↕'; });
+                .forEach(function(a){ a.textContent='↕'; a.style.opacity='0.6'; a.style.fontWeight='normal'; });
             if(sort.key){
                 var th = table.querySelector('th.sortable[data-sort-key="'+sort.key+'"] .arrow');
-                if(th) th.textContent = (sort.dir===1 ? '↑' : '↓');
+                if(th) {
+                    th.textContent = (sort.dir===1 ? '▲' : '▼');
+                    th.style.opacity = '1';
+                    th.style.fontWeight = '700';
+                }
             }
 
             pager.innerHTML = '';
-            if(pages>1){
+            if(total === 0) {
+                pager.innerHTML = '<div style="color:var(--muted);font-style:italic;">Aucun résultat trouvé</div>';
+            } else if(pages > 1){
                 var prev=document.createElement('button');
-                prev.className='btn'; prev.textContent='Précédent'; prev.disabled=currentPage===1;
-                prev.onclick=function(){ currentPage--; render(); }; pager.appendChild(prev);
+                prev.className='btn';
+                prev.textContent='‹ Précédent';
+                prev.disabled=currentPage===1;
+                prev.style.opacity = currentPage===1 ? '0.5' : '1';
+                if(currentPage > 1) {
+                    prev.onclick=function(){ currentPage--; render(); };
+                }
+                pager.appendChild(prev);
 
-                for(var i=1;i<=pages;i++){
+                var startPage = Math.max(1, currentPage - 2);
+                var endPage = Math.min(pages, startPage + 4);
+                if(endPage - startPage < 4) {
+                    startPage = Math.max(1, endPage - 4);
+                }
+
+                if(startPage > 1) {
+                    var first = document.createElement('button');
+                    first.className = 'btn';
+                    first.textContent = '1';
+                    first.onclick = function(){ currentPage = 1; render(); };
+                    pager.appendChild(first);
+
+                    if(startPage > 2) {
+                        var dots = document.createElement('span');
+                        dots.textContent = '...';
+                        dots.style.padding = '0 8px';
+                        dots.style.color = 'var(--muted)';
+                        pager.appendChild(dots);
+                    }
+                }
+
+                for(var i=startPage; i<=endPage; i++){
                     var b=document.createElement('button');
                     b.className='btn' + (i===currentPage?' btn-primary':'');
                     b.textContent=i;
@@ -354,22 +646,74 @@
                     pager.appendChild(b);
                 }
 
+                if(endPage < pages) {
+                    if(endPage < pages - 1) {
+                        var dots2 = document.createElement('span');
+                        dots2.textContent = '...';
+                        dots2.style.padding = '0 8px';
+                        dots2.style.color = 'var(--muted)';
+                        pager.appendChild(dots2);
+                    }
+
+                    var last = document.createElement('button');
+                    last.className = 'btn';
+                    last.textContent = pages;
+                    last.onclick = function(){ currentPage = pages; render(); };
+                    pager.appendChild(last);
+                }
+
                 var next=document.createElement('button');
-                next.className='btn'; next.textContent='Suivant'; next.disabled=currentPage===pages;
-                next.onclick=function(){ currentPage++; render(); }; pager.appendChild(next);
+                next.className='btn';
+                next.textContent='Suivant ›';
+                next.disabled=currentPage===pages;
+                next.style.opacity = currentPage===pages ? '0.5' : '1';
+                if(currentPage < pages) {
+                    next.onclick=function(){ currentPage++; render(); };
+                }
+                pager.appendChild(next);
             }
 
             if(rangeText){
-                var from = total===0?0:start+1;
-                var to   = Math.min(end,total);
-                rangeText.textContent = 'Affichage '+from+'–'+to+' sur '+total;
-            }
-            if(topCount){
-                topCount.textContent = total + ' médicament' + (total>1?'s':'');
+                if(total === 0) {
+                    rangeText.textContent = 'Aucun médicament trouvé';
+                } else {
+                    var from = total===0?0:start+1;
+                    var to   = Math.min(end,total);
+                    rangeText.textContent = 'Affichage '+from+'–'+to+' sur '+total+' médicament' + (total>1?'s':'');
+                }
             }
         }
 
-        if(search){ search.addEventListener('input', applyFilter); }
+        function resetFilters() {
+            if(search) search.value = '';
+            if(filterCategorie) filterCategorie.value = '';
+            if(filterPrixMin) filterPrixMin.value = '';
+            if(filterPrixMax) filterPrixMax.value = '';
+            if(filterSeuil) filterSeuil.value = '';
+            applyFilters();
+        }
+        window.resetFilters = resetFilters;
+
+        var filterTimeout;
+        function debounceFilter() {
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(applyFilters, 300);
+        }
+
+        if(search) search.addEventListener('input', debounceFilter);
+        if(filterCategorie) filterCategorie.addEventListener('change', applyFilters);
+        if(filterPrixMin) filterPrixMin.addEventListener('input', debounceFilter);
+        if(filterPrixMax) filterPrixMax.addEventListener('input', debounceFilter);
+        if(filterSeuil) filterSeuil.addEventListener('input', debounceFilter);
+
+        if(pageSizeSelect) {
+            pageSizeSelect.addEventListener('change', function() {
+                pageSize = parseInt(this.value, 10);
+                currentPage = 1;
+                render();
+            });
+        }
+
         Array.prototype.slice.call(table.querySelectorAll('th.sortable')).forEach(function(th){
             th.addEventListener('click', function(){
                 var key = th.getAttribute('data-sort-key');
@@ -378,139 +722,9 @@
             });
         });
 
-        applyFilter();
+        applyFilters();
     })();
 </script>
-
-<script>
-    /* Modal open + PREFILL (by ID) — no MutationObserver, no template.content */
-    (function () {
-        const ns = '<portlet:namespace/>';
-        const modalId = ns + 'medModal';
-        const addURL = '${addMedURL}';
-        const updateURL = '${updateMedURL}';
-
-        // EAN helpers
-        const ENFORCE_EAN13 = false;
-        const cleanDigits = s => (s || '').replace(/\D/g, '');
-        function computeEAN13(b12){ let s=0; for(let i=0;i<12;i++){const d=b12.charCodeAt(i)-48; s+=(i%2?3:1)*d;} return (10-(s%10))%10; }
-        function isValidEAN13(s){ return /^[0-9]{13}$/.test(s) && (s.charCodeAt(12)-48)===computeEAN13(s.slice(0,12)); }
-
-        function prepareBarcode(){
-            const cb = document.getElementById(ns+'codeBarre');
-            if(!cb) return true;
-            cb.value = cleanDigits(cb.value);
-            if(cb.value.length===12){ cb.value += computeEAN13(cb.value); }
-            else if(cb.value.length===13){
-                if(!isValidEAN13(cb.value)){
-                    if(ENFORCE_EAN13){ cb.setCustomValidity('Code-barres EAN-13 invalide.'); cb.reportValidity && cb.reportValidity(); return false; }
-                    cb.value = cb.value.slice(0,12)+computeEAN13(cb.value.slice(0,12));
-                } else { cb.setCustomValidity(''); }
-            } else if(cb.value.length===0){ cb.setCustomValidity(''); }
-            else{
-                if(ENFORCE_EAN13){ cb.setCustomValidity('Entrez 12 ou 13 chiffres.'); cb.reportValidity && cb.reportValidity(); return false; }
-                cb.value=''; cb.setCustomValidity('');
-            }
-            return true;
-        }
-
-        function submitForm(){
-            const form = document.getElementById(ns+'medForm');
-            if(!form) return;
-            if(!prepareBarcode()) return;
-            if(form.checkValidity && !form.checkValidity()){ form.reportValidity && form.reportValidity(); return; }
-            form.requestSubmit ? form.requestSubmit() : form.submit();
-        }
-
-        // Prefill helpers
-        const setVal = (idNoNS, val) => {
-            const el = document.getElementById(ns + idNoNS);
-            if(el) el.value = (val===undefined || val===null || val==='null') ? '' : val;
-        };
-
-        function wireEANHint(){
-            const cb = document.getElementById(ns+'codeBarre');
-            const hint = document.getElementById(ns+'eanHint');
-            if (cb && hint){
-                const updateHint = () => {
-                    const raw = cleanDigits(cb.value||'');
-                    if(raw.length===12) hint.textContent = 'Calcul : ' + raw + computeEAN13(raw);
-                    else if(raw.length===13) hint.textContent = isValidEAN13(raw) ? 'EAN-13 valide'
-                        : 'EAN-13 invalide — devrait finir par ' + computeEAN13(raw.slice(0,12));
-                    else hint.textContent = '';
-                };
-                cb.addEventListener('input', updateHint);
-                updateHint();
-            }
-        }
-
-        function populate(mode, data){
-            const form = document.getElementById(ns+'medForm');
-            if(form) form.action = (mode==='add') ? addURL : updateURL;
-
-            if(mode==='edit'){
-                setVal('medicamentId', data.id);
-                setVal('code',        data.code);
-                setVal('codeBarre',   data.codebarre);
-                setVal('nom',         data.nom);
-                setVal('prix',        data.prix);
-                setVal('categorie',   data.categorie);
-                setVal('seuilMinimum',data.seuil);
-                setVal('description', data.description);
-            } else {
-                ['medicamentId','code','codeBarre','nom','prix','categorie','seuilMinimum','description']
-                    .forEach(k => setVal(k, ''));
-            }
-
-            const first = document.getElementById(ns+'code');
-            if (first) first.focus();
-
-            wireEANHint();
-        }
-
-        function openForm(mode, data){
-            const tpl = document.getElementById('medFormTPL');
-            const bodyHTML = tpl ? tpl.innerHTML : '<div>Form template introuvable</div>';
-
-            Liferay.Util.openModal({
-                id: modalId,
-                title: mode==='add' ? 'Ajouter un Médicament' : ('Modifier : ' + (data.nom || '')),
-                size: 'lg',
-                bodyHTML,
-                buttons: [
-                    { label: 'Annuler', onClick: ({processClose}) => processClose && processClose() },
-                    { label: mode==='add' ? 'Ajouter' : 'Mettre à jour', primary: true, onClick: submitForm }
-                ],
-                onOpen: () => {
-                    // Give Clay a tick to mount, then fill
-                    setTimeout(() => populate(mode, data), 0);
-                }
-            });
-        }
-
-        // Event delegation for openers
-        document.addEventListener('click', function (e) {
-            const trigger = e.target.closest('.js-med-open');
-            if (!trigger) return;
-            e.preventDefault();
-
-            const mode = trigger.dataset.mode || 'add';
-            const data = (mode === 'edit') ? {
-                id:          trigger.dataset.id,
-                code:        trigger.dataset.code,
-                codebarre:   trigger.dataset.codebarre,
-                nom:         trigger.dataset.nom,
-                prix:        trigger.dataset.prix,
-                categorie:   trigger.dataset.categorie,
-                seuil:       trigger.dataset.seuil,
-                description: trigger.dataset.description
-            } : {};
-
-            openForm(mode, data);
-        });
-    })();
-</script>
-
 
 </body>
 </html>
