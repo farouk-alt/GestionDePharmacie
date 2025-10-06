@@ -736,6 +736,499 @@
 
 
     </style>
+    <style>
+        /* Admin Dashboard Styles */
+        .admin-dashboard {
+            background: var(--bg);
+            padding: 0;
+        }
+
+        /* Header with Stats */
+        .admin-header-card {
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(30, 58, 138, 0.3);
+        }
+
+        .admin-header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .admin-header-left h2 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .admin-header-left p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .admin-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            flex: 1;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            margin-top: 4px;
+            opacity: 0.8;
+        }
+
+        .stat-change.up { color: #10B981; }
+        .stat-change.down { color: #EF4444; }
+
+        /* Control Panel */
+        .admin-controls {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .controls-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .search-wrapper {
+            position: relative;
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .search-wrapper input {
+            width: 100%;
+            padding: 12px 40px 12px 40px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .search-wrapper input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 10px 36px 10px 14px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            padding: 10px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+        }
+
+        .btn-icon:hover {
+            background: var(--hover);
+            border-color: var(--secondary);
+        }
+
+        .btn-icon.active {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        /* Table Card */
+        .admin-table-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table thead th {
+            background: #F8FAFC;
+            color: var(--text);
+            text-align: left;
+            padding: 16px;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .admin-table thead th.sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .admin-table thead th.sortable:hover {
+            background: #EFF6FF;
+        }
+
+        .admin-table thead th .sort-icon {
+            margin-left: 6px;
+            opacity: 0.4;
+            font-size: 10px;
+        }
+
+        .admin-table tbody td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .admin-table tbody tr {
+            transition: all 0.2s;
+        }
+
+        .admin-table tbody tr:hover {
+            background: var(--hover);
+        }
+
+        /* User Cell */
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+            text-transform: uppercase;
+        }
+
+        .user-info-box {
+            min-width: 0;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+
+        .user-email {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-badge.active {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .status-badge.inactive {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .status-badge.suspended {
+            background: #FEF3C7;
+            color: #78350F;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* Role Badge */
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .role-badge.super-admin {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .role-badge.admin {
+            background: #FEF3C7;
+            color: #78350F;
+        }
+
+        .role-badge.pharmacien {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .role-badge.fournisseur {
+            background: #DBEAFE;
+            color: #1E3A8A;
+        }
+
+        /* Activity Indicator */
+        .activity-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .activity-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .activity-dot.online { background: #10B981; }
+        .activity-dot.away { background: #F59E0B; }
+        .activity-dot.offline { background: #6B7280; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: var(--hover);
+            transform: translateY(-1px);
+        }
+
+        .action-btn.view {
+            color: var(--secondary);
+        }
+
+        .action-btn.message {
+            color: #10B981;
+        }
+
+        .action-btn.suspend {
+            color: #F59E0B;
+        }
+
+        .action-btn.activate {
+            color: #10B981;
+        }
+
+        /* Pagination */
+        .admin-pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .pagination-info {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .page-btn {
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .page-btn:hover {
+            background: var(--hover);
+        }
+
+        .page-btn.active {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--muted);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .admin-header-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .admin-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .controls-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-wrapper {
+                min-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-table thead th:nth-child(4),
+            .admin-table thead th:nth-child(5),
+            .admin-table tbody td:nth-child(4),
+            .admin-table tbody td:nth-child(5) {
+                display: none;
+            }
+        }
+    </style>
 
 
 </head>
@@ -802,13 +1295,16 @@
 
     <div class="tabs">
         <a class="tab ${currentSection=='overview' ? 'active' : ''}" href="${tabOverview}">Aperçu</a>
-        <a class="tab ${currentSection=='admins'   ? 'active' : ''}" href="${tabAdmins}">Admins</a>
+        <c:if test="${userRole == 'ADMIN' || userRole == 'SUPER_ADMIN'}">
+            <a class="tab ${currentSection=='admins' ? 'active' : ''}" href="${tabAdmins}">Utilisateurs</a>
+            <a class="tab ${currentSection=='logs' ? 'active' : ''}" href="${tabLogs}">Logs</a>
+            <a class="tab ${currentSection=='security' ? 'active' : ''}" href="${tabSecurity}">Sécurité</a>
+        </c:if>
+
         <%--
                 <a class="tab ${currentSection=='users'    ? 'active' : ''}" href="${tabUsers}">Employés</a>
         --%>
-        <a class="tab ${currentSection=='logs'     ? 'active' : ''}" href="${tabLogs}">Logs</a>
         <a class="tab ${currentSection=='stats'    ? 'active' : ''}" href="${tabStats}">Statistiques</a>
-        <a class="tab ${currentSection=='security' ? 'active' : ''}" href="${tabSecurity}">Sécurité</a>
         <c:if test="${userRole == 'ADMIN'}">
             <a class="tab ${currentSection=='medicaments' ? 'active' : ''}" href="${tabMedicaments}">Médicaments</a>
         </c:if>
@@ -842,14 +1338,7 @@
         <div class="message error">${fn:escapeXml(param.errorMsg)}</div>
     </c:if>
 
-    <!-- Debug -->
-    <div class="debug-info">
-        <b>Debug:</b>
-        section=${currentSection}
-        · user=${empty userEmail ? '-' : userEmail}
-        · role=${empty userRole ? '-' : userRole}
-        · employees=${employeesTotal}
-    </div>
+
 
     <%-- base for includes --%>
     <c:set var="fragBase" value="/common" />
@@ -858,103 +1347,304 @@
         <%-- Overview --%>
         <c:when test="${currentSection == 'overview'}">
             <div class="dashboard-cards">
-                <div class="card"><div class="card-header"><div class="card-icon"><i class="fas fa-pills"></i></div><h3 style="margin:0;">Gestion des Médicaments</h3></div><p>Consulter et gérer votre inventaire de médicaments.</p><c:if test="${userRole == 'ADMIN'}">
-                    <a href="${tabMedicaments}" class="btn btn-primary">Ouvrir les Médicaments</a>
+
+                <!-- Médicaments (ADMIN only) -->
+                <c:if test="${userRole == 'ADMIN'}">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon"><i class="fas fa-pills"></i></div>
+                            <h3 style="margin:0;">Gestion des Médicaments</h3>
+                        </div>
+                        <p>Consulter et gérer votre inventaire de médicaments.</p>
+                        <a href="${tabMedicaments}" class="btn btn-primary">Ouvrir les Médicaments</a>
+                    </div>
                 </c:if>
 
+                <!-- Commandes (ADMIN / PHARMACIEN / FOURNISSEUR) -->
+                <c:if test="${userRole == 'ADMIN' || userRole == 'PHARMACIEN' || userRole == 'FOURNISSEUR'}">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon"><i class="fas fa-shopping-cart"></i></div>
+                            <h3 style="margin:0;">Commandes</h3>
+                        </div>
+                        <p>Créer et suivre les commandes fournisseurs et clients.</p>
+                        <a href="${tabCommandes}" class="btn btn-primary">Aller aux Commandes</a>
+                    </div>
+                </c:if>
+
+                <!-- Stocks (ADMIN / PHARMACIEN) -->
+                <c:if test="${userRole == 'ADMIN' || userRole == 'PHARMACIEN'}">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon"><i class="fas fa-boxes-stacked"></i></div>
+                            <h3 style="margin:0;">Stocks</h3>
+                        </div>
+                        <p>Suivre les niveaux de stock et mouvements.</p>
+                        <a href="${tabStocks}" class="btn btn-primary">Gérer les Stocks</a>
+                    </div>
+                </c:if>
+
+                <!-- Ventes (ADMIN / PHARMACIEN) -->
+                <c:if test="${userRole == 'ADMIN' || userRole == 'PHARMACIEN'}">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon"><i class="fas fa-cash-register"></i></div>
+                            <h3 style="margin:0;">Ventes</h3>
+                        </div>
+                        <p>Enregistrer et consulter les ventes.</p>
+                        <a href="${tabVentes}" class="btn btn-primary">Ouvrir Ventes</a>
+                    </div>
+                </c:if>
+
+                <!-- Notifications (badge syncs with tab) -->
+                <div class="card">
+                    <div class="card-header" style="position:relative;">
+                        <div class="card-icon"><i class="fas fa-bell"></i></div>
+                        <h3 style="margin:0;">Notifications</h3>
+                        <span id="notifBadgeCard"
+                              style="position:absolute; right:8px; top:8px; min-width:26px; height:26px; padding:0 8px;
+                         display:none; border-radius:999px; background:#ef4444; color:#fff;
+                         font-weight:700; font-size:13px; line-height:26px; text-align:center;">
+              0
+            </span>
+                    </div>
+                    <p>Consulter vos notifications et alertes.</p>
+                    <a href="${tabNotifications}" class="btn btn-primary">Voir Notifications</a>
                 </div>
-                <div class="card"><div class="card-header"><div class="card-icon"><i class="fas fa-prescription"></i></div><h3 style="margin:0;">Ordonnances</h3></div><p>Gérer les ordonnances et les commandes des clients.</p></div>
-                <div class="card"><div class="card-header"><div class="card-icon"><i class="fas fa-users"></i></div><h3 style="margin:0;">Clients</h3></div><p>Consulter et gérer les informations des clients.</p></div>
-                <div class="card"><div class="card-header"><div class="card-icon"><i class="fas fa-chart-line"></i></div><h3 style="margin:0;">Rapports</h3></div><p>Générer des rapports et analyses de ventes.</p></div>
-                <div class="card"><div class="card-header"><div class="card-icon"><i class="fas fa-clipboard-list"></i></div><h3 style="margin:0;">Logs</h3></div><p>Consulter l’historique des connexions et actions.</p><a href="${tabLogs}" class="btn btn-primary">Voir Logs</a></div>
-                <div class="card"><div class="card-header"><div class="card-icon"><i class="fas fa-chart-pie"></i></div><h3 style="margin:0;">Statistiques</h3></div><p>Visualiser les statistiques globales de l’application.</p><a href="${tabStats}" class="btn btn-primary">Voir Statistiques</a></div>
-                <div class="card"><div class="card-header"><div class="card-icon"><i class="fas fa-lock"></i></div><h3 style="margin:0;">Sécurité</h3></div><p>Gérer les paramètres de sécurité et les autorisations.</p><a href="${tabSecurity}" class="btn btn-primary">Paramètres Sécurité</a></div>
+
+                <!-- Logs -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon"><i class="fas fa-clipboard-list"></i></div>
+                        <h3 style="margin:0;">Logs</h3>
+                    </div>
+                    <p>Consulter l’historique des connexions et actions.</p>
+                    <a href="${tabLogs}" class="btn btn-primary">Voir Logs</a>
+                </div>
+
+                <!-- Statistiques -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon"><i class="fas fa-chart-pie"></i></div>
+                        <h3 style="margin:0;">Statistiques</h3>
+                    </div>
+                    <p>Visualiser les statistiques globales de l’application.</p>
+                    <a href="${tabStats}" class="btn btn-primary">Voir Statistiques</a>
+                </div>
+
+                <!-- Sécurité -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon"><i class="fas fa-lock"></i></div>
+                        <h3 style="margin:0;">Sécurité</h3>
+                    </div>
+                    <p>Gérer les paramètres de sécurité et les autorisations.</p>
+                    <a href="${tabSecurity}" class="btn btn-primary">Paramètres Sécurité</a>
+                </div>
+
+                    <%-- Removed (no features yet)
+                    <div class="card"><div class="card-header"><div class="card-icon"><i class="fas fa-prescription"></i></div><h3 style="margin:0;">Ordonnances</h3></div><p>…</p></div>
+                    <div class="card"><div class="card-header"><div class="card-icon"><i class="fas fa-users"></i></div><h3 style="margin:0;">Clients</h3></div><p>…</p></div>
+                    <div class="card"><div class="card-header"><div class="card-icon"><i class="fas fa-chart-line"></i></div><h3 style="margin:0;">Rapports</h3></div><p>…</p></div>
+                    --%>
             </div>
+
         </c:when>
 
         <%-- Admins management --%>
+        <%-- Replace the admin section in your dashboard.jsp with this --%>
+
         <c:when test="${currentSection == 'admins'}">
             <c:if test="${userRole == 'SUPER_ADMIN' || userRole == 'ADMIN'}">
 
-                <%-- actions --%>
-                <portlet:actionURL name="addAdmin"    var="addAdminURL"/>
-                <portlet:actionURL name="switchRole"  var="switchRoleURL"/>
+                <portlet:actionURL name="deleteUser" var="deleteUserURL"/>
 
-                <%-- reuse your existing delete action server-side.
-                     If you have a generic delete, rename the action accordingly. --%>
-                <portlet:actionURL name="deleteAdmin" var="deleteUserURL"/>
+                <div class="admin-dashboard">
+                    <!-- Enhanced Header with More Stats -->
+                    <div class="admin-header-card">
+                        <div class="admin-header-content">
+                            <div class="admin-header-left">
+                                <h2><i class="fas fa-users-cog"></i> Gestion des Utilisateurs</h2>
+                                <p>Surveillez et gérez tous les utilisateurs du système</p>
+                            </div>
+                            <div class="admin-stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px;">
+                                <div class="stat-box">
+                                    <div class="stat-number" id="totalUsersCount">0</div>
+                                    <div class="stat-label">Total</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-number" id="adminUsersCount">0</div>
+                                    <div class="stat-label">Admins</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-number" id="pharmacienCount">0</div>
+                                    <div class="stat-label">Pharmaciens</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-number" id="fournisseurCount">0</div>
+                                    <div class="stat-label">Fournisseurs</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-number" id="newUsersCount">0</div>
+                                    <div class="stat-label">Ce mois</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="adm-header">
-                    <h2>👥 Utilisateurs & Admins</h2>
-                    <div class="header-actions">
-                        <span class="adm-count" id="admTopCount"></span>
+                    <!-- Enhanced Control Panel -->
+                    <div class="admin-controls">
+                        <div class="controls-row">
+                            <div class="search-wrapper">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="search" id="adminSearch" placeholder="Rechercher par nom, email ou rôle...">
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn-icon" id="exportBtn" title="Exporter en CSV">
+                                    <i class="fas fa-download"></i>
+                                    Exporter
+                                </button>
+                                <button class="btn-icon" id="refreshBtn" title="Actualiser">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
 
-                        <c:if test="${userRole == 'SUPER_ADMIN'}">
-                            <button type="button" class="btn btn-primary js-admin-open" data-mode="add">
-                                + Ajouter Admin
+                        <div class="controls-row">
+                            <div class="filter-group">
+                                <!-- Role Filter -->
+                                <select id="roleFilter" class="filter-select">
+                                    <option value="">Tous les rôles</option>
+                                    <option value="SUPER_ADMIN">Super Admin</option>
+                                    <option value="ADMIN">Admin</option>
+                                    <option value="PHARMACIEN">Pharmacien</option>
+                                    <option value="FOURNISSEUR">Fournisseur</option>
+                                </select>
+
+                                <!-- Date Filter -->
+                                <select id="dateFilter" class="filter-select">
+                                    <option value="">Toutes les dates</option>
+                                    <option value="today">Aujourd'hui</option>
+                                    <option value="week">Cette semaine</option>
+                                    <option value="month">Ce mois</option>
+                                    <option value="year">Cette année</option>
+                                </select>
+
+                                <!-- Sort Order -->
+                                <select id="sortOrder" class="filter-select">
+                                    <option value="name-asc">Nom (A-Z)</option>
+                                    <option value="name-desc">Nom (Z-A)</option>
+                                    <option value="date-new">Plus récent</option>
+                                    <option value="date-old">Plus ancien</option>
+                                    <option value="email-asc">Email (A-Z)</option>
+                                </select>
+                            </div>
+
+                            <button class="btn-icon" id="resetFilters">
+                                <i class="fas fa-redo"></i>
+                                Réinitialiser
                             </button>
-                        </c:if>
-                    </div>
-                </div>
+                        </div>
 
-                <div class="adm-card">
-                    <div class="adm-controls">
-                        <input id="admSearch" type="search" placeholder="Rechercher (nom, email, rôle)…"/>
-                        <span class="adm-range" id="admRange"></span>
+                        <!-- Active Filters Display -->
+                        <div id="activeFilters" style="display:none; margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;"></div>
                     </div>
 
-                    <table id="admTable">
-                        <thead>
-                        <tr>
-                            <th class="sortable" data-sort-key="name">Nom <span class="arrow">↕</span></th>
-                            <th class="sortable" data-sort-key="email">Email <span class="arrow">↕</span></th>
-                            <th class="sortable" data-sort-key="role">Rôle <span class="arrow">↕</span></th>
-                            <th class="sortable" data-sort-key="created">Date création <span class="arrow">↕</span></th>
-                            <th class="sortable" data-sort-key="last">Dernière connexion <span class="arrow">↕</span></th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <c:forEach var="u" items="${employees}">
+                    <!-- Table -->
+                    <div class="admin-table-card">
+                        <table class="admin-table">
+                            <thead>
                             <tr>
-                                <td data-key="name">${fn:escapeXml(u.prenom)} ${fn:escapeXml(u.nom)}</td>
-                                <td data-key="email">${fn:escapeXml(u.email)}</td>
-                                <td data-key="role">${fn:escapeXml(u.role)}</td>
-                                <td data-key="created" data-sort="${u.dateCreation.time}">
-                                    <fmt:formatDate value="${u.dateCreation}" pattern="dd/MM/yyyy HH:mm"/>
-                                </td>
-                                <td data-key="last" data-sort="${empty u.lastLogin ? 0 : u.lastLogin.time}">
-                                    <c:choose>
-                                        <c:when test="${not empty u.lastLogin}">
-                                            <fmt:formatDate value="${u.lastLogin}" pattern="dd/MM/yyyy HH:mm"/>
-                                        </c:when>
-                                        <c:otherwise>-</c:otherwise>
-                                    </c:choose>
-                                </td>
-                                <td>
-                                    <!-- EDIT (role) for everyone -->
-                                    <button class="icon-btn js-role"
-                                            title="Modifier le rôle"
-                                            data-email="${fn:escapeXml(u.email)}"
-                                            data-current="${fn:escapeXml(u.role)}">
-                                        <i class="fa-regular fa-pen-to-square"></i>
-                                    </button>
-
-                                    <!-- DELETE for everyone (white trash on red) -->
-                                    <form action="${deleteUserURL}" method="post" style="display:inline"
-                                          onsubmit="return confirm('Supprimer ${fn:escapeXml(u.email)} ?');">
-                                        <input type="hidden" name="<portlet:namespace/>email" value="${fn:escapeXml(u.email)}"/>
-                                        <button type="submit" class="icon-btn danger" title="Supprimer">
-                                            <i class="fa-solid fa-trash-can"></i>
-                                        </button>
-                                    </form>
-                                </td>
+                                <th class="sortable" data-sort="name">
+                                    Utilisateur <span class="sort-icon">↕</span>
+                                </th>
+                                <th class="sortable" data-sort="role">
+                                    Rôle <span class="sort-icon">↕</span>
+                                </th>
+                                <th class="sortable" data-sort="created">
+                                    Créé le <span class="sort-icon">↕</span>
+                                </th>
+                                <th>Actions</th>
                             </tr>
-                        </c:forEach>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody id="adminTableBody">
+                            <c:forEach var="u" items="${employees}">
+                                <tr data-name="${fn:escapeXml(u.prenom)} ${fn:escapeXml(u.nom)}"
+                                    data-email="${fn:escapeXml(u.email)}"
+                                    data-role="${fn:escapeXml(u.role)}"
+                                    data-created="${u.dateCreation.time}">
 
-                    <div class="pager" id="admPager"></div>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-avatar-box">
+                                                    ${!empty u.prenom ? fn:toUpperCase(fn:substring(u.prenom,0,1)) : '?'}${!empty u.nom ? fn:toUpperCase(fn:substring(u.nom,0,1)) : ''}
+                                            </div>
+                                            <div class="user-info-box">
+                                                <div class="user-name">${fn:escapeXml(u.prenom)} ${fn:escapeXml(u.nom)}</div>
+                                                <div class="user-email">${fn:escapeXml(u.email)}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${u.role == 'SUPER_ADMIN'}">
+                                                <span class="role-badge super-admin">Super Admin</span>
+                                            </c:when>
+                                            <c:when test="${u.role == 'ADMIN'}">
+                                                <span class="role-badge admin">Admin</span>
+                                            </c:when>
+                                            <c:when test="${u.role == 'PHARMACIEN'}">
+                                                <span class="role-badge pharmacien">Pharmacien</span>
+                                            </c:when>
+                                            <c:when test="${u.role == 'FOURNISSEUR'}">
+                                                <span class="role-badge fournisseur">Fournisseur</span>
+                                            </c:when>
+                                        </c:choose>
+                                    </td>
+
+                                    <td data-sort="${u.dateCreation.time}">
+                                        <fmt:formatDate value="${u.dateCreation}" pattern="dd/MM/yyyy"/>
+                                    </td>
+
+                                    <td>
+                                        <div class="action-buttons">
+                                            <c:if test="${u.role != 'ADMIN' && u.role != 'SUPER_ADMIN'}">
+                                                <button class="action-btn view" title="Consulter"
+                                                        onclick="consultUser('${fn:escapeXml(u.email)}', '${fn:escapeXml(u.prenom)}', '${fn:escapeXml(u.nom)}', '${fn:escapeXml(u.role)}', '${u.dateCreation.time}')">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </c:if>
+
+                                            <c:if test="${u.role != 'SUPER_ADMIN'}">
+                                                <form action="${deleteUserURL}" method="post" style="display:inline"
+                                                      onsubmit="return confirm('Supprimer ${fn:escapeXml(u.email)} ?');">
+                                                    <input type="hidden" name="<portlet:namespace/>email" value="${fn:escapeXml(u.email)}"/>
+                                                    <button type="submit" class="action-btn" style="color:#EF4444;" title="Supprimer">
+                                                        <i class="fa-solid fa-trash-can"></i>
+                                                    </button>
+                                                </form>
+                                            </c:if>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                            </tbody>
+                        </table>
+
+                        <div id="emptyState" class="empty-state" style="display:none;">
+                            <div class="empty-icon"><i class="fas fa-users-slash"></i></div>
+                            <div class="empty-title">Aucun utilisateur trouvé</div>
+                            <p>Essayez de modifier vos critères de recherche</p>
+                        </div>
+
+                        <div class="admin-pagination">
+                            <div class="pagination-info" id="paginationInfo">
+                                Affichage 1-5 sur 0
+                            </div>
+                            <div class="pagination-controls" id="paginationControls"></div>
+                        </div>
+                    </div>
                 </div>
             </c:if>
         </c:when>
@@ -1144,130 +1834,49 @@
 
         </form>
     </template>
+    <template id="userViewTPL">
+        <div style="padding:20px;">
+            <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:20px;">
+                <div><strong>Nom complet:</strong> <span data-f="fullName"></span></div>
+                <div><strong>Email:</strong> <span data-f="email"></span></div>
+                <div><strong>Rôle:</strong> <span data-f="role"></span></div>
+                <div><strong>Créé le:</strong> <span data-f="created"></span></div>
+            </div>
+            <p style="color:#6B7280; font-size:14px; margin:0;">
+                <i class="fas fa-info-circle"></i>
+                Fonctionnalités supplémentaires (commandes, ventes, etc.) à venir
+            </p>
+        </div>
+    </template>
+
 
 </div>
-
 <script>
-    (function(){
-        // Elements
-        var searchInput = document.getElementById('employeeSearch');
-        var table = document.getElementById('employeesTable');
-        if(!table){ return; } // not on admins section or no employees
-        var tbody = table.querySelector('tbody');
-        var allRows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
-        var pager = document.getElementById('pager');
-        var pagerInfo = document.getElementById('pagerInfo');
+    function consultUser(email, prenom, nom, role){
+        // find the row to read the created date text
+        const row = Array.from(document.querySelectorAll('#adminTableBody tr'))
+            .find(r => r.dataset.email === email);
+        const createdText = row ? row.querySelector('td[data-sort]').textContent.trim() : '';
 
-        var pageSize = 5;
-        var currentPage = 1;
-        var currentSort = { key: null, dir: 1 };
-        var filtered = allRows.slice();
+        const tpl = document.getElementById('userViewTPL');
+        const div = document.createElement('div');
+        div.innerHTML = tpl.innerHTML;
 
-        function text(el){ return (el.textContent || '').trim(); }
-        function num(v){ v = parseInt(v,10); return isNaN(v) ? 0 : v; }
+        div.querySelector('[data-f="fullName"]').textContent = (prenom + ' ' + nom).trim();
+        div.querySelector('[data-f="email"]').textContent = email;
+        div.querySelector('[data-f="role"]').textContent = role;
+        div.querySelector('[data-f="created"]').textContent = createdText;
 
-        function getCell(row, key){
-            return row.querySelector('td[data-key="'+key+'"]');
-        }
-        function getVal(row, key){
-            switch(key){
-                case 'name': return text(getCell(row,'name')).toLowerCase();
-                case 'email': return text(getCell(row,'email')).toLowerCase();
-                case 'role': return text(getCell(row,'role')).toLowerCase();
-                case 'dateCreation': return num(getCell(row,'dateCreation').getAttribute('data-sort'));
-                case 'lastLogin': return num(getCell(row,'lastLogin').getAttribute('data-sort'));
-                default: return '';
-            }
-        }
-
-        function applyFilter(){
-            var q = (searchInput && searchInput.value ? searchInput.value : '').trim().toLowerCase();
-            filtered = allRows.filter(function(row){
-                var name = getVal(row,'name'), email = getVal(row,'email'), role = getVal(row,'role');
-                return !q || name.indexOf(q) > -1 || email.indexOf(q) > -1 || role.indexOf(q) > -1;
-            });
-            currentPage = 1;
-            applySort();
-        }
-
-        function applySort(){
-            if(currentSort.key){
-                filtered.sort(function(a,b){
-                    var va = getVal(a, currentSort.key), vb = getVal(b, currentSort.key);
-                    if(va < vb) return -1 * currentSort.dir;
-                    if(va > vb) return  1 * currentSort.dir;
-                    return 0;
-                });
-            }
-            renderPage();
-        }
-
-        function renderPage(){
-            tbody.innerHTML = '';
-            var total = filtered.length;
-            var totalPages = Math.max(1, Math.ceil(total / pageSize));
-            if(currentPage > totalPages) currentPage = totalPages;
-            var start = (currentPage - 1) * pageSize;
-            var end = start + pageSize;
-            filtered.slice(start, end).forEach(function(r){ tbody.appendChild(r); });
-
-            // pager buttons
-            pager.innerHTML = '';
-            if(totalPages > 1){
-                var prev = document.createElement('button');
-                prev.textContent = 'Précédent';
-                prev.className = 'btn';
-                prev.disabled = currentPage === 1;
-                prev.addEventListener('click', function(){ currentPage--; renderPage(); });
-                pager.appendChild(prev);
-
-                for(var p=1; p<=totalPages; p++){
-                    var btn = document.createElement('button');
-                    btn.textContent = p;
-                    btn.className = 'btn' + (p===currentPage ? ' btn-primary' : '');
-                    (function(page){ btn.addEventListener('click', function(){ currentPage = page; renderPage(); }); })(p);
-                    pager.appendChild(btn);
-                }
-
-                var next = document.createElement('button');
-                next.textContent = 'Suivant';
-                next.className = 'btn';
-                next.disabled = currentPage === totalPages;
-                next.addEventListener('click', function(){ currentPage++; renderPage(); });
-                pager.appendChild(next);
-            }
-
-            if(pagerInfo){
-                var from = total === 0 ? 0 : start + 1;
-                var to = Math.min(end, total);
-                pagerInfo.textContent = 'Affichage ' + from + '–' + to + ' sur ' + total;
-            }
-        }
-
-        // sorting header clicks
-        Array.prototype.slice.call(table.querySelectorAll('thead th.sortable')).forEach(function(th){
-            th.addEventListener('click', function(){
-                var key = th.getAttribute('data-sort-key');
-                if(currentSort.key === key){
-                    currentSort.dir *= -1;
-                }else{
-                    currentSort.key = key;
-                    currentSort.dir = 1;
-                }
-                // update arrow indicators
-                Array.prototype.slice.call(table.querySelectorAll('thead th.sortable .arrow')).forEach(function(a){ a.textContent = '↕'; });
-                var arrow = th.querySelector('.arrow');
-                if(arrow){ arrow.textContent = currentSort.dir === 1 ? '↑' : '↓'; }
-                applySort();
-            });
+        Liferay.Util.openModal({
+            id: '<portlet:namespace/>userView',
+            title: 'Fiche Utilisateur',
+            size: 'lg',
+            bodyHTML: div.innerHTML,
+            buttons: [{ label: 'Fermer', onClick: ({processClose}) => processClose && processClose() }]
         });
-
-        if(searchInput){ searchInput.addEventListener('input', applyFilter); }
-
-        // init
-        applyFilter();
-    })();
+    }
 </script>
+
 <script>
     (function(){
         const ns = '<portlet:namespace />';  // or: const ns = '<%= renderResponse.getNamespace() %>';
@@ -1483,6 +2092,270 @@
 
         refreshBadge();
         setInterval(refreshBadge, 30000); // every 30s
+    })();
+</script>
+<script>
+    (function () {
+        const tbody = document.getElementById('adminTableBody');
+        if (!tbody) return;
+
+        // UI refs
+        const emptyState           = document.getElementById('emptyState');
+        const searchInput          = document.getElementById('adminSearch');
+        const roleFilter           = document.getElementById('roleFilter');
+        const dateFilter           = document.getElementById('dateFilter');
+        const sortOrder            = document.getElementById('sortOrder');
+        const resetBtn             = document.getElementById('resetFilters');
+        const exportBtn            = document.getElementById('exportBtn');
+        const refreshBtn           = document.getElementById('refreshBtn');
+        const paginationInfo       = document.getElementById('paginationInfo');
+        const paginationControls   = document.getElementById('paginationControls');
+
+        // Data
+        const pageSize = 5;
+        let allRows      = Array.from(tbody.querySelectorAll('tr'));
+        let filteredRows = allRows.slice();
+        let currentPage  = 1;
+
+        // ---- Stats (header cards) ----
+        function updateStats() {
+            const total        = allRows.length;
+            const admins       = allRows.filter(r => (r.dataset.role === 'ADMIN' || r.dataset.role === 'SUPER_ADMIN')).length;
+            const pharmaciens  = allRows.filter(r => r.dataset.role === 'PHARMACIEN').length;
+            const fournisseurs = allRows.filter(r => r.dataset.role === 'FOURNISSEUR').length;
+
+            const monthAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+            const newUsers = allRows.filter(r => (parseInt(r.dataset.created || '0', 10) > monthAgo)).length;
+
+            const put = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+
+            put('totalUsersCount', total);
+            put('adminUsersCount', admins);
+            put('pharmacienCount', pharmaciens);
+            put('fournisseurCount', fournisseurs);
+            put('newUsersCount', newUsers);
+        }
+
+        // ---- Filtering ----
+        function applyFilters() {
+            const query     = (searchInput.value || '').toLowerCase().trim();
+            const roleValue = roleFilter.value;
+            const dateRange = dateFilter.value;
+
+            filteredRows = allRows.filter(row => {
+                const name    = (row.dataset.name   || '').toLowerCase();
+                const email   = (row.dataset.email  || '').toLowerCase();
+                const rowRole = (row.dataset.role   || '').toLowerCase();
+
+                const matchSearch  = !query || name.includes(query) || email.includes(query) || rowRole.includes(query);
+                const matchRole    = !roleValue || row.dataset.role === roleValue;
+
+                // Date range
+                let matchDate = true;
+                if (dateRange) {
+                    const created = parseInt(row.dataset.created || '0', 10);
+                    const now = Date.now();
+                    const day = 24 * 60 * 60 * 1000;
+
+                    switch (dateRange) {
+                        case 'today': matchDate = (now - created) < day; break;
+                        case 'week':  matchDate = (now - created) < (7 * day); break;
+                        case 'month': matchDate = (now - created) < (30 * day); break;
+                        case 'year':  matchDate = (now - created) < (365 * day); break;
+                    }
+                }
+
+                return matchSearch && matchRole && matchDate;
+            });
+
+            currentPage = 1;
+            applySorting();
+        }
+
+        // ---- Sorting ----
+        function applySorting() {
+            const order = sortOrder.value;
+
+            filteredRows.sort((a, b) => {
+                switch (order) {
+                    case 'name-asc':
+                        return (a.dataset.name || '').localeCompare(b.dataset.name || '');
+                    case 'name-desc':
+                        return (b.dataset.name || '').localeCompare(a.dataset.name || '');
+                    case 'date-new':
+                        return (parseInt(b.dataset.created || '0', 10) - parseInt(a.dataset.created || '0', 10));
+                    case 'date-old':
+                        return (parseInt(a.dataset.created || '0', 10) - parseInt(b.dataset.created || '0', 10));
+                    case 'email-asc':
+                        return (a.dataset.email || '').localeCompare(b.dataset.email || '');
+                    default:
+                        return 0;
+                }
+            });
+
+            renderTable();
+        }
+
+        // ---- Pagination + render ----
+        function renderTable() {
+            tbody.innerHTML = '';
+
+            const total = filteredRows.length;
+            const totalPages = Math.max(1, Math.ceil(total / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const start = (currentPage - 1) * pageSize;
+            const end   = start + pageSize;
+            const pageRows = filteredRows.slice(start, end);
+
+            if (pageRows.length === 0) {
+                emptyState.style.display = 'block';
+                // hide body so headers remain
+                tbody.parentElement.style.display = 'none';
+            } else {
+                emptyState.style.display = 'none';
+                tbody.parentElement.style.display = '';
+                pageRows.forEach(row => tbody.appendChild(row));
+            }
+
+            // Info
+            const from = total === 0 ? 0 : start + 1;
+            const to   = Math.min(end, total);
+            paginationInfo.textContent = `Affichage ${from}-${to} sur ${total}`;
+
+            // Controls
+            paginationControls.innerHTML = '';
+            if (totalPages > 1) {
+                const makeBtn = (txt, cls = 'page-btn') => {
+                    const b = document.createElement('button');
+                    b.className = cls;
+                    b.textContent = txt;
+                    return b;
+                };
+
+                // Prev
+                const prev = makeBtn('←');
+                prev.disabled = currentPage === 1;
+                prev.onclick = () => { currentPage--; renderTable(); };
+                paginationControls.appendChild(prev);
+
+                // Pages (compact with ellipses)
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                        const b = makeBtn(String(i), 'page-btn' + (i === currentPage ? ' active' : ''));
+                        b.onclick = () => { currentPage = i; renderTable(); };
+                        paginationControls.appendChild(b);
+                    } else if (i === currentPage - 2 || i === currentPage + 2) {
+                        const span = document.createElement('span');
+                        span.textContent = '...';
+                        span.style.padding = '0 8px';
+                        span.style.color = '#6B7280';
+                        paginationControls.appendChild(span);
+                    }
+                }
+
+                // Next
+                const next = makeBtn('→');
+                next.disabled = currentPage === totalPages;
+                next.onclick = () => { currentPage++; renderTable(); };
+                paginationControls.appendChild(next);
+            }
+        }
+
+        // ---- Export CSV (reads from rendered cells, not data-*) ----
+        // ---- Export CSV (reads from rendered cells, not data-*) ----
+        // ---- Export CSV (reads from rendered cells, not data-*) ----
+        exportBtn.addEventListener('click', function () {
+            function esc(v) {
+                var s = (v == null ? '' : String(v));
+                return '"' + s.replace(/"/g, '""') + '"';
+            }
+
+            var csv = 'Nom,Email,Rôle,Date création\n';
+
+            filteredRows.forEach(function (row) {
+                var name    = (row.querySelector('.user-name') || {}).textContent || '';
+                var email   = (row.querySelector('.user-email') || {}).textContent || '';
+                var roleEl  = row.querySelector('td:nth-child(2) .role-badge');
+                var role    = (roleEl ? roleEl.textContent : row.dataset.role || '');
+                var createdCell = row.querySelector('td[data-sort]');
+                var created = createdCell
+                    ? createdCell.textContent.trim()
+                    : (function () {
+                        var ts = Number(row.dataset.created || 0);
+                        return ts ? new Date(ts).toLocaleDateString('fr-FR') : '';
+                    })();
+
+                csv += [esc(name.trim()), esc(email.trim()), esc(role.trim()), esc(created)].join(',') + '\n';
+            });
+
+            var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            var url  = URL.createObjectURL(blob);
+            var a    = document.createElement('a');
+            a.href = url;
+            a.download = 'utilisateurs_' + new Date().toISOString().split('T')[0] + '.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+
+        // ---- Refresh ----
+  refreshBtn.addEventListener('click', () => {
+    refreshBtn.querySelector('i')?.classList.add('fa-spin');
+    setTimeout(() => location.reload(), 500);
+  });
+
+  // ---- Listeners ----
+  searchInput.addEventListener('input', () => {
+    clearTimeout(searchInput._t);
+    searchInput._t = setTimeout(applyFilters, 300);
+  });
+  roleFilter.addEventListener('change', applyFilters);
+  dateFilter.addEventListener('change', applyFilters);
+  sortOrder.addEventListener('change', applySorting);
+
+  resetBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    roleFilter.value  = '';
+    dateFilter.value  = '';
+    sortOrder.value   = 'name-asc';
+    applyFilters();
+  });
+
+  // ---- Init ----
+  updateStats();
+  applyFilters();
+})();
+</script>
+
+<script>
+    (function () {
+        var tabBadge  = document.getElementById('notifBadge');
+        var cardBadge = document.getElementById('notifBadgeCard');
+        var url = '${notifUnreadURL}';
+        if (!tabBadge && !cardBadge) return;
+
+        function setBadge(el, n) {
+            if (!el) return;
+            if (n > 0) { el.textContent = n; el.style.display = 'inline-block'; }
+            else { el.style.display = 'none'; }
+        }
+
+        function refreshBadge(){
+            fetch(url, {credentials: 'same-origin'})
+                .then(r => r.ok ? r.json() : {unread:0})
+                .then(d => {
+                    const n = (d && typeof d.unread === 'number') ? d.unread : 0;
+                    setBadge(tabBadge, n);
+                    setBadge(cardBadge, n);
+                })
+                .catch(() => {});
+        }
+
+        refreshBadge();
+        setInterval(refreshBadge, 30000);
     })();
 </script>
 

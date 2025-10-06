@@ -82,40 +82,40 @@ public class DashboardWebPortlet extends MVCPortlet {
         response.setRenderParameter("section", "admins");
     }
 
-    @ProcessAction(name = "deleteAdmin")
-    public void deleteAdmin(ActionRequest request, ActionResponse response) throws Exception {
-        HttpSession hs = PortalSessionUtil.httpSession(request);
-        String currentRole = (String) hs.getAttribute(PortalSessionKeys.USER_ROLE);
-        String currentEmail = (String) hs.getAttribute(PortalSessionKeys.USER_EMAIL);
-
-        if (!"SUPER_ADMIN".equals(currentRole)) {
-            response.setRenderParameter("errorMsg", "Seul le Super Admin peut supprimer un administrateur.");
-            response.setRenderParameter("mvcPath", "/common/dashboard.jsp");
-            response.setRenderParameter("section", "admins");
-            return;
-        }
-
+    @ProcessAction(name = "deleteUser")
+    public void deleteUser(ActionRequest request, ActionResponse response) throws Exception {
+        String actorRole = getEffectiveRole(request);
         String email = ParamUtil.getString(request, "email");
+
         try {
             Utilisateur target = UtilisateurLocalServiceUtil.getUtilisateurByEmail(email);
             if (target == null) {
                 response.setRenderParameter("errorMsg", "Aucun utilisateur trouvé avec l'email: " + email);
             } else if ("SUPER_ADMIN".equals(target.getRole())) {
                 response.setRenderParameter("errorMsg", "Impossible de supprimer un SUPER_ADMIN.");
-            } else if (email.equals(currentEmail)) {
-                response.setRenderParameter("errorMsg", "Vous ne pouvez pas supprimer votre propre compte.");
-            } else if (!"ADMIN".equals(target.getRole())) {
-                response.setRenderParameter("errorMsg", "L'utilisateur " + email + " n'est pas un administrateur.");
+            } else if ("ADMIN".equals(target.getRole())) {
+                // only SUPER_ADMIN may delete ADMIN
+                if (!"SUPER_ADMIN".equals(actorRole)) {
+                    response.setRenderParameter("errorMsg", "Seul le Super Admin peut supprimer un administrateur.");
+                } else {
+                    UtilisateurLocalServiceUtil.deleteUtilisateur(target.getIdUtilisateur());
+                    response.setRenderParameter("successMsg", "Admin " + email + " supprimé avec succès.");
+                }
             } else {
-                UtilisateurLocalServiceUtil.deleteUtilisateur(target.getIdUtilisateur());
-                response.setRenderParameter("successMsg", "Admin " + email + " supprimé avec succès.");
+                // PHARMACIEN / FOURNISSEUR
+                if (!"ADMIN".equals(actorRole) && !"SUPER_ADMIN".equals(actorRole)) {
+                    response.setRenderParameter("errorMsg", "Autorisation refusée.");
+                } else {
+                    UtilisateurLocalServiceUtil.deleteUtilisateur(target.getIdUtilisateur());
+                    response.setRenderParameter("successMsg", "Utilisateur " + email + " supprimé avec succès.");
+                }
             }
         } catch (Exception e) {
             response.setRenderParameter("errorMsg", "Erreur lors de la suppression: " + e.getMessage());
         }
 
         response.setRenderParameter("mvcPath", "/common/dashboard.jsp");
-        response.setRenderParameter("section", "admins");
+        response.setRenderParameter("section", "utilisateurs");
     }
 
     @ProcessAction(name = "switchRole")

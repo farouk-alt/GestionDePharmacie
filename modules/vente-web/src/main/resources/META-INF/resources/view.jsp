@@ -18,10 +18,6 @@
 </style>
 
 <div class="v-card">
-    <div style="padding:6px 10px;margin-bottom:8px;border:1px dashed #bbb;color:#555">
-        VenteWeb view.jsp — ns: <code><portlet:namespace/></code>
-        — medsCount: <strong>${medsCount}</strong>
-    </div>
 
     <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
         <input id="inpScan" class="inp" placeholder="Scanner code barre… ou saisir nom/code puis Entrée" autofocus>
