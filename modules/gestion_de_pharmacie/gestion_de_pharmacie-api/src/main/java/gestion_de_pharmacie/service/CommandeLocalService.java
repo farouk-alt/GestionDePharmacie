@@ -5,6 +5,8 @@
 
 package gestion_de_pharmacie.service;
 
+import static gestion_de_pharmacie.service.CommandeLocalServiceUtil.deleteCommande;
+
 import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
@@ -53,6 +55,8 @@ public interface CommandeLocalService
 	 *
 	 * Never modify this interface directly. Add custom service methods to <code>gestion_de_pharmacie.service.impl.CommandeLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the commande local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link CommandeLocalServiceUtil} if injection and service tracking are not available.
 	 */
+	public void acceptCommande(long actorId, long commandeId)
+		throws PortalException;
 
 	/**
 	 * Adds the commande to the database. Also notifies the appropriate model listeners.
@@ -66,6 +70,9 @@ public interface CommandeLocalService
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	public Commande addCommande(Commande commande);
+
+	public void cancelCommande(long actorId, long commandeId)
+		throws PortalException;
 
 	/**
 	 * Creates a new commande with the primary key. Does not add the commande to the database.
@@ -108,6 +115,10 @@ public interface CommandeLocalService
 	 */
 	@Indexable(type = IndexableType.DELETE)
 	public Commande deleteCommande(long idCommande) throws PortalException;
+
+	@Transactional(rollbackFor = Exception.class)
+	public void deleteCommandeWithDetails(long commandeId)
+		throws PortalException;
 
 	/**
 	 * @throws PortalException
@@ -218,6 +229,9 @@ public interface CommandeLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<Commande> getCommandes(int start, int end);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Commande> getCommandesByUtilisateurId(long idUtilisateur);
+
 	/**
 	 * Returns the number of commandes.
 	 *
@@ -245,6 +259,24 @@ public interface CommandeLocalService
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
+		throws PortalException;
+
+	public void notifyCommandeEdited(long actorId, long commandeId)
+		throws PortalException;
+
+	public void reassignCommande(
+			long actorId, long commandeId, long newFournisseurId,
+			boolean sendNow)
+		throws PortalException;
+
+	public void receiveCommande(long commandeId) throws Exception;
+
+	public void receiveCommande(long actorId, long commandeId) throws Exception;
+
+	public void rejectCommande(long actorId, long commandeId)
+		throws PortalException;
+
+	public void sendCommande(long actorId, long commandeId)
 		throws PortalException;
 
 	/**

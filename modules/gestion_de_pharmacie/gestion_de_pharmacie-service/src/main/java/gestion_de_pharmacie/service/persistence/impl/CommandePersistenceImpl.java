@@ -86,44 +86,44 @@ public class CommandePersistenceImpl
 	private FinderPath _finderPathCountByIdFournisseur;
 
 	/**
-	 * Returns all the commandes where idFournisseur = &#63;.
+	 * Returns all the commandes where idUtilisateur = &#63;.
 	 *
-	 * @param idFournisseur the id fournisseur
+	 * @param idUtilisateur the id utilisateur
 	 * @return the matching commandes
 	 */
 	@Override
-	public List<Commande> findByIdFournisseur(long idFournisseur) {
+	public List<Commande> findByIdFournisseur(long idUtilisateur) {
 		return findByIdFournisseur(
-			idFournisseur, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+			idUtilisateur, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
 	/**
-	 * Returns a range of all the commandes where idFournisseur = &#63;.
+	 * Returns a range of all the commandes where idUtilisateur = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeModelImpl</code>.
 	 * </p>
 	 *
-	 * @param idFournisseur the id fournisseur
+	 * @param idUtilisateur the id utilisateur
 	 * @param start the lower bound of the range of commandes
 	 * @param end the upper bound of the range of commandes (not inclusive)
 	 * @return the range of matching commandes
 	 */
 	@Override
 	public List<Commande> findByIdFournisseur(
-		long idFournisseur, int start, int end) {
+		long idUtilisateur, int start, int end) {
 
-		return findByIdFournisseur(idFournisseur, start, end, null);
+		return findByIdFournisseur(idUtilisateur, start, end, null);
 	}
 
 	/**
-	 * Returns an ordered range of all the commandes where idFournisseur = &#63;.
+	 * Returns an ordered range of all the commandes where idUtilisateur = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeModelImpl</code>.
 	 * </p>
 	 *
-	 * @param idFournisseur the id fournisseur
+	 * @param idUtilisateur the id utilisateur
 	 * @param start the lower bound of the range of commandes
 	 * @param end the upper bound of the range of commandes (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
@@ -131,21 +131,21 @@ public class CommandePersistenceImpl
 	 */
 	@Override
 	public List<Commande> findByIdFournisseur(
-		long idFournisseur, int start, int end,
+		long idUtilisateur, int start, int end,
 		OrderByComparator<Commande> orderByComparator) {
 
 		return findByIdFournisseur(
-			idFournisseur, start, end, orderByComparator, true);
+			idUtilisateur, start, end, orderByComparator, true);
 	}
 
 	/**
-	 * Returns an ordered range of all the commandes where idFournisseur = &#63;.
+	 * Returns an ordered range of all the commandes where idUtilisateur = &#63;.
 	 *
 	 * <p>
 	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CommandeModelImpl</code>.
 	 * </p>
 	 *
-	 * @param idFournisseur the id fournisseur
+	 * @param idUtilisateur the id utilisateur
 	 * @param start the lower bound of the range of commandes
 	 * @param end the upper bound of the range of commandes (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
@@ -154,7 +154,7 @@ public class CommandePersistenceImpl
 	 */
 	@Override
 	public List<Commande> findByIdFournisseur(
-		long idFournisseur, int start, int end,
+		long idUtilisateur, int start, int end,
 		OrderByComparator<Commande> orderByComparator, boolean useFinderCache) {
 
 		FinderPath finderPath = null;
@@ -165,13 +165,13 @@ public class CommandePersistenceImpl
 
 			if (useFinderCache) {
 				finderPath = _finderPathWithoutPaginationFindByIdFournisseur;
-				finderArgs = new Object[] {idFournisseur};
+				finderArgs = new Object[] {idUtilisateur};
 			}
 		}
 		else if (useFinderCache) {
 			finderPath = _finderPathWithPaginationFindByIdFournisseur;
 			finderArgs = new Object[] {
-				idFournisseur, start, end, orderByComparator
+				idUtilisateur, start, end, orderByComparator
 			};
 		}
 
@@ -183,7 +183,7 @@ public class CommandePersistenceImpl
 
 			if ((list != null) && !list.isEmpty()) {
 				for (Commande commande : list) {
-					if (idFournisseur != commande.getIdFournisseur()) {
+					if (idUtilisateur != commande.getIdUtilisateur()) {
 						list = null;
 
 						break;
@@ -205,7 +205,7 @@ public class CommandePersistenceImpl
 
 			sb.append(_SQL_SELECT_COMMANDE_WHERE);
 
-			sb.append(_FINDER_COLUMN_IDFOURNISSEUR_IDFOURNISSEUR_2);
+			sb.append(_FINDER_COLUMN_IDFOURNISSEUR_IDUTILISATEUR_2);
 
 			if (orderByComparator != null) {
 				appendOrderByComparator(
@@ -226,7 +226,7 @@ public class CommandePersistenceImpl
 
 				QueryPos queryPos = QueryPos.getInstance(query);
 
-				queryPos.add(idFournisseur);
+				queryPos.add(idUtilisateur);
 
 				list = (List<Commande>)QueryUtil.list(
 					query, getDialect(), start, end);
@@ -249,20 +249,20 @@ public class CommandePersistenceImpl
 	}
 
 	/**
-	 * Returns the first commande in the ordered set where idFournisseur = &#63;.
+	 * Returns the first commande in the ordered set where idUtilisateur = &#63;.
 	 *
-	 * @param idFournisseur the id fournisseur
+	 * @param idUtilisateur the id utilisateur
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching commande
 	 * @throws NoSuchCommandeException if a matching commande could not be found
 	 */
 	@Override
 	public Commande findByIdFournisseur_First(
-			long idFournisseur, OrderByComparator<Commande> orderByComparator)
+			long idUtilisateur, OrderByComparator<Commande> orderByComparator)
 		throws NoSuchCommandeException {
 
 		Commande commande = fetchByIdFournisseur_First(
-			idFournisseur, orderByComparator);
+			idUtilisateur, orderByComparator);
 
 		if (commande != null) {
 			return commande;
@@ -272,8 +272,8 @@ public class CommandePersistenceImpl
 
 		sb.append(_NO_SUCH_ENTITY_WITH_KEY);
 
-		sb.append("idFournisseur=");
-		sb.append(idFournisseur);
+		sb.append("idUtilisateur=");
+		sb.append(idUtilisateur);
 
 		sb.append("}");
 
@@ -281,18 +281,18 @@ public class CommandePersistenceImpl
 	}
 
 	/**
-	 * Returns the first commande in the ordered set where idFournisseur = &#63;.
+	 * Returns the first commande in the ordered set where idUtilisateur = &#63;.
 	 *
-	 * @param idFournisseur the id fournisseur
+	 * @param idUtilisateur the id utilisateur
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching commande, or <code>null</code> if a matching commande could not be found
 	 */
 	@Override
 	public Commande fetchByIdFournisseur_First(
-		long idFournisseur, OrderByComparator<Commande> orderByComparator) {
+		long idUtilisateur, OrderByComparator<Commande> orderByComparator) {
 
 		List<Commande> list = findByIdFournisseur(
-			idFournisseur, 0, 1, orderByComparator);
+			idUtilisateur, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
 			return list.get(0);
@@ -302,20 +302,20 @@ public class CommandePersistenceImpl
 	}
 
 	/**
-	 * Returns the last commande in the ordered set where idFournisseur = &#63;.
+	 * Returns the last commande in the ordered set where idUtilisateur = &#63;.
 	 *
-	 * @param idFournisseur the id fournisseur
+	 * @param idUtilisateur the id utilisateur
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching commande
 	 * @throws NoSuchCommandeException if a matching commande could not be found
 	 */
 	@Override
 	public Commande findByIdFournisseur_Last(
-			long idFournisseur, OrderByComparator<Commande> orderByComparator)
+			long idUtilisateur, OrderByComparator<Commande> orderByComparator)
 		throws NoSuchCommandeException {
 
 		Commande commande = fetchByIdFournisseur_Last(
-			idFournisseur, orderByComparator);
+			idUtilisateur, orderByComparator);
 
 		if (commande != null) {
 			return commande;
@@ -325,8 +325,8 @@ public class CommandePersistenceImpl
 
 		sb.append(_NO_SUCH_ENTITY_WITH_KEY);
 
-		sb.append("idFournisseur=");
-		sb.append(idFournisseur);
+		sb.append("idUtilisateur=");
+		sb.append(idUtilisateur);
 
 		sb.append("}");
 
@@ -334,24 +334,24 @@ public class CommandePersistenceImpl
 	}
 
 	/**
-	 * Returns the last commande in the ordered set where idFournisseur = &#63;.
+	 * Returns the last commande in the ordered set where idUtilisateur = &#63;.
 	 *
-	 * @param idFournisseur the id fournisseur
+	 * @param idUtilisateur the id utilisateur
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching commande, or <code>null</code> if a matching commande could not be found
 	 */
 	@Override
 	public Commande fetchByIdFournisseur_Last(
-		long idFournisseur, OrderByComparator<Commande> orderByComparator) {
+		long idUtilisateur, OrderByComparator<Commande> orderByComparator) {
 
-		int count = countByIdFournisseur(idFournisseur);
+		int count = countByIdFournisseur(idUtilisateur);
 
 		if (count == 0) {
 			return null;
 		}
 
 		List<Commande> list = findByIdFournisseur(
-			idFournisseur, count - 1, count, orderByComparator);
+			idUtilisateur, count - 1, count, orderByComparator);
 
 		if (!list.isEmpty()) {
 			return list.get(0);
@@ -361,17 +361,17 @@ public class CommandePersistenceImpl
 	}
 
 	/**
-	 * Returns the commandes before and after the current commande in the ordered set where idFournisseur = &#63;.
+	 * Returns the commandes before and after the current commande in the ordered set where idUtilisateur = &#63;.
 	 *
 	 * @param idCommande the primary key of the current commande
-	 * @param idFournisseur the id fournisseur
+	 * @param idUtilisateur the id utilisateur
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next commande
 	 * @throws NoSuchCommandeException if a commande with the primary key could not be found
 	 */
 	@Override
 	public Commande[] findByIdFournisseur_PrevAndNext(
-			long idCommande, long idFournisseur,
+			long idCommande, long idUtilisateur,
 			OrderByComparator<Commande> orderByComparator)
 		throws NoSuchCommandeException {
 
@@ -385,12 +385,12 @@ public class CommandePersistenceImpl
 			Commande[] array = new CommandeImpl[3];
 
 			array[0] = getByIdFournisseur_PrevAndNext(
-				session, commande, idFournisseur, orderByComparator, true);
+				session, commande, idUtilisateur, orderByComparator, true);
 
 			array[1] = commande;
 
 			array[2] = getByIdFournisseur_PrevAndNext(
-				session, commande, idFournisseur, orderByComparator, false);
+				session, commande, idUtilisateur, orderByComparator, false);
 
 			return array;
 		}
@@ -403,7 +403,7 @@ public class CommandePersistenceImpl
 	}
 
 	protected Commande getByIdFournisseur_PrevAndNext(
-		Session session, Commande commande, long idFournisseur,
+		Session session, Commande commande, long idUtilisateur,
 		OrderByComparator<Commande> orderByComparator, boolean previous) {
 
 		StringBundler sb = null;
@@ -419,7 +419,7 @@ public class CommandePersistenceImpl
 
 		sb.append(_SQL_SELECT_COMMANDE_WHERE);
 
-		sb.append(_FINDER_COLUMN_IDFOURNISSEUR_IDFOURNISSEUR_2);
+		sb.append(_FINDER_COLUMN_IDFOURNISSEUR_IDUTILISATEUR_2);
 
 		if (orderByComparator != null) {
 			String[] orderByConditionFields =
@@ -490,7 +490,7 @@ public class CommandePersistenceImpl
 
 		QueryPos queryPos = QueryPos.getInstance(query);
 
-		queryPos.add(idFournisseur);
+		queryPos.add(idUtilisateur);
 
 		if (orderByComparator != null) {
 			for (Object orderByConditionValue :
@@ -511,15 +511,15 @@ public class CommandePersistenceImpl
 	}
 
 	/**
-	 * Removes all the commandes where idFournisseur = &#63; from the database.
+	 * Removes all the commandes where idUtilisateur = &#63; from the database.
 	 *
-	 * @param idFournisseur the id fournisseur
+	 * @param idUtilisateur the id utilisateur
 	 */
 	@Override
-	public void removeByIdFournisseur(long idFournisseur) {
+	public void removeByIdFournisseur(long idUtilisateur) {
 		for (Commande commande :
 				findByIdFournisseur(
-					idFournisseur, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+					idUtilisateur, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 					null)) {
 
 			remove(commande);
@@ -527,16 +527,16 @@ public class CommandePersistenceImpl
 	}
 
 	/**
-	 * Returns the number of commandes where idFournisseur = &#63;.
+	 * Returns the number of commandes where idUtilisateur = &#63;.
 	 *
-	 * @param idFournisseur the id fournisseur
+	 * @param idUtilisateur the id utilisateur
 	 * @return the number of matching commandes
 	 */
 	@Override
-	public int countByIdFournisseur(long idFournisseur) {
+	public int countByIdFournisseur(long idUtilisateur) {
 		FinderPath finderPath = _finderPathCountByIdFournisseur;
 
-		Object[] finderArgs = new Object[] {idFournisseur};
+		Object[] finderArgs = new Object[] {idUtilisateur};
 
 		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
@@ -545,7 +545,7 @@ public class CommandePersistenceImpl
 
 			sb.append(_SQL_COUNT_COMMANDE_WHERE);
 
-			sb.append(_FINDER_COLUMN_IDFOURNISSEUR_IDFOURNISSEUR_2);
+			sb.append(_FINDER_COLUMN_IDFOURNISSEUR_IDUTILISATEUR_2);
 
 			String sql = sb.toString();
 
@@ -558,7 +558,7 @@ public class CommandePersistenceImpl
 
 				QueryPos queryPos = QueryPos.getInstance(query);
 
-				queryPos.add(idFournisseur);
+				queryPos.add(idUtilisateur);
 
 				count = (Long)query.uniqueResult();
 
@@ -575,8 +575,8 @@ public class CommandePersistenceImpl
 		return count.intValue();
 	}
 
-	private static final String _FINDER_COLUMN_IDFOURNISSEUR_IDFOURNISSEUR_2 =
-		"commande.idFournisseur = ?";
+	private static final String _FINDER_COLUMN_IDFOURNISSEUR_IDUTILISATEUR_2 =
+		"commande.idUtilisateur = ?";
 
 	public CommandePersistenceImpl() {
 		setModelClass(Commande.class);
@@ -1092,16 +1092,16 @@ public class CommandePersistenceImpl
 				Long.class.getName(), Integer.class.getName(),
 				Integer.class.getName(), OrderByComparator.class.getName()
 			},
-			new String[] {"idFournisseur"}, true);
+			new String[] {"idUtilisateur"}, true);
 
 		_finderPathWithoutPaginationFindByIdFournisseur = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByIdFournisseur",
-			new String[] {Long.class.getName()}, new String[] {"idFournisseur"},
+			new String[] {Long.class.getName()}, new String[] {"idUtilisateur"},
 			true);
 
 		_finderPathCountByIdFournisseur = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByIdFournisseur",
-			new String[] {Long.class.getName()}, new String[] {"idFournisseur"},
+			new String[] {Long.class.getName()}, new String[] {"idUtilisateur"},
 			false);
 
 		CommandeUtil.setPersistence(this);

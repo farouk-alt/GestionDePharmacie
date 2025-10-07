@@ -43,6 +43,11 @@ public class VenteLocalServiceWrapper
 		return _venteLocalService.addVente(vente);
 	}
 
+	@Override
+	public int countByDateRange(java.util.Date from, java.util.Date to) {
+		return _venteLocalService.countByDateRange(from, to);
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -63,6 +68,15 @@ public class VenteLocalServiceWrapper
 	@Override
 	public gestion_de_pharmacie.model.Vente createVente(long idVente) {
 		return _venteLocalService.createVente(idVente);
+	}
+
+	@Override
+	public gestion_de_pharmacie.model.Vente createVente(
+			long idUtilisateur, long[] medicamentIds, int[] quantities)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _venteLocalService.createVente(
+			idUtilisateur, medicamentIds, quantities);
 	}
 
 	/**
@@ -218,10 +232,33 @@ public class VenteLocalServiceWrapper
 	}
 
 	@Override
+	public java.util.List<gestion_de_pharmacie.model.Vente> findByDateRange(
+		java.util.Date from, java.util.Date to, int start, int end) {
+
+		return _venteLocalService.findByDateRange(from, to, start, end);
+	}
+
+	@Override
+	public java.util.List<gestion_de_pharmacie.model.Vente> findByUserAndDate(
+		long idUtilisateur, java.util.Date from, java.util.Date to, int start,
+		int end) {
+
+		return _venteLocalService.findByUserAndDate(
+			idUtilisateur, from, to, start, end);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 
 		return _venteLocalService.getActionableDynamicQuery();
+	}
+
+	@Override
+	public java.util.List<gestion_de_pharmacie.model.VenteDetail> getDetails(
+		long idVente) {
+
+		return _venteLocalService.getDetails(idVente);
 	}
 
 	@Override

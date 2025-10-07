@@ -4,6 +4,7 @@ import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import dashboard.web.constants.DashboardWebPortletKeys;
 import dashboard.web.constants.PortalSessionKeys;
@@ -13,12 +14,14 @@ import gestion_de_pharmacie.service.UtilisateurLocalServiceUtil;
 import org.osgi.service.component.annotations.Component;
 
 import javax.portlet.*;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Component(
@@ -79,33 +82,33 @@ public class DashboardWebPortlet extends MVCPortlet {
         response.setRenderParameter("section", "admins");
     }
 
-    @ProcessAction(name = "deleteAdmin")
-    public void deleteAdmin(ActionRequest request, ActionResponse response) throws Exception {
-        HttpSession hs = PortalSessionUtil.httpSession(request);
-        String currentRole = (String) hs.getAttribute(PortalSessionKeys.USER_ROLE);
-        String currentEmail = (String) hs.getAttribute(PortalSessionKeys.USER_EMAIL);
-
-        if (!"SUPER_ADMIN".equals(currentRole)) {
-            response.setRenderParameter("errorMsg", "Seul le Super Admin peut supprimer un administrateur.");
-            response.setRenderParameter("mvcPath", "/common/dashboard.jsp");
-            response.setRenderParameter("section", "admins");
-            return;
-        }
-
+    @ProcessAction(name = "deleteUser")
+    public void deleteUser(ActionRequest request, ActionResponse response) throws Exception {
+        String actorRole = getEffectiveRole(request);
         String email = ParamUtil.getString(request, "email");
+
         try {
             Utilisateur target = UtilisateurLocalServiceUtil.getUtilisateurByEmail(email);
             if (target == null) {
                 response.setRenderParameter("errorMsg", "Aucun utilisateur trouvé avec l'email: " + email);
             } else if ("SUPER_ADMIN".equals(target.getRole())) {
                 response.setRenderParameter("errorMsg", "Impossible de supprimer un SUPER_ADMIN.");
-            } else if (email.equals(currentEmail)) {
-                response.setRenderParameter("errorMsg", "Vous ne pouvez pas supprimer votre propre compte.");
-            } else if (!"ADMIN".equals(target.getRole())) {
-                response.setRenderParameter("errorMsg", "L'utilisateur " + email + " n'est pas un administrateur.");
+            } else if ("ADMIN".equals(target.getRole())) {
+                // only SUPER_ADMIN may delete ADMIN
+                if (!"SUPER_ADMIN".equals(actorRole)) {
+                    response.setRenderParameter("errorMsg", "Seul le Super Admin peut supprimer un administrateur.");
+                } else {
+                    UtilisateurLocalServiceUtil.deleteUtilisateur(target.getIdUtilisateur());
+                    response.setRenderParameter("successMsg", "Admin " + email + " supprimé avec succès.");
+                }
             } else {
-                UtilisateurLocalServiceUtil.deleteUtilisateur(target.getIdUtilisateur());
-                response.setRenderParameter("successMsg", "Admin " + email + " supprimé avec succès.");
+                // PHARMACIEN / FOURNISSEUR
+                if (!"ADMIN".equals(actorRole) && !"SUPER_ADMIN".equals(actorRole)) {
+                    response.setRenderParameter("errorMsg", "Autorisation refusée.");
+                } else {
+                    UtilisateurLocalServiceUtil.deleteUtilisateur(target.getIdUtilisateur());
+                    response.setRenderParameter("successMsg", "Utilisateur " + email + " supprimé avec succès.");
+                }
             }
         } catch (Exception e) {
             response.setRenderParameter("errorMsg", "Erreur lors de la suppression: " + e.getMessage());
@@ -181,7 +184,7 @@ public class DashboardWebPortlet extends MVCPortlet {
         response.setRenderParameter("section", "admins");
     }
 
-    @ProcessAction(name = "changeRole")
+   /* @ProcessAction(name = "changeRole")
     public void changeRole(ActionRequest request, ActionResponse response) throws Exception {
         long idUtilisateur = ParamUtil.getLong(request, "idUtilisateur");
         String newRole = ParamUtil.getString(request, "newRole");
@@ -192,78 +195,124 @@ public class DashboardWebPortlet extends MVCPortlet {
 
         response.setRenderParameter("mvcPath", "/common/dashboard.jsp");
         response.setRenderParameter("section", "admins");
-    }
-
-    /*@Override
-    public void render(RenderRequest request, RenderResponse response) throws IOException, PortletException {
-        HttpSession hs = PortalSessionUtil.httpSession(request);
-        String userRole  = (String) hs.getAttribute(PortalSessionKeys.USER_ROLE);
-        String userEmail = (String) hs.getAttribute(PortalSessionKeys.USER_EMAIL);
-// DEBUG: must match the [AUTH] line
-        System.out.println("[DASH] get HS id=" + hs.getId()
-                + " email=" + userEmail
-                + " role="  + userRole);
-        request.setAttribute("userRole",  userRole);   // request-scope for JSP
-        request.setAttribute("userEmail", userEmail);
-
-        System.out.println("[DBG] HS userRole=" + hs.getAttribute(PortalSessionKeys.USER_ROLE)
-                + ", userEmail=" + hs.getAttribute(PortalSessionKeys.USER_EMAIL));
-
-
-        if ("SUPER_ADMIN".equals(userRole) || "ADMIN".equals(userRole)) {
-            try {
-                List<Utilisateur> allUsers = UtilisateurLocalServiceUtil.getUtilisateurs(-1, -1);
-                List<Utilisateur> employees = allUsers.stream()
-                        .filter(u -> !"SUPER_ADMIN".equals(u.getRole()))
-                        .filter(u -> !u.getEmail().equals(userEmail))
-                        .collect(Collectors.toList());
-                request.setAttribute("employees", employees);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        super.render(request, response);
     }*/
+   @ProcessAction(name = "changeRole")
+   public void changeRole(ActionRequest request, ActionResponse response) throws Exception {
+       HttpSession hs = resolveHttpSession(request);
+       String actorRole = getEffectiveRole(request);
+       String actorEmail = getEffectiveEmail(request);
+
+       long idUtilisateur = ParamUtil.getLong(request, "idUtilisateur");
+       String newRole = ParamUtil.getString(request, "newRole", "").trim().toUpperCase(Locale.ROOT);
+
+       System.out.println("=== CHANGE ROLE DEBUG ===");
+       System.out.println("Actor role: " + actorRole);
+       System.out.println("Actor email: " + actorEmail);
+       System.out.println("Target ID: " + idUtilisateur);
+       System.out.println("New role requested: " + newRole);
+
+       if (newRole.isEmpty()) {
+           response.setRenderParameter("errorMsg", "Choisissez un rôle valide.");
+           response.setRenderParameter("mvcPath", "/common/dashboard.jsp");
+           response.setRenderParameter("section", "admins");
+           return;
+       }
+
+       if (actorRole == null || actorRole.isEmpty()) {
+           response.setRenderParameter("errorMsg", "Session invalide. Reconnectez-vous.");
+           response.setRenderParameter("mvcPath", "/common/dashboard.jsp");
+           response.setRenderParameter("section", "admins");
+           return;
+       }
+
+       try {
+           Utilisateur target = UtilisateurLocalServiceUtil.getUtilisateur(idUtilisateur);
+           if (target == null) {
+               System.out.println("ERROR: Target user not found");
+               response.setRenderParameter("errorMsg", "Utilisateur introuvable.");
+           } else {
+               String targetRole = target.getRole();
+               System.out.println("Target current role: " + targetRole);
+
+               if ("ADMIN".equals(actorRole)) {
+                   boolean allowed = ("PHARMACIEN".equals(newRole) || "FOURNISSEUR".equals(newRole)) &&
+                           ("PHARMACIEN".equals(targetRole) || "FOURNISSEUR".equals(targetRole));
+
+                   if (!allowed) {
+                       System.out.println("DENIED: Admin can only change Pharmacien/Fournisseur");
+                       response.setRenderParameter("errorMsg", "Autorisation refusée.");
+                   } else {
+                       target.setRole(newRole);
+                       UtilisateurLocalServiceUtil.updateUtilisateur(target);
+                       System.out.println("SUCCESS: Updated to " + newRole);
+
+                       if (actorEmail != null && actorEmail.equals(target.getEmail())) {
+                           if (hs != null) {
+                               hs.setAttribute(PortalSessionKeys.USER_ROLE, newRole);
+                               hs.setAttribute("USER_ROLE", newRole);
+                           }
+                           request.getPortletSession().setAttribute("USER_ROLE", newRole, PortletSession.APPLICATION_SCOPE);
+                       }
+                       response.setRenderParameter("successMsg", "Rôle mis à jour: " + newRole);
+                   }
+               } else if ("SUPER_ADMIN".equals(actorRole)) {
+                   if ("SUPER_ADMIN".equals(newRole) || "SUPER_ADMIN".equals(targetRole)) {
+                       System.out.println("DENIED: Cannot modify SUPER_ADMIN");
+                       response.setRenderParameter("errorMsg", "Impossible de modifier SUPER_ADMIN.");
+                   } else if ("ADMIN".equals(newRole) || "PHARMACIEN".equals(newRole) || "FOURNISSEUR".equals(newRole)) {
+                       target.setRole(newRole);
+                       UtilisateurLocalServiceUtil.updateUtilisateur(target);
+                       System.out.println("SUCCESS: Updated to " + newRole);
+
+                       if (actorEmail != null && actorEmail.equals(target.getEmail())) {
+                           if (hs != null) {
+                               hs.setAttribute(PortalSessionKeys.USER_ROLE, newRole);
+                               hs.setAttribute("USER_ROLE", newRole);
+                           }
+                           request.getPortletSession().setAttribute("USER_ROLE", newRole, PortletSession.APPLICATION_SCOPE);
+                       }
+                       response.setRenderParameter("successMsg", "Rôle mis à jour: " + newRole);
+                   } else {
+                       response.setRenderParameter("errorMsg", "Rôle invalide.");
+                   }
+               } else {
+                   System.out.println("DENIED: No permission");
+                   response.setRenderParameter("errorMsg", "Autorisation refusée.");
+               }
+           }
+       } catch (Exception e) {
+           System.out.println("EXCEPTION: " + e.getMessage());
+           e.printStackTrace();
+           response.setRenderParameter("errorMsg", "Erreur: " + e.getMessage());
+       }
+
+       response.setRenderParameter("mvcPath", "/common/dashboard.jsp");
+       response.setRenderParameter("section", "admins");
+       System.out.println("=== END DEBUG ===");
+   }
+
+
+
+
     @Override
     public void render(RenderRequest request, RenderResponse response)
             throws IOException, PortletException {
 
         PortletSession ps = request.getPortletSession();
-        String userEmail = null;
-        String userRole = null;
 
-        // Debug: List all PortletSession attributes
-        java.util.Enumeration<String> appAttrNames = ps.getAttributeNames(PortletSession.APPLICATION_SCOPE);
-        while (appAttrNames.hasMoreElements()) {
-            String name = appAttrNames.nextElement();
-            Object value = ps.getAttribute(name, PortletSession.APPLICATION_SCOPE);
-        }
+        // 1) Try PortletSession first
+        String userEmail = (String) ps.getAttribute("USER_EMAIL", PortletSession.APPLICATION_SCOPE);
+        String userRole  = (String) ps.getAttribute("USER_ROLE",  PortletSession.APPLICATION_SCOPE);
 
-        java.util.Enumeration<String> portletAttrNames = ps.getAttributeNames(PortletSession.PORTLET_SCOPE);
-        while (portletAttrNames.hasMoreElements()) {
-            String name = portletAttrNames.nextElement();
-            Object value = ps.getAttribute(name, PortletSession.PORTLET_SCOPE);
-        }
-
-        // Get from PortletSession (same as login portlet)
-        userEmail = (String) ps.getAttribute("USER_EMAIL", PortletSession.APPLICATION_SCOPE);
-        userRole = (String) ps.getAttribute("USER_ROLE", PortletSession.APPLICATION_SCOPE);
-
-
-        // If still null, try ThemeDisplay
+        // 2) If missing, try Liferay user
         if (userEmail == null || userRole == null) {
             ThemeDisplay td = (ThemeDisplay) request.getAttribute(WebKeys.THEME_DISPLAY);
             if (td != null && td.isSignedIn()) {
                 userEmail = td.getUser().getEmailAddress();
-
                 try {
                     Utilisateur u = UtilisateurLocalServiceUtil.getUtilisateurByEmail(userEmail);
                     if (u != null) {
                         userRole = u.getRole();
-                        // Save to PortletSession
-                        ps.setAttribute("USER_EMAIL", userEmail, PortletSession.APPLICATION_SCOPE);
-                        ps.setAttribute("USER_ROLE", userRole, PortletSession.APPLICATION_SCOPE);
-                        ps.setAttribute("AUTHENTICATED", Boolean.TRUE, PortletSession.APPLICATION_SCOPE);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -271,11 +320,33 @@ public class DashboardWebPortlet extends MVCPortlet {
             }
         }
 
-        // Set request attributes
-        request.setAttribute("userEmail", userEmail != null ? userEmail : "");
-        request.setAttribute("userRole", userRole != null ? userRole : "");
+        // 3) Store in all session types
+        if (userEmail != null) {
+            ps.setAttribute("USER_EMAIL", userEmail, PortletSession.APPLICATION_SCOPE);
+        }
+        if (userRole != null) {
+            ps.setAttribute("USER_ROLE", userRole, PortletSession.APPLICATION_SCOPE);
+        }
 
-        // Rest of your method remains the same...
+        HttpSession hs = resolveHttpSession(request);
+        if (hs != null) {
+            if (userEmail != null) {
+                hs.setAttribute(PortalSessionKeys.USER_EMAIL, userEmail);
+                hs.setAttribute("USER_EMAIL", userEmail);  // ADD THIS LINE
+            }
+            if (userRole != null) {
+                hs.setAttribute(PortalSessionKeys.USER_ROLE, userRole);
+                hs.setAttribute("USER_ROLE", userRole);    // ADD THIS LINE
+            }
+            if (userEmail != null && userRole != null) {
+                hs.setAttribute(PortalSessionKeys.AUTHENTICATED, Boolean.TRUE);
+            }
+        }
+
+        // Expose to JSP
+        request.setAttribute("userEmail", userEmail != null ? userEmail : "");
+        request.setAttribute("userRole",  userRole  != null ? userRole  : "");
+
         String section = ParamUtil.getString(request, "section", "overview");
         request.setAttribute("section", section);
 
@@ -291,6 +362,7 @@ public class DashboardWebPortlet extends MVCPortlet {
 
         super.render(request, response);
     }
+
 
     private String hashPassword(String password) {
         try {
@@ -321,4 +393,169 @@ public class DashboardWebPortlet extends MVCPortlet {
         String loginPage = td.getPortalURL() + "/web/guest/login"; // or simply "/login" if that’s your page
         response.sendRedirect(loginPage);
     }
+    @ProcessAction(name = "bulkChangeRoles")
+    public void bulkChangeRoles(ActionRequest request, ActionResponse response) throws Exception {
+        String actorRole = getEffectiveRole(request);
+        String idsCsv    = ParamUtil.getString(request, "ids");
+        String newRole   = ParamUtil.getString(request, "bulkRole");
+        newRole = (newRole == null ? "" : newRole.trim().toUpperCase(java.util.Locale.ROOT));
+
+        System.out.println("[bulkChangeRoles] actorRole=" + actorRole + ", ids=" + idsCsv + ", newRole=" + newRole);
+
+        if (idsCsv == null || idsCsv.trim().isEmpty()) {
+            response.setRenderParameter("errorMsg", "Aucune sélection.");
+            response.setRenderParameter("mvcPath", "/common/dashboard.jsp");
+            response.setRenderParameter("section", "admins");
+            return;
+        }
+
+        String[] parts = idsCsv.split(",");
+        int ok = 0, ko = 0;
+
+        for (String p : parts) {
+            long id;
+            try { id = Long.parseLong(p.trim()); } catch (NumberFormatException nfe) { ko++; continue; }
+
+            try {
+                Utilisateur u = UtilisateurLocalServiceUtil.getUtilisateur(id);
+                if (u == null) { ko++; continue; }
+
+                if ("ADMIN".equals(actorRole)) {
+                    boolean allowedNew = "PHARMACIEN".equals(newRole) || "FOURNISSEUR".equals(newRole);
+                    boolean targetEligible = "PHARMACIEN".equals(u.getRole()) || "FOURNISSEUR".equals(u.getRole());
+                    if (!allowedNew || !targetEligible) { ko++; continue; }
+                } else if ("SUPER_ADMIN".equals(actorRole)) {
+                    if ("SUPER_ADMIN".equals(newRole) || "SUPER_ADMIN".equals(u.getRole())) { ko++; continue; }
+                    if (!"ADMIN".equals(newRole) && !"PHARMACIEN".equals(newRole) && !"FOURNISSEUR".equals(newRole)) { ko++; continue; }
+                } else { ko++; continue; }
+
+                u.setRole(newRole);
+                UtilisateurLocalServiceUtil.updateUtilisateur(u);
+                ok++;
+            } catch (Exception ex) { ko++; }
+        }
+
+        if (ok > 0 && ko == 0) {
+            response.setRenderParameter("successMsg", ok + " utilisateur(s) mis à jour.");
+        } else if (ok > 0) {
+            response.setRenderParameter("successMsg", ok + " succès, " + ko + " échec(s).");
+        } else {
+            response.setRenderParameter("errorMsg", "Aucune mise à jour (contrôle d’accès ou données invalides).");
+        }
+
+        response.setRenderParameter("mvcPath", "/common/dashboard.jsp");
+        response.setRenderParameter("section", "admins");
+    }
+    private HttpSession resolveHttpSession(PortletRequest req) {
+        HttpSession hs = null;
+
+        // Use your PortalSessionUtil where possible
+        try {
+            if (req instanceof ActionRequest) {
+                hs = PortalSessionUtil.httpSession((ActionRequest) req);
+            } else if (req instanceof RenderRequest) {
+                hs = PortalSessionUtil.httpSession((RenderRequest) req);
+            }
+        } catch (Throwable ignore) {}
+
+        // Fallback via PortalUtil
+        if (hs == null) {
+            HttpServletRequest httpReq = PortalUtil.getHttpServletRequest(req);
+            if (httpReq != null) {
+                hs = httpReq.getSession(false); // don't create if absent
+            }
+        }
+        return hs;
+    }
+
+    private String getEffectiveRole(PortletRequest req) {
+        HttpSession hs = resolveHttpSession(req);
+        Object v = (hs != null) ? hs.getAttribute(PortalSessionKeys.USER_ROLE) : null;
+        String role = (v != null) ? String.valueOf(v) : null;
+
+        if (role == null || role.isEmpty()) {
+            PortletSession ps = req.getPortletSession();
+            Object vv = (ps != null) ? ps.getAttribute("USER_ROLE", PortletSession.APPLICATION_SCOPE) : null;
+            role = (vv != null) ? String.valueOf(vv) : null;
+        }
+
+        role = (role == null) ? null : role.trim().toUpperCase(java.util.Locale.ROOT);
+        System.out.println("[getEffectiveRole] -> " + role);
+        return role;
+    }
+
+    private String getEffectiveEmail(PortletRequest req) {
+        HttpSession hs = resolveHttpSession(req);
+        Object v = (hs != null) ? hs.getAttribute(PortalSessionKeys.USER_EMAIL) : null;
+        String email = (v != null) ? String.valueOf(v) : null;
+
+        if (email == null || email.isEmpty()) {
+            PortletSession ps = req.getPortletSession();
+            Object vv = (ps != null) ? ps.getAttribute("USER_EMAIL", PortletSession.APPLICATION_SCOPE) : null;
+            email = (vv != null) ? String.valueOf(vv) : null;
+        }
+
+        System.out.println("[getEffectiveEmail] -> " + email);
+        return email;
+    }
+    @ProcessAction(name = "updateProfile")
+    public void updateProfile(ActionRequest request, ActionResponse response) {
+        try {
+            // who is logged in?
+            final String sessionEmail = getEffectiveEmail(request);
+            if (sessionEmail == null || sessionEmail.isBlank()) {
+                response.setRenderParameter("errorMsg", "Session invalide. Veuillez vous reconnecter.");
+                response.setRenderParameter("mvcPath", "/common/dashboard.jsp");
+                response.setRenderParameter("section", "security");
+                return;
+            }
+
+            // form inputs (namespaced automatically by the JSP)
+            long idUtilisateur = ParamUtil.getLong(request, "idUtilisateur");
+            String email       = ParamUtil.getString(request, "email");
+            String prenom      = ParamUtil.getString(request, "prenom");
+            String nom         = ParamUtil.getString(request, "nom");
+            String motDePasse  = ParamUtil.getString(request, "motDePasse"); // optional
+
+            // only allow a user to edit their own row
+            if (!sessionEmail.equalsIgnoreCase(email)) {
+                response.setRenderParameter("errorMsg", "Vous ne pouvez modifier que votre propre profil.");
+                response.setRenderParameter("mvcPath", "/common/dashboard.jsp");
+                response.setRenderParameter("section", "security");
+                return;
+            }
+
+            Utilisateur u = UtilisateurLocalServiceUtil.getUtilisateur(idUtilisateur);
+            if (u == null || !sessionEmail.equalsIgnoreCase(u.getEmail())) {
+                response.setRenderParameter("errorMsg", "Profil introuvable.");
+                response.setRenderParameter("mvcPath", "/common/dashboard.jsp");
+                response.setRenderParameter("section", "security");
+                return;
+            }
+
+            // update basic fields
+            u.setPrenom(prenom);
+            u.setNom(nom);
+            if (motDePasse != null && !motDePasse.isBlank()) {
+                u.setMotDePasse(hashPassword(motDePasse));
+            }
+            UtilisateurLocalServiceUtil.updateUtilisateur(u);
+
+            // keep session display info fresh
+            HttpSession hs = resolveHttpSession(request);
+            if (hs != null) {
+                hs.setAttribute("USER_EMAIL", u.getEmail());
+                hs.setAttribute("USER_ROLE",  u.getRole());
+            }
+            request.getPortletSession().setAttribute("USER_EMAIL", u.getEmail(), PortletSession.APPLICATION_SCOPE);
+            request.getPortletSession().setAttribute("USER_ROLE",  u.getRole(),  PortletSession.APPLICATION_SCOPE);
+
+            response.setRenderParameter("successMsg", "Profil mis à jour.");
+        } catch (Exception e) {
+            response.setRenderParameter("errorMsg", "Erreur lors de la mise à jour: " + e.getMessage());
+        }
+        response.setRenderParameter("mvcPath", "/common/dashboard.jsp");
+        response.setRenderParameter("section", "security");
+    }
+
 }

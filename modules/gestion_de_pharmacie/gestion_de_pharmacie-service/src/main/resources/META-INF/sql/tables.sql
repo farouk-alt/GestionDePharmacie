@@ -27,7 +27,7 @@ create table FOO_Stock (
 
 create table Pharma_Commande (
 	idCommande LONG not null primary key,
-	idFournisseur LONG,
+	idUtilisateur LONG,
 	dateCommande DATE null,
 	statut VARCHAR(75) null,
 	montantTotal DOUBLE

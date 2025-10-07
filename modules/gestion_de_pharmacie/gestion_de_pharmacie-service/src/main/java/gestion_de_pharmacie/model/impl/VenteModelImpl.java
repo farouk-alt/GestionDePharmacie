@@ -14,6 +14,7 @@ import com.liferay.portal.kernel.model.CacheModel;
 import com.liferay.portal.kernel.model.ModelWrapper;
 import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 
@@ -89,11 +90,23 @@ public class VenteModelImpl extends BaseModelImpl<Vente> implements VenteModel {
 	public static final String TX_MANAGER = "liferayTransactionManager";
 
 	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)}
+	 */
+	@Deprecated
+	public static final long DATEVENTE_COLUMN_BITMASK = 1L;
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)}
+	 */
+	@Deprecated
+	public static final long IDUTILISATEUR_COLUMN_BITMASK = 2L;
+
+	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
 	 *		#getColumnBitmask(String)}
 	 */
 	@Deprecated
-	public static final long IDVENTE_COLUMN_BITMASK = 1L;
+	public static final long IDVENTE_COLUMN_BITMASK = 4L;
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
@@ -267,6 +280,16 @@ public class VenteModelImpl extends BaseModelImpl<Vente> implements VenteModel {
 		_idUtilisateur = idUtilisateur;
 	}
 
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
+	public long getOriginalIdUtilisateur() {
+		return GetterUtil.getLong(
+			this.<Long>getColumnOriginalValue("idUtilisateur"));
+	}
+
 	@JSON
 	@Override
 	public Date getDateVente() {
@@ -280,6 +303,15 @@ public class VenteModelImpl extends BaseModelImpl<Vente> implements VenteModel {
 		}
 
 		_dateVente = dateVente;
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
+	public Date getOriginalDateVente() {
+		return getColumnOriginalValue("dateVente");
 	}
 
 	@JSON

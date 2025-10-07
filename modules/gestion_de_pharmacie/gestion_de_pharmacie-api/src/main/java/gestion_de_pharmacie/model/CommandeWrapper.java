@@ -34,7 +34,7 @@ public class CommandeWrapper
 		Map<String, Object> attributes = new HashMap<String, Object>();
 
 		attributes.put("idCommande", getIdCommande());
-		attributes.put("idFournisseur", getIdFournisseur());
+		attributes.put("idUtilisateur", getIdUtilisateur());
 		attributes.put("dateCommande", getDateCommande());
 		attributes.put("statut", getStatut());
 		attributes.put("montantTotal", getMontantTotal());
@@ -50,10 +50,10 @@ public class CommandeWrapper
 			setIdCommande(idCommande);
 		}
 
-		Long idFournisseur = (Long)attributes.get("idFournisseur");
+		Long idUtilisateur = (Long)attributes.get("idUtilisateur");
 
-		if (idFournisseur != null) {
-			setIdFournisseur(idFournisseur);
+		if (idUtilisateur != null) {
+			setIdUtilisateur(idUtilisateur);
 		}
 
 		Date dateCommande = (Date)attributes.get("dateCommande");
@@ -101,13 +101,13 @@ public class CommandeWrapper
 	}
 
 	/**
-	 * Returns the id fournisseur of this commande.
+	 * Returns the id utilisateur of this commande.
 	 *
-	 * @return the id fournisseur of this commande
+	 * @return the id utilisateur of this commande
 	 */
 	@Override
-	public long getIdFournisseur() {
-		return model.getIdFournisseur();
+	public long getIdUtilisateur() {
+		return model.getIdUtilisateur();
 	}
 
 	/**
@@ -166,13 +166,13 @@ public class CommandeWrapper
 	}
 
 	/**
-	 * Sets the id fournisseur of this commande.
+	 * Sets the id utilisateur of this commande.
 	 *
-	 * @param idFournisseur the id fournisseur of this commande
+	 * @param idUtilisateur the id utilisateur of this commande
 	 */
 	@Override
-	public void setIdFournisseur(long idFournisseur) {
-		model.setIdFournisseur(idFournisseur);
+	public void setIdUtilisateur(long idUtilisateur) {
+		model.setIdUtilisateur(idUtilisateur);
 	}
 
 	/**

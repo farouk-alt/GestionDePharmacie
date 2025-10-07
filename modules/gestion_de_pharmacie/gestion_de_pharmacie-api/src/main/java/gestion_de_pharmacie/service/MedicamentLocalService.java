@@ -192,6 +192,10 @@ public interface MedicamentLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public Medicament fetchMedicament(long idMedicament);
 
+	public List<Medicament> findByCode(String codeBarre);
+
+	public List<Medicament> findByCodeBarre(String codeBarre);
+
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ActionableDynamicQuery getActionableDynamicQuery();
 

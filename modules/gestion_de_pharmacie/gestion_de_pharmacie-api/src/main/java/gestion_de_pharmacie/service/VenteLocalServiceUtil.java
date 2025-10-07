@@ -52,6 +52,10 @@ public class VenteLocalServiceUtil {
 		return getService().addVente(vente);
 	}
 
+	public static int countByDateRange(java.util.Date from, java.util.Date to) {
+		return getService().countByDateRange(from, to);
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -70,6 +74,14 @@ public class VenteLocalServiceUtil {
 	 */
 	public static Vente createVente(long idVente) {
 		return getService().createVente(idVente);
+	}
+
+	public static Vente createVente(
+			long idUtilisateur, long[] medicamentIds, int[] quantities)
+		throws PortalException {
+
+		return getService().createVente(
+			idUtilisateur, medicamentIds, quantities);
 	}
 
 	/**
@@ -200,10 +212,30 @@ public class VenteLocalServiceUtil {
 		return getService().fetchVente(idVente);
 	}
 
+	public static List<Vente> findByDateRange(
+		java.util.Date from, java.util.Date to, int start, int end) {
+
+		return getService().findByDateRange(from, to, start, end);
+	}
+
+	public static List<Vente> findByUserAndDate(
+		long idUtilisateur, java.util.Date from, java.util.Date to, int start,
+		int end) {
+
+		return getService().findByUserAndDate(
+			idUtilisateur, from, to, start, end);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 
 		return getService().getActionableDynamicQuery();
+	}
+
+	public static List<gestion_de_pharmacie.model.VenteDetail> getDetails(
+		long idVente) {
+
+		return getService().getDetails(idVente);
 	}
 
 	public static

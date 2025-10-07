@@ -11,6 +11,8 @@ import gestion_de_pharmacie.exception.NoSuchVenteException;
 
 import gestion_de_pharmacie.model.Vente;
 
+import java.util.Date;
+
 import org.osgi.annotation.versioning.ProviderType;
 
 /**
@@ -32,6 +34,291 @@ public interface VentePersistence extends BasePersistence<Vente> {
 	 *
 	 * Never modify or reference this interface directly. Always use {@link VenteUtil} to access the vente persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this interface.
 	 */
+
+	/**
+	 * Returns all the ventes where idUtilisateur = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @return the matching ventes
+	 */
+	public java.util.List<Vente> findByUser(long idUtilisateur);
+
+	/**
+	 * Returns a range of all the ventes where idUtilisateur = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>VenteModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param start the lower bound of the range of ventes
+	 * @param end the upper bound of the range of ventes (not inclusive)
+	 * @return the range of matching ventes
+	 */
+	public java.util.List<Vente> findByUser(
+		long idUtilisateur, int start, int end);
+
+	/**
+	 * Returns an ordered range of all the ventes where idUtilisateur = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>VenteModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param start the lower bound of the range of ventes
+	 * @param end the upper bound of the range of ventes (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching ventes
+	 */
+	public java.util.List<Vente> findByUser(
+		long idUtilisateur, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<Vente>
+			orderByComparator);
+
+	/**
+	 * Returns an ordered range of all the ventes where idUtilisateur = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>VenteModelImpl</code>.
+	 * </p>
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param start the lower bound of the range of ventes
+	 * @param end the upper bound of the range of ventes (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching ventes
+	 */
+	public java.util.List<Vente> findByUser(
+		long idUtilisateur, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<Vente>
+			orderByComparator,
+		boolean useFinderCache);
+
+	/**
+	 * Returns the first vente in the ordered set where idUtilisateur = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching vente
+	 * @throws NoSuchVenteException if a matching vente could not be found
+	 */
+	public Vente findByUser_First(
+			long idUtilisateur,
+			com.liferay.portal.kernel.util.OrderByComparator<Vente>
+				orderByComparator)
+		throws NoSuchVenteException;
+
+	/**
+	 * Returns the first vente in the ordered set where idUtilisateur = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching vente, or <code>null</code> if a matching vente could not be found
+	 */
+	public Vente fetchByUser_First(
+		long idUtilisateur,
+		com.liferay.portal.kernel.util.OrderByComparator<Vente>
+			orderByComparator);
+
+	/**
+	 * Returns the last vente in the ordered set where idUtilisateur = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching vente
+	 * @throws NoSuchVenteException if a matching vente could not be found
+	 */
+	public Vente findByUser_Last(
+			long idUtilisateur,
+			com.liferay.portal.kernel.util.OrderByComparator<Vente>
+				orderByComparator)
+		throws NoSuchVenteException;
+
+	/**
+	 * Returns the last vente in the ordered set where idUtilisateur = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching vente, or <code>null</code> if a matching vente could not be found
+	 */
+	public Vente fetchByUser_Last(
+		long idUtilisateur,
+		com.liferay.portal.kernel.util.OrderByComparator<Vente>
+			orderByComparator);
+
+	/**
+	 * Returns the ventes before and after the current vente in the ordered set where idUtilisateur = &#63;.
+	 *
+	 * @param idVente the primary key of the current vente
+	 * @param idUtilisateur the id utilisateur
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next vente
+	 * @throws NoSuchVenteException if a vente with the primary key could not be found
+	 */
+	public Vente[] findByUser_PrevAndNext(
+			long idVente, long idUtilisateur,
+			com.liferay.portal.kernel.util.OrderByComparator<Vente>
+				orderByComparator)
+		throws NoSuchVenteException;
+
+	/**
+	 * Removes all the ventes where idUtilisateur = &#63; from the database.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 */
+	public void removeByUser(long idUtilisateur);
+
+	/**
+	 * Returns the number of ventes where idUtilisateur = &#63;.
+	 *
+	 * @param idUtilisateur the id utilisateur
+	 * @return the number of matching ventes
+	 */
+	public int countByUser(long idUtilisateur);
+
+	/**
+	 * Returns all the ventes where dateVente = &#63;.
+	 *
+	 * @param dateVente the date vente
+	 * @return the matching ventes
+	 */
+	public java.util.List<Vente> findByDate(Date dateVente);
+
+	/**
+	 * Returns a range of all the ventes where dateVente = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>VenteModelImpl</code>.
+	 * </p>
+	 *
+	 * @param dateVente the date vente
+	 * @param start the lower bound of the range of ventes
+	 * @param end the upper bound of the range of ventes (not inclusive)
+	 * @return the range of matching ventes
+	 */
+	public java.util.List<Vente> findByDate(Date dateVente, int start, int end);
+
+	/**
+	 * Returns an ordered range of all the ventes where dateVente = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>VenteModelImpl</code>.
+	 * </p>
+	 *
+	 * @param dateVente the date vente
+	 * @param start the lower bound of the range of ventes
+	 * @param end the upper bound of the range of ventes (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching ventes
+	 */
+	public java.util.List<Vente> findByDate(
+		Date dateVente, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<Vente>
+			orderByComparator);
+
+	/**
+	 * Returns an ordered range of all the ventes where dateVente = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>VenteModelImpl</code>.
+	 * </p>
+	 *
+	 * @param dateVente the date vente
+	 * @param start the lower bound of the range of ventes
+	 * @param end the upper bound of the range of ventes (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching ventes
+	 */
+	public java.util.List<Vente> findByDate(
+		Date dateVente, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<Vente>
+			orderByComparator,
+		boolean useFinderCache);
+
+	/**
+	 * Returns the first vente in the ordered set where dateVente = &#63;.
+	 *
+	 * @param dateVente the date vente
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching vente
+	 * @throws NoSuchVenteException if a matching vente could not be found
+	 */
+	public Vente findByDate_First(
+			Date dateVente,
+			com.liferay.portal.kernel.util.OrderByComparator<Vente>
+				orderByComparator)
+		throws NoSuchVenteException;
+
+	/**
+	 * Returns the first vente in the ordered set where dateVente = &#63;.
+	 *
+	 * @param dateVente the date vente
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching vente, or <code>null</code> if a matching vente could not be found
+	 */
+	public Vente fetchByDate_First(
+		Date dateVente,
+		com.liferay.portal.kernel.util.OrderByComparator<Vente>
+			orderByComparator);
+
+	/**
+	 * Returns the last vente in the ordered set where dateVente = &#63;.
+	 *
+	 * @param dateVente the date vente
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching vente
+	 * @throws NoSuchVenteException if a matching vente could not be found
+	 */
+	public Vente findByDate_Last(
+			Date dateVente,
+			com.liferay.portal.kernel.util.OrderByComparator<Vente>
+				orderByComparator)
+		throws NoSuchVenteException;
+
+	/**
+	 * Returns the last vente in the ordered set where dateVente = &#63;.
+	 *
+	 * @param dateVente the date vente
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching vente, or <code>null</code> if a matching vente could not be found
+	 */
+	public Vente fetchByDate_Last(
+		Date dateVente,
+		com.liferay.portal.kernel.util.OrderByComparator<Vente>
+			orderByComparator);
+
+	/**
+	 * Returns the ventes before and after the current vente in the ordered set where dateVente = &#63;.
+	 *
+	 * @param idVente the primary key of the current vente
+	 * @param dateVente the date vente
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next vente
+	 * @throws NoSuchVenteException if a vente with the primary key could not be found
+	 */
+	public Vente[] findByDate_PrevAndNext(
+			long idVente, Date dateVente,
+			com.liferay.portal.kernel.util.OrderByComparator<Vente>
+				orderByComparator)
+		throws NoSuchVenteException;
+
+	/**
+	 * Removes all the ventes where dateVente = &#63; from the database.
+	 *
+	 * @param dateVente the date vente
+	 */
+	public void removeByDate(Date dateVente);
+
+	/**
+	 * Returns the number of ventes where dateVente = &#63;.
+	 *
+	 * @param dateVente the date vente
+	 * @return the number of matching ventes
+	 */
+	public int countByDate(Date dateVente);
 
 	/**
 	 * Caches the vente in the entity cache if it is enabled.

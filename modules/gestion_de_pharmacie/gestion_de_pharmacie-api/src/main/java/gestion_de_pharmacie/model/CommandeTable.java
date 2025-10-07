@@ -25,8 +25,8 @@ public class CommandeTable extends BaseTable<CommandeTable> {
 
 	public final Column<CommandeTable, Long> idCommande = createColumn(
 		"idCommande", Long.class, Types.BIGINT, Column.FLAG_PRIMARY);
-	public final Column<CommandeTable, Long> idFournisseur = createColumn(
-		"idFournisseur", Long.class, Types.BIGINT, Column.FLAG_DEFAULT);
+	public final Column<CommandeTable, Long> idUtilisateur = createColumn(
+		"idUtilisateur", Long.class, Types.BIGINT, Column.FLAG_DEFAULT);
 	public final Column<CommandeTable, Date> dateCommande = createColumn(
 		"dateCommande", Date.class, Types.TIMESTAMP, Column.FLAG_DEFAULT);
 	public final Column<CommandeTable, String> statut = createColumn(

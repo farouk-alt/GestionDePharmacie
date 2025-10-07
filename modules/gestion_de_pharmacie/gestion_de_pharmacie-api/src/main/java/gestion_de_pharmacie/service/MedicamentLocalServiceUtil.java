@@ -202,6 +202,14 @@ public class MedicamentLocalServiceUtil {
 		return getService().fetchMedicament(idMedicament);
 	}
 
+	public static List<Medicament> findByCode(String codeBarre) {
+		return getService().findByCode(codeBarre);
+	}
+
+	public static List<Medicament> findByCodeBarre(String codeBarre) {
+		return getService().findByCodeBarre(codeBarre);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 

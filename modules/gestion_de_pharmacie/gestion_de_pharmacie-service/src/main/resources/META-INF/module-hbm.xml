@@ -4,7 +4,6 @@
 <hibernate-mapping auto-import="false" default-lazy="false">
 	<import class="gestion_de_pharmacie.model.Commande" />
 	<import class="gestion_de_pharmacie.model.CommandeDetail" />
-	<import class="gestion_de_pharmacie.model.Fournisseur" />
 	<import class="gestion_de_pharmacie.model.Medicament" />
 	<import class="gestion_de_pharmacie.model.MouvementStock" />
 	<import class="gestion_de_pharmacie.model.Notification" />
@@ -16,7 +15,7 @@
 		<id access="com.liferay.portal.dao.orm.hibernate.MethodPropertyAccessor" name="idCommande" type="long">
 			<generator class="assigned" />
 		</id>
-		<property access="com.liferay.portal.dao.orm.hibernate.MethodPropertyAccessor" name="idFournisseur" type="com.liferay.portal.dao.orm.hibernate.LongType" />
+		<property access="com.liferay.portal.dao.orm.hibernate.MethodPropertyAccessor" name="idUtilisateur" type="com.liferay.portal.dao.orm.hibernate.LongType" />
 		<property access="com.liferay.portal.dao.orm.hibernate.MethodPropertyAccessor" name="dateCommande" type="org.hibernate.type.TimestampType" />
 		<property access="com.liferay.portal.dao.orm.hibernate.MethodPropertyAccessor" name="statut" type="com.liferay.portal.dao.orm.hibernate.StringType" />
 		<property access="com.liferay.portal.dao.orm.hibernate.MethodPropertyAccessor" name="montantTotal" type="com.liferay.portal.dao.orm.hibernate.DoubleType" />
@@ -29,15 +28,6 @@
 		<property access="com.liferay.portal.dao.orm.hibernate.MethodPropertyAccessor" name="idMedicament" type="com.liferay.portal.dao.orm.hibernate.LongType" />
 		<property access="com.liferay.portal.dao.orm.hibernate.MethodPropertyAccessor" name="quantite" type="com.liferay.portal.dao.orm.hibernate.IntegerType" />
 		<property access="com.liferay.portal.dao.orm.hibernate.MethodPropertyAccessor" name="prixUnitaire" type="com.liferay.portal.dao.orm.hibernate.DoubleType" />
-	</class>
-	<class name="gestion_de_pharmacie.model.impl.FournisseurImpl" table="Pharma_Fournisseur">
-		<id access="com.liferay.portal.dao.orm.hibernate.MethodPropertyAccessor" name="idFournisseur" type="long">
-			<generator class="assigned" />
-		</id>
-		<property access="com.liferay.portal.dao.orm.hibernate.MethodPropertyAccessor" name="nom" type="com.liferay.portal.dao.orm.hibernate.StringType" />
-		<property access="com.liferay.portal.dao.orm.hibernate.MethodPropertyAccessor" name="adresse" type="com.liferay.portal.dao.orm.hibernate.StringType" />
-		<property access="com.liferay.portal.dao.orm.hibernate.MethodPropertyAccessor" name="telephone" type="com.liferay.portal.dao.orm.hibernate.StringType" />
-		<property access="com.liferay.portal.dao.orm.hibernate.MethodPropertyAccessor" name="email" type="com.liferay.portal.dao.orm.hibernate.StringType" />
 	</class>
 	<class name="gestion_de_pharmacie.model.impl.MedicamentImpl" table="Pharma_Medicament">
 		<id access="com.liferay.portal.dao.orm.hibernate.MethodPropertyAccessor" name="idMedicament" type="long">

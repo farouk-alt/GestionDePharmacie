@@ -139,6 +139,20 @@ public class VentePersistenceTest {
 	}
 
 	@Test
+	public void testCountByUser() throws Exception {
+		_persistence.countByUser(RandomTestUtil.nextLong());
+
+		_persistence.countByUser(0L);
+	}
+
+	@Test
+	public void testCountByDate() throws Exception {
+		_persistence.countByDate(RandomTestUtil.nextDate());
+
+		_persistence.countByDate(RandomTestUtil.nextDate());
+	}
+
+	@Test
 	public void testFindByPrimaryKeyExisting() throws Exception {
 		Vente newVente = addVente();
 

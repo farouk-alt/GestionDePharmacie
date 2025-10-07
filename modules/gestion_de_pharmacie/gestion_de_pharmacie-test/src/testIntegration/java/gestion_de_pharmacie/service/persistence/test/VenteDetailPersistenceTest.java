@@ -148,6 +148,20 @@ public class VenteDetailPersistenceTest {
 	}
 
 	@Test
+	public void testCountByVente() throws Exception {
+		_persistence.countByVente(RandomTestUtil.nextLong());
+
+		_persistence.countByVente(0L);
+	}
+
+	@Test
+	public void testCountByMedicament() throws Exception {
+		_persistence.countByMedicament(RandomTestUtil.nextLong());
+
+		_persistence.countByMedicament(0L);
+	}
+
+	@Test
 	public void testFindByPrimaryKeyExisting() throws Exception {
 		VenteDetail newVenteDetail = addVenteDetail();
 

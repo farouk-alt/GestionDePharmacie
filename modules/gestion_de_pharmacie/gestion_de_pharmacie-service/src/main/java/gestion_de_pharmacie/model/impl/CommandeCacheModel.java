@@ -57,8 +57,8 @@ public class CommandeCacheModel
 
 		sb.append("{idCommande=");
 		sb.append(idCommande);
-		sb.append(", idFournisseur=");
-		sb.append(idFournisseur);
+		sb.append(", idUtilisateur=");
+		sb.append(idUtilisateur);
 		sb.append(", dateCommande=");
 		sb.append(dateCommande);
 		sb.append(", statut=");
@@ -75,7 +75,7 @@ public class CommandeCacheModel
 		CommandeImpl commandeImpl = new CommandeImpl();
 
 		commandeImpl.setIdCommande(idCommande);
-		commandeImpl.setIdFournisseur(idFournisseur);
+		commandeImpl.setIdUtilisateur(idUtilisateur);
 
 		if (dateCommande == Long.MIN_VALUE) {
 			commandeImpl.setDateCommande(null);
@@ -102,7 +102,7 @@ public class CommandeCacheModel
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		idCommande = objectInput.readLong();
 
-		idFournisseur = objectInput.readLong();
+		idUtilisateur = objectInput.readLong();
 		dateCommande = objectInput.readLong();
 		statut = objectInput.readUTF();
 
@@ -113,7 +113,7 @@ public class CommandeCacheModel
 	public void writeExternal(ObjectOutput objectOutput) throws IOException {
 		objectOutput.writeLong(idCommande);
 
-		objectOutput.writeLong(idFournisseur);
+		objectOutput.writeLong(idUtilisateur);
 		objectOutput.writeLong(dateCommande);
 
 		if (statut == null) {
@@ -127,7 +127,7 @@ public class CommandeCacheModel
 	}
 
 	public long idCommande;
-	public long idFournisseur;
+	public long idUtilisateur;
 	public long dateCommande;
 	public String statut;
 	public double montantTotal;

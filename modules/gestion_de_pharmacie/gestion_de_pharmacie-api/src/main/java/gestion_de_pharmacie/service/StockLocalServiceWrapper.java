@@ -44,6 +44,16 @@ public class StockLocalServiceWrapper
 	}
 
 	/**
+	 * Public API used by Vente + Portlet: adjust by delta (can be negative).
+	 */
+	@Override
+	public gestion_de_pharmacie.model.Stock adjustStockDelta(
+		long idMedicament, int delta) {
+
+		return _stockLocalService.adjustStockDelta(idMedicament, delta);
+	}
+
+	/**
 	 * @throws PortalException
 	 */
 	@Override
@@ -218,6 +228,13 @@ public class StockLocalServiceWrapper
 	}
 
 	@Override
+	public gestion_de_pharmacie.model.Stock fetchStockByMedicamentId(
+		long medicamentId) {
+
+		return _stockLocalService.fetchStockByMedicamentId(medicamentId);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 
@@ -292,6 +309,16 @@ public class StockLocalServiceWrapper
 	@Override
 	public int getStocksCount() {
 		return _stockLocalService.getStocksCount();
+	}
+
+	/**
+	 * Public API: set absolute qty.
+	 */
+	@Override
+	public gestion_de_pharmacie.model.Stock setStockQty(
+		long idMedicament, int qty) {
+
+		return _stockLocalService.setStockQty(idMedicament, qty);
 	}
 
 	/**

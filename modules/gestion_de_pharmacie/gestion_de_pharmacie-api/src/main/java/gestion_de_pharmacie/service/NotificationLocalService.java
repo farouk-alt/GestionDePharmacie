@@ -23,9 +23,11 @@ import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
 
 import gestion_de_pharmacie.model.Notification;
+import gestion_de_pharmacie.model.Vente;
 
 import java.io.Serializable;
 
+import java.util.Date;
 import java.util.List;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -53,8 +55,18 @@ public interface NotificationLocalService
 	 *
 	 * Never modify this interface directly. Add custom service methods to <code>gestion_de_pharmacie.service.impl.NotificationLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the notification local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link NotificationLocalServiceUtil} if injection and service tracking are not available.
 	 */
+
+	/**
+	 * Custom helper: create one UNREAD notification now.
+	 */
 	public Notification addNotification(
-		long userId, String type, String message);
+		long idUtilisateur, String type, String message);
+
+	/**
+	 * Custom helper: create one UNREAD notification at a given time.
+	 */
+	public Notification addNotification(
+		long idUtilisateur, String type, String message, Date when);
 
 	/**
 	 * Adds the notification to the database. Also notifies the appropriate model listeners.
@@ -69,11 +81,23 @@ public interface NotificationLocalService
 	@Indexable(type = IndexableType.REINDEX)
 	public Notification addNotification(Notification notification);
 
+	/**
+	 * Create the same notification for all users having a role.
+	 */
 	public void addNotificationForRole(
 		String role, String type, String message);
 
+	public void addNotificationForRoleExceptUser(
+		String role, String type, String message, long excludeUserId);
+
+	/**
+	 * Legacy convenience: count unread via finder (if you prefer).
+	 */
 	public int countUnread(long idUtilisateur);
 
+	/**
+	 * Count unread for badge (dynamicQuery variant, with debugs).
+	 */
 	public int countUnreadByUser(long userId);
 
 	public void createLowStockAlertsForMed(long idMedicament);
@@ -92,6 +116,10 @@ public interface NotificationLocalService
 	 */
 	public PersistedModel createPersistedModel(Serializable primaryKeyObj)
 		throws PortalException;
+
+	public int deleteAllForUser(long idUtilisateur);
+
+	public int deleteAllNotifications();
 
 	/**
 	 * Deletes the notification with the primary key from the database. Also notifies the appropriate model listeners.
@@ -215,6 +243,12 @@ public interface NotificationLocalService
 	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
 
 	/**
+	 * List latest (any status) ordered by dateCreation desc.
+	 */
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Notification> getLatestByUser(long userId, int start, int end);
+
+	/**
 	 * Returns the notification with the primary key.
 	 *
 	 * @param idNotification the primary key of the notification
@@ -262,9 +296,24 @@ public interface NotificationLocalService
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
 		throws PortalException;
 
+	/**
+	 * List unread (paged).
+	 */
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Notification> getUnreadByUser(
+		long idUtilisateur, int start, int end);
+
 	public int markAllAsRead(long idUtilisateur);
 
+	public int markAllRead(long idUtilisateur);
+
 	public Notification markAsRead(long idNotification);
+
+	/**
+	 * Triggered by VenteLocalServiceImpl after a sale is saved.
+	 * If seller is ADMIN or PHARMACIEN, notify all other ADMINs.
+	 */
+	public void notifyAdminsOfSale(long sellerUtilisateurId, Vente vente);
 
 	/**
 	 * Updates the notification in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.

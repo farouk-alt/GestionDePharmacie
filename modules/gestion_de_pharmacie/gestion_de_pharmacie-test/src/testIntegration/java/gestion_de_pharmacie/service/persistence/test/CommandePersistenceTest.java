@@ -117,7 +117,7 @@ public class CommandePersistenceTest {
 
 		Commande newCommande = _persistence.create(pk);
 
-		newCommande.setIdFournisseur(RandomTestUtil.nextLong());
+		newCommande.setIdUtilisateur(RandomTestUtil.nextLong());
 
 		newCommande.setDateCommande(RandomTestUtil.nextDate());
 
@@ -133,8 +133,8 @@ public class CommandePersistenceTest {
 		Assert.assertEquals(
 			existingCommande.getIdCommande(), newCommande.getIdCommande());
 		Assert.assertEquals(
-			existingCommande.getIdFournisseur(),
-			newCommande.getIdFournisseur());
+			existingCommande.getIdUtilisateur(),
+			newCommande.getIdUtilisateur());
 		Assert.assertEquals(
 			Time.getShortTimestamp(existingCommande.getDateCommande()),
 			Time.getShortTimestamp(newCommande.getDateCommande()));
@@ -176,7 +176,7 @@ public class CommandePersistenceTest {
 
 	protected OrderByComparator<Commande> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create(
-			"Pharma_Commande", "idCommande", true, "idFournisseur", true,
+			"Pharma_Commande", "idCommande", true, "idUtilisateur", true,
 			"dateCommande", true, "statut", true, "montantTotal", true);
 	}
 
@@ -392,7 +392,7 @@ public class CommandePersistenceTest {
 
 		Commande commande = _persistence.create(pk);
 
-		commande.setIdFournisseur(RandomTestUtil.nextLong());
+		commande.setIdUtilisateur(RandomTestUtil.nextLong());
 
 		commande.setDateCommande(RandomTestUtil.nextDate());
 

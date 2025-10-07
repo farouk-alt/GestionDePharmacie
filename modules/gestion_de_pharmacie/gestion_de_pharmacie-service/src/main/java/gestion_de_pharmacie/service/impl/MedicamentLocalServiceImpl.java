@@ -7,9 +7,12 @@ package gestion_de_pharmacie.service.impl;
 
 import com.liferay.portal.aop.AopService;
 
+import gestion_de_pharmacie.model.Medicament;
 import gestion_de_pharmacie.service.base.MedicamentLocalServiceBaseImpl;
 
 import org.osgi.service.component.annotations.Component;
+
+import java.util.List;
 
 /**
  * @author Brian Wing Shun Chan
@@ -19,4 +22,20 @@ import org.osgi.service.component.annotations.Component;
 	service = AopService.class
 )
 public class MedicamentLocalServiceImpl extends MedicamentLocalServiceBaseImpl {
+
+    public List<Medicament> findByCodeBarre(String codeBarre) {
+        try {
+            return medicamentPersistence.findByCodeBarre(codeBarre);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public List<Medicament> findByCode(String codeBarre) {
+        try {
+            return medicamentPersistence.findByCode(codeBarre);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

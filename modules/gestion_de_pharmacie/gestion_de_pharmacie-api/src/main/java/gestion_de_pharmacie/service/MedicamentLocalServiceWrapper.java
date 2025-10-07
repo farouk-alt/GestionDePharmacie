@@ -226,6 +226,20 @@ public class MedicamentLocalServiceWrapper
 	}
 
 	@Override
+	public java.util.List<gestion_de_pharmacie.model.Medicament> findByCode(
+		String codeBarre) {
+
+		return _medicamentLocalService.findByCode(codeBarre);
+	}
+
+	@Override
+	public java.util.List<gestion_de_pharmacie.model.Medicament>
+		findByCodeBarre(String codeBarre) {
+
+		return _medicamentLocalService.findByCodeBarre(codeBarre);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 

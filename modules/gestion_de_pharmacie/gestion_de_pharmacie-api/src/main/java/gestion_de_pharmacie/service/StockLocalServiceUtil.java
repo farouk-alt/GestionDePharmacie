@@ -53,6 +53,13 @@ public class StockLocalServiceUtil {
 	}
 
 	/**
+	 * Public API used by Vente + Portlet: adjust by delta (can be negative).
+	 */
+	public static Stock adjustStockDelta(long idMedicament, int delta) {
+		return getService().adjustStockDelta(idMedicament, delta);
+	}
+
+	/**
 	 * @throws PortalException
 	 */
 	public static PersistedModel createPersistedModel(
@@ -200,6 +207,10 @@ public class StockLocalServiceUtil {
 		return getService().fetchStock(idStock);
 	}
 
+	public static Stock fetchStockByMedicamentId(long medicamentId) {
+		return getService().fetchStockByMedicamentId(medicamentId);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 
@@ -264,6 +275,13 @@ public class StockLocalServiceUtil {
 	 */
 	public static int getStocksCount() {
 		return getService().getStocksCount();
+	}
+
+	/**
+	 * Public API: set absolute qty.
+	 */
+	public static Stock setStockQty(long idMedicament, int qty) {
+		return getService().setStockQty(idMedicament, qty);
 	}
 
 	/**

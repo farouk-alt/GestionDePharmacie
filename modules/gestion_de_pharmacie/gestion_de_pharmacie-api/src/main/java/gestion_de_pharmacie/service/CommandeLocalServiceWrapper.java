@@ -28,6 +28,13 @@ public class CommandeLocalServiceWrapper
 		_commandeLocalService = commandeLocalService;
 	}
 
+	@Override
+	public void acceptCommande(long actorId, long commandeId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_commandeLocalService.acceptCommande(actorId, commandeId);
+	}
+
 	/**
 	 * Adds the commande to the database. Also notifies the appropriate model listeners.
 	 *
@@ -43,6 +50,13 @@ public class CommandeLocalServiceWrapper
 		gestion_de_pharmacie.model.Commande commande) {
 
 		return _commandeLocalService.addCommande(commande);
+	}
+
+	@Override
+	public void cancelCommande(long actorId, long commandeId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_commandeLocalService.cancelCommande(actorId, commandeId);
 	}
 
 	/**
@@ -100,6 +114,13 @@ public class CommandeLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _commandeLocalService.deleteCommande(idCommande);
+	}
+
+	@Override
+	public void deleteCommandeWithDetails(long commandeId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_commandeLocalService.deleteCommandeWithDetails(commandeId);
 	}
 
 	/**
@@ -259,6 +280,13 @@ public class CommandeLocalServiceWrapper
 		return _commandeLocalService.getCommandes(start, end);
 	}
 
+	@Override
+	public java.util.List<gestion_de_pharmacie.model.Commande>
+		getCommandesByUtilisateurId(long idUtilisateur) {
+
+		return _commandeLocalService.getCommandesByUtilisateurId(idUtilisateur);
+	}
+
 	/**
 	 * Returns the number of commandes.
 	 *
@@ -300,6 +328,49 @@ public class CommandeLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _commandeLocalService.getPersistedModel(primaryKeyObj);
+	}
+
+	@Override
+	public void notifyCommandeEdited(long actorId, long commandeId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_commandeLocalService.notifyCommandeEdited(actorId, commandeId);
+	}
+
+	@Override
+	public void reassignCommande(
+			long actorId, long commandeId, long newFournisseurId,
+			boolean sendNow)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_commandeLocalService.reassignCommande(
+			actorId, commandeId, newFournisseurId, sendNow);
+	}
+
+	@Override
+	public void receiveCommande(long commandeId) throws Exception {
+		_commandeLocalService.receiveCommande(commandeId);
+	}
+
+	@Override
+	public void receiveCommande(long actorId, long commandeId)
+		throws Exception {
+
+		_commandeLocalService.receiveCommande(actorId, commandeId);
+	}
+
+	@Override
+	public void rejectCommande(long actorId, long commandeId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_commandeLocalService.rejectCommande(actorId, commandeId);
+	}
+
+	@Override
+	public void sendCommande(long actorId, long commandeId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_commandeLocalService.sendCommande(actorId, commandeId);
 	}
 
 	/**
