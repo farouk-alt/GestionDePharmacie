@@ -131,7 +131,7 @@ public class VenteLocalServiceImpl extends VenteLocalServiceBaseImpl {
                 if (quantities[i] > 0) itemCount += 1; // (# of distinct lines)
             }
             String msg = "Vente #" + v.getIdVente() + " enregistrée (" + itemCount + " article(s), total " +
-                    String.format(java.util.Locale.FRANCE, "%.2f", v.getMontantTotal()) + " €).";
+                    String.format(java.util.Locale.FRANCE, "%.2f", v.getMontantTotal()) + " DH).";
 
             Notification notif = notificationLocalService.addNotification(
                     idUtilisateur,

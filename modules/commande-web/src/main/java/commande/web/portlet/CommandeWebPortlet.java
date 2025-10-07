@@ -102,7 +102,7 @@ public class CommandeWebPortlet extends MVCPortlet {
                 }
                 req.setAttribute("details", details);
             }
-
+            req.setAttribute("userRole", userRole);
             req.setAttribute("mode", mode);
             req.setAttribute("editMode", "edit".equalsIgnoreCase(mode));
             req.setAttribute("isFournisseur", isFournisseur);
@@ -623,4 +623,36 @@ public class CommandeWebPortlet extends MVCPortlet {
         } catch (Exception ignore) {}
         return 0L;
     }
+    @ProcessAction(name = "deleteAllCommandes")
+    public void deleteAllCommandes(ActionRequest request, ActionResponse response) {
+        String role = getUserRole(request);
+
+        // Only Admins / Super Admins can bulk-delete
+        if (!"ADMIN".equalsIgnoreCase(role) && !"SUPER_ADMIN".equalsIgnoreCase(role)) {
+            SessionMessages.add(request, "commande-delete-error");
+            redirectToDashboard(request, response, PortalUtil.getUploadPortletRequest(request));
+            return;
+        }
+
+        UploadPortletRequest uploadRequest = PortalUtil.getUploadPortletRequest(request);
+
+        try {
+            List<Commande> commandes = CommandeLocalServiceUtil.getCommandes(-1, -1);
+            for (Commande cmd : commandes) {
+                try {
+                    CommandeLocalServiceUtil.getService().deleteCommandeWithDetails(cmd.getIdCommande());
+                } catch (Exception e) {
+                    _log.warn("Unable to delete commande #" + cmd.getIdCommande(), e);
+                }
+            }
+            SessionMessages.add(request, "commande-deleted-success");
+        } catch (Exception e) {
+            _log.error("Error deleting all commandes", e);
+            SessionMessages.add(request, "commande-delete-error");
+        }
+
+        redirectToDashboard(request, response, uploadRequest);
+    }
+
+
 }

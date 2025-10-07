@@ -19,6 +19,8 @@
 </style>
 
 <div class="card">
+    <portlet:actionURL name="deleteAllHistory" var="deleteAllHistoryURL" />
+
     <div class="row" style="margin-bottom:10px">
         <input id="<portlet:namespace />from" class="inp" type="datetime-local">
         <input id="<portlet:namespace />to" class="inp" type="datetime-local">
@@ -27,6 +29,17 @@
         <button id="<portlet:namespace />btnFilter" class="btn">Filtrer</button>
         <button id="<portlet:namespace />btnExport" class="btn">Exporter CSV</button>
         <a class="btn" href="<portlet:actionURL><portlet:param name="mvcPath" value="/view.jsp"/></portlet:actionURL>">← Retour ventes</a>
+        <!-- Danger button (admins only) -->
+       <%-- <c:if test="${userRole == 'ADMIN' || userRole == 'SUPER_ADMIN'}">
+            <form action="${deleteAllHistoryURL}" method="post" style="margin-left:auto"
+                  onsubmit="return confirm('⚠️ Supprimer TOUT l’historique des ventes ? Cette action est irréversible.');"
+                  data-senna-off="true">
+                <input type="hidden" name="<portlet:namespace />redirect" value="<portlet:renderURL><portlet:param name='mvcPath' value='/history.jsp'/></portlet:renderURL>">
+                <button type="submit" class="btn" style="background:#DC2626;border-color:#DC2626;color:#fff;">
+                    🗑 Supprimer l’historique
+                </button>
+            </form>
+        </c:if>--%>
     </div>
 
     <table>

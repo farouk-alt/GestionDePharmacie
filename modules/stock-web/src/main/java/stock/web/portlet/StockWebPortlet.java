@@ -45,7 +45,10 @@ public class StockWebPortlet extends MVCPortlet {
         try {
             // Provide all medicaments for dropdowns
             req.setAttribute("medicaments", MedicamentLocalServiceUtil.getMedicaments(-1, -1));
+            req.setAttribute("userRole", getUserRole(req));
+
         } catch (Exception e) {
+            req.setAttribute("userRole", getUserRole(req));
             req.setAttribute("medicaments", Collections.emptyList());
         }
         super.doView(req, res);
@@ -272,4 +275,41 @@ public class StockWebPortlet extends MVCPortlet {
         }
         response.setRenderParameter("mvcPath", "/view.jsp");
     }
+    @ProcessAction(name = "deleteAllStocks")
+    public void deleteAllStocks(ActionRequest request, ActionResponse response) {
+        String role = getUserRole(request);
+        // Only ADMIN or SUPER_ADMIN can bulk delete
+        if (!"ADMIN".equalsIgnoreCase(role) && !"SUPER_ADMIN".equalsIgnoreCase(role)) {
+            SessionMessages.add(request, "stock-error");
+            response.setRenderParameter("mvcPath", "/view.jsp");
+            return;
+        }
+
+        try {
+            // Grab all stocks and delete them
+            @SuppressWarnings("unchecked")
+            List<Stock> all = (List<Stock>) (List<?>) StockLocalServiceUtil.getStocks(-1, -1);
+            for (Stock s : all) {
+                try {
+                    StockLocalServiceUtil.deleteStock(s);
+                } catch (Exception ex) {
+                    _log.warn("Could not delete stock id=" + s.getIdStock(), ex);
+                }
+            }
+            SessionMessages.add(request, "stock-updated"); // reuse your success toast
+        } catch (Exception e) {
+            _log.error("Error deleting all stocks", e);
+            SessionMessages.add(request, "stock-error");
+        }
+
+        // back to the same view
+        response.setRenderParameter("mvcPath", "/view.jsp");
+    }
+    private String getUserRole(PortletRequest req) {
+        PortletSession ps = req.getPortletSession();
+        String userRole = (String) ps.getAttribute("USER_ROLE", PortletSession.APPLICATION_SCOPE);
+        return (userRole != null) ? userRole : "";
+    }
+
+
 }

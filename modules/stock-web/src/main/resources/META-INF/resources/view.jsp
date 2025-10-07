@@ -35,7 +35,27 @@
 </style>
 
 <div class="stk-card">
-    <h2 style="margin:0 0 16px 0;color:#1E3A8A">Gestion des Stocks</h2>
+<%--
+    <portlet:actionURL name="deleteAllStocks" var="deleteAllStocksURL" />
+        <div class="stk-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <h2 style="margin:0;color:#1E3A8A">Gestion des Stocks</h2>
+
+                <c:if test="${userRole == 'ADMIN' || userRole == 'SUPER_ADMIN'}">
+                    <form action="${deleteAllStocksURL}" method="post" data-senna-off="true"
+                          onsubmit="return confirm('⚠️ Supprimer TOUT le stock ? Cette action est irréversible.');"
+                          style="margin:0;">
+                        <button type="submit" class="btn"
+                                style="background:#DC2626;color:#fff;border-color:#DC2626;">
+                            🗑 Supprimer tout
+                        </button>
+                    </form>
+                </c:if>
+            </div>
+
+--%>
+
+            <h2 style="margin:0 0 16px 0;color:#1E3A8A">Gestion des Stocks</h2>
 
     <!-- Filters -->
     <div class="filters">

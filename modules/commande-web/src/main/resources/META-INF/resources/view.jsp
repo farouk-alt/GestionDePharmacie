@@ -108,15 +108,26 @@
 <body>
 
 <div class="wrap">
+    <portlet:actionURL name="deleteAllCommandes" var="deleteAllURL" />
+
     <div class="header">
         <h2>Commandes</h2>
         <div class="header-actions">
             <div class="small">Créer une commande auprès d'un fournisseur</div>
             <c:if test="${!isFournisseur}">
                 <button type="button" class="btn btn-primary js-order-open">+ Nouvelle commande</button>
+               <%-- <c:if test="${userRole == 'ADMIN' || userRole == 'SUPER_ADMIN'}">
+                    <form action="${deleteAllURL}" method="post" style="display:inline;" data-senna-off="true"
+                          onsubmit="return confirm('⚠️ Supprimer toutes les commandes ? Cette action est irréversible.');">
+                        <button type="submit" class="btn" style="background:#DC2626;color:#fff;margin-left:10px;">
+                            🗑 Supprimer toutes
+                        </button>
+                    </form>
+                </c:if>--%>
             </c:if>
         </div>
     </div>
+
 
     <liferay-ui:success key="commande-created-success" message="Commande créée avec succès !" />
     <liferay-ui:success key="commande-updated-success" message="Commande mise à jour." />

@@ -99,12 +99,62 @@ public class VenteWebPortlet extends MVCPortlet {
             req.setAttribute("meds", Collections.emptyList());
             req.setAttribute("errorMsg", "Erreur lors du chargement des articles: " + e.getMessage());
         }
+        // expose role for the JSP
+        req.setAttribute("userRole", getUserRole(req));
+
         String mvc = ParamUtil.getString(req, "mvcPath", "/view.jsp");
         if ("/history.jsp".equals(mvc)) {
             // nothing to preload for now
         }
 
         super.doView(req, res);
+    }
+    private String getUserRole(PortletRequest req) {
+        try {
+            PortletSession ps = req.getPortletSession(false);
+            if (ps != null) {
+                Object v = ps.getAttribute("USER_ROLE", PortletSession.APPLICATION_SCOPE);
+                if (v instanceof String) return (String) v;
+            }
+        } catch (Exception ignore) {}
+        return "";
+    }
+    @ProcessAction(name = "deleteAllHistory")
+    public void deleteAllHistory(ActionRequest request, ActionResponse response) {
+        // restrict to admins
+        String role = getUserRole(request);
+        if (!"ADMIN".equalsIgnoreCase(role) && !"SUPER_ADMIN".equalsIgnoreCase(role)) {
+            response.setRenderParameter("mvcPath", "/history.jsp");
+            response.setRenderParameter("errorMsg", "Action non autorisée.");
+            return;
+        }
+
+        try {
+            // Load all ventes (paged = -1, -1) and delete them.
+            // If you have a cascade helper, use it; otherwise this will rely on DB FKs or service hooks.
+            @SuppressWarnings("unchecked")
+            java.util.List<gestion_de_pharmacie.model.Vente> all =
+                    (java.util.List<gestion_de_pharmacie.model.Vente>)(java.util.List<?>)
+                            _venteLocalService.getVentes(-1, -1);
+
+            for (gestion_de_pharmacie.model.Vente v : all) {
+                try {
+                    // Prefer a cascade method if your service exposes one, e.g.:
+                    // _venteLocalService.deleteVenteCascade(v.getIdVente());
+                    _venteLocalService.deleteVente(v);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            response.setRenderParameter("successMsg", "Historique des ventes supprimé.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setRenderParameter("errorMsg", "Erreur lors de la suppression de l’historique.");
+        }
+
+        // Back to the history screen after deletion
+        response.setRenderParameter("mvcPath", "/history.jsp");
     }
 
 

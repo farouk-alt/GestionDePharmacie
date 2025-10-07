@@ -115,7 +115,7 @@ public class DashboardWebPortlet extends MVCPortlet {
         }
 
         response.setRenderParameter("mvcPath", "/common/dashboard.jsp");
-        response.setRenderParameter("section", "utilisateurs");
+        response.setRenderParameter("section", "admins");
     }
 
     @ProcessAction(name = "switchRole")
@@ -497,6 +497,65 @@ public class DashboardWebPortlet extends MVCPortlet {
 
         System.out.println("[getEffectiveEmail] -> " + email);
         return email;
+    }
+    @ProcessAction(name = "updateProfile")
+    public void updateProfile(ActionRequest request, ActionResponse response) {
+        try {
+            // who is logged in?
+            final String sessionEmail = getEffectiveEmail(request);
+            if (sessionEmail == null || sessionEmail.isBlank()) {
+                response.setRenderParameter("errorMsg", "Session invalide. Veuillez vous reconnecter.");
+                response.setRenderParameter("mvcPath", "/common/dashboard.jsp");
+                response.setRenderParameter("section", "security");
+                return;
+            }
+
+            // form inputs (namespaced automatically by the JSP)
+            long idUtilisateur = ParamUtil.getLong(request, "idUtilisateur");
+            String email       = ParamUtil.getString(request, "email");
+            String prenom      = ParamUtil.getString(request, "prenom");
+            String nom         = ParamUtil.getString(request, "nom");
+            String motDePasse  = ParamUtil.getString(request, "motDePasse"); // optional
+
+            // only allow a user to edit their own row
+            if (!sessionEmail.equalsIgnoreCase(email)) {
+                response.setRenderParameter("errorMsg", "Vous ne pouvez modifier que votre propre profil.");
+                response.setRenderParameter("mvcPath", "/common/dashboard.jsp");
+                response.setRenderParameter("section", "security");
+                return;
+            }
+
+            Utilisateur u = UtilisateurLocalServiceUtil.getUtilisateur(idUtilisateur);
+            if (u == null || !sessionEmail.equalsIgnoreCase(u.getEmail())) {
+                response.setRenderParameter("errorMsg", "Profil introuvable.");
+                response.setRenderParameter("mvcPath", "/common/dashboard.jsp");
+                response.setRenderParameter("section", "security");
+                return;
+            }
+
+            // update basic fields
+            u.setPrenom(prenom);
+            u.setNom(nom);
+            if (motDePasse != null && !motDePasse.isBlank()) {
+                u.setMotDePasse(hashPassword(motDePasse));
+            }
+            UtilisateurLocalServiceUtil.updateUtilisateur(u);
+
+            // keep session display info fresh
+            HttpSession hs = resolveHttpSession(request);
+            if (hs != null) {
+                hs.setAttribute("USER_EMAIL", u.getEmail());
+                hs.setAttribute("USER_ROLE",  u.getRole());
+            }
+            request.getPortletSession().setAttribute("USER_EMAIL", u.getEmail(), PortletSession.APPLICATION_SCOPE);
+            request.getPortletSession().setAttribute("USER_ROLE",  u.getRole(),  PortletSession.APPLICATION_SCOPE);
+
+            response.setRenderParameter("successMsg", "Profil mis à jour.");
+        } catch (Exception e) {
+            response.setRenderParameter("errorMsg", "Erreur lors de la mise à jour: " + e.getMessage());
+        }
+        response.setRenderParameter("mvcPath", "/common/dashboard.jsp");
+        response.setRenderParameter("section", "security");
     }
 
 }

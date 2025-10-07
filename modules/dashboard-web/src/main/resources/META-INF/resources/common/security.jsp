@@ -112,9 +112,54 @@
         color:#0F172A !important;   /* black/dark text in the dropdown */
         background:#fff !important; /* white background for options */
     }
+    /* ===== Modal polish ===== */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:9999}
+    .modal-backdrop.show{display:flex}
+
+    .modal-card{
+        background:#fff;border:1px solid var(--border);border-radius:14px;
+        width:min(760px, 94vw); /* responsive max width */
+        padding:18px; box-shadow:0 20px 60px rgba(2,6,23,.25);
+    }
+    .modal-head{
+        display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;
+    }
+    .modal-title{font-weight:800;font-size:18px;color:#0f172a}
+    .modal-close.btn{background:transparent;border:none;color:#1f2937;font-weight:700}
+
+    .modal-form{
+        display:grid; gap:12px;
+        grid-template-columns: 1fr 1fr; /* two columns on desktop */
+    }
+    @media (max-width:680px){
+        .modal-form{ grid-template-columns: 1fr; }
+    }
+    .modal-form .field{display:flex; flex-direction:column; gap:6px}
+    .modal-form label{font-size:12px; color:var(--muted); letter-spacing:.02em}
+    .modal-form input{
+        border:1.5px solid var(--border); border-radius:10px; padding:10px 12px; font-size:14px;
+    }
+    .modal-actions{ display:flex; justify-content:flex-end; margin-top:6px }
+
+    /* make email span full width */
+    .modal-form .field--full{ grid-column:1 / -1; }
+
+    /* match button sizing inside the modal to table buttons */
+    .btn-primary{min-height:40px}
+
+    /* Optional: soften the background blur feel */
+    body.modal-open{overflow:hidden}
+    /* ===== Actions column tidy ===== */
+    .col-actions .actions{
+        display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+    }
+    .col-actions .btn{height:34px; line-height:1}
+    .col-actions .btn-ghost{border:1px solid var(--border)}
+
 </style>
 
 <div class="roles-container">
+    <portlet:actionURL name="updateProfile" var="updateProfileURL" />
 
     <!-- Header -->
     <div class="roles-header">
@@ -225,6 +270,8 @@
                             <c:otherwise><span class="role-tag role-four">FOURNISSEUR</span></c:otherwise>
                         </c:choose>
                     </td>
+                    <c:set var="currentEmail" value="${empty requestScope.userEmail ? sessionScope.USER_EMAIL : requestScope.userEmail}" />
+
                     <td class="col-actions">
                         <c:choose>
                             <%-- If the TARGET user is SUPER_ADMIN: never render a form --%>
@@ -247,6 +294,7 @@
 
                             <%-- Actor is ADMIN: only allowed to switch PHARMACIEN <-> FOURNISSEUR --%>
                             <c:when test="${isAdmin}">
+
                                 <c:choose>
                                     <c:when test="${u.role == 'PHARMACIEN' || u.role == 'FOURNISSEUR'}">
                                         <form action="${changeRoleURL}" method="post" class="action-form">
@@ -269,6 +317,18 @@
                                 <button class="btn btn-secondary btn-sm" disabled>🔒 Protégé</button>
                             </c:otherwise>
                         </c:choose>
+                        <c:if test="${fn:toLowerCase(u.email) == fn:toLowerCase(currentEmail)}">
+                            <button
+                                    type="button"
+                                    class="btn btn-ghost btn-sm"
+                                    data-self-edit="1"
+                                    data-id="${u.idUtilisateur}"
+                                    data-email="${fn:escapeXml(u.email)}"
+                                    data-prenom="${fn:escapeXml(u.prenom)}"
+                                    data-nom="${fn:escapeXml(u.nom)}">
+                                ✏ Modifier mes infos
+                            </button>
+                        </c:if>
                     </td>
 
 
@@ -280,6 +340,47 @@
         <!-- Pagination -->
         <div class="pager" id="<%=NS%>pager"></div>
     </div>
+    <!-- Self profile modal -->
+    <div id="<%=NS%>selfModal" class="modal-backdrop">
+        <div class="modal-card">
+            <div class="modal-head">
+                <div class="modal-title">Modifier mes informations</div>
+                <button type="button" class="btn modal-close" id="<%=NS%>selfClose">Fermer</button>
+            </div>
+
+            <form method="post" action="${updateProfileURL}">
+                <input type="hidden" name="<portlet:namespace/>idUtilisateur" id="<%=NS%>selfId">
+
+                <div class="modal-form">
+                    <div class="field field--full">
+                        <label>Email</label>
+                        <input id="<%=NS%>selfEmail" name="<portlet:namespace/>email" type="email" readonly>
+                    </div>
+
+                    <div class="field">
+                        <label>Prénom</label>
+                        <input id="<%=NS%>selfPrenom" name="<portlet:namespace/>prenom" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Nom</label>
+                        <input id="<%=NS%>selfNom" name="<portlet:namespace/>nom" required>
+                    </div>
+
+                    <div class="field field--full">
+                        <label>Nouveau mot de passe (optionnel)</label>
+                        <input id="<%=NS%>selfPwd" name="<portlet:namespace/>motDePasse" type="password"
+                               autocomplete="new-password" placeholder="Laisser vide pour ne pas changer">
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -485,3 +586,33 @@
         applyFilters();
     })();
 </script>
+<script>
+    (function(){
+        const ns = "<%=NS%>";
+        const modal = document.getElementById(ns + "selfModal");
+        const closeBtn = document.getElementById(ns + "selfClose");
+        const fId     = document.getElementById(ns + "selfId");
+        const fEmail  = document.getElementById(ns + "selfEmail");
+        const fPrenom = document.getElementById(ns + "selfPrenom");
+        const fNom    = document.getElementById(ns + "selfNom");
+        const fPwd    = document.getElementById(ns + "selfPwd");
+
+        document.addEventListener("click", function(e){
+            const btn = e.target.closest('[data-self-edit="1"]');
+            if (!btn) return;
+
+            fId.value     = btn.getAttribute("data-id") || "";
+            fEmail.value  = btn.getAttribute("data-email") || "";
+            fPrenom.value = btn.getAttribute("data-prenom") || "";
+            fNom.value    = btn.getAttribute("data-nom") || "";
+            fPwd.value    = "";
+
+            modal.style.display = "flex";
+        });
+
+        function close(){ modal.style.display = "none"; }
+        closeBtn.addEventListener("click", close);
+        modal.addEventListener("click", (e)=>{ if (e.target === modal) close(); });
+    })();
+</script>
+
